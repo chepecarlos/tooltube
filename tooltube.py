@@ -172,7 +172,7 @@ if __name__ == "__main__":
         if args.video_id:
             logger.info(f"Actualizando descripcion del Video {args.video_id}")
             if args.file:
-                ActualizarDescripcion(args.video_id, args.video_file)
+                ActualizarDescripcion(args.video_id, args.file)
             else:
                 ActualizarDescripcion(args.video_id)
         elif args.recursivo:
