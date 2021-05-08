@@ -6,7 +6,23 @@ import logging
 import argparse
 import os
 import pickle
+import httplib2
+import random
+import time
+
+try:
+    import httplib
+except ImportError:
+    import http.client as httplib
+
 from pathlib import Path
+
+# from apiclient.discovery import build
+from apiclient.errors import HttpError
+from apiclient.http import MediaFileUpload
+# from oauth2client.client import flow_from_clientsecrets
+# from oauth2client.file import Storage
+# from oauth2client.tools import argparser, run_flow
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -14,12 +30,30 @@ from googleapiclient.discovery import build
 
 from funcioneslogging import ConfigurarLogging
 
+TagsDefaul = "ASLW"
 logger = logging.getLogger(__name__)
 ConfigurarLogging(logger)
 
+httplib2.RETRIES = 1
+
+# Maximum number of times to retry before giving up.
+MAX_RETRIES = 10
+
+# Always retry when these exceptions are raised.
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
+                        httplib.IncompleteRead, httplib.ImproperConnectionState,
+                        httplib.CannotSendRequest, httplib.CannotSendHeader,
+                        httplib.ResponseNotReady, httplib.BadStatusLine)
+
+# Always retry when an apiclient.errors.HttpError with one of these status
+# codes is raised.
+RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
+
+
 parser = argparse.ArgumentParser(description='Heramienta de Automatizacion de Youtube')
-parser.add_argument('--thumbnails', '-t', help="Archivo de Thumbnails  en Youtube",  action="store_true")
-parser.add_argument("--descripcion", '-d', help="ID del video a actualizar descripcipn en Youtube",  action="store_true")
+parser.add_argument('--thumbnails', '-t', help="Actualizar de Thumbnails video en Youtube",  action="store_true")
+parser.add_argument("--descripcion", '-d', help="Actualizar de descripcion video en Youtube",  action="store_true")
+parser.add_argument("--uploader", '-u', help="Suvir video a youtube",  action="store_true")
 
 parser.add_argument('--video_id', '-id', help="ID del video a actualizar Youtube")
 parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube")
@@ -164,6 +198,74 @@ def ActualizarThumbnails(video_id, archivo=""):
         logger.warning(f"No existe el archivo {archivo}")
 
 
+def SubirVideo(Archivo):
+    global TagsDefaul
+    if not os.path.exists(Archivo):
+        logger.warning(f"No encontrado el archivo {Archivo}")
+        exit()
+    credenciales = CargarCredenciales()
+    youtube = build("youtube", "v3", credentials=credenciales)
+
+    tags = None
+    if TagsDefaul:
+        tags = TagsDefaul.split(",")
+
+    body = dict(
+        snippet=dict(
+          title="Titulo",
+          description="Descripcion",
+          tags=tags,
+          categoryId=27
+        ),
+        status=dict(
+          privacyStatus="unlisted"
+        )
+    )
+
+    Respuesta = youtube.videos().insert(
+        part=",".join(body.keys()),
+        body=body,
+        media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True)
+    )
+
+    RegargarSuvida(Respuesta)
+
+
+def RegargarSuvida(Respuesta):
+    response = None
+    error = None
+    retry = 0
+    while response is None:
+        try:
+            logger.info("Subiendo Archivo...")
+            status, response = Respuesta.next_chunk()
+            if response is not None:
+                if 'id' in response:
+                    logger.info(f"Se subio con exito {response['id']} | https://youtu.be/{response['id']} ")
+                else:
+                    logger.warning(f"The upload failed with an unexpected response: {response}")
+                    exit()
+        except HttpError as e:
+            if e.resp.status in RETRIABLE_STATUS_CODES:
+                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+            else:
+                raise
+        except RETRIABLE_EXCEPTIONS as e:
+            error = "A retriable error occurred: %s" % e
+
+        if error is not None:
+            print(error)
+            retry += 1
+            if retry > MAX_RETRIES:
+                logger.warning("No mas intento de reconeccion")
+                exit()
+
+            max_sleep = 2 ** retry
+            sleep_seconds = random.random() * max_sleep
+            logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
+            time.sleep(sleep_seconds)
+
+
 if __name__ == "__main__":
     logger.info("Iniciando el programa ToolTube")
     args = parser.parse_args()
@@ -187,5 +289,14 @@ if __name__ == "__main__":
                 ActualizarThumbnails(args.video_id, args.file)
             else:
                 ActualizarThumbnails(args.video_id)
+    elif args.uploader:
+        if args.file:
+            logger.info(f"Subiendo Archivo {args.file}")
+            try:
+                SubirVideo(args.file)
+            except HttpError as e:
+                print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
+        else:
+            logger.info("Falta Archivo para subir")
     else:
         logger.info("Comandos no encontrado")
