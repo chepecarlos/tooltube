@@ -180,3 +180,12 @@ if __name__ == "__main__":
             ActualizarDescripcionFolder()
         else:
             logger.info("Falta el ID del video")
+    elif args.thumbnails:
+        if args.video_id:
+            logger.info(f"Actualizando Miniatura del Video {args.video_id}")
+            if args.file:
+                ActualizarThumbnails(args.video_id, args.file)
+            else:
+                ActualizarThumbnails(args.video_id)
+    else:
+        logger.info("Comandos no encontrado")
