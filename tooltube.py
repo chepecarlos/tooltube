@@ -17,12 +17,8 @@ except ImportError:
 
 from pathlib import Path
 
-# from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-# from oauth2client.client import flow_from_clientsecrets
-# from oauth2client.file import Storage
-# from oauth2client.tools import argparser, run_flow
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -57,7 +53,9 @@ parser.add_argument("--uploader", '-u', help="Suvir video a youtube",  action="s
 
 parser.add_argument('--video_id', '-id', help="ID del video a actualizar Youtube")
 parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube")
+parser.add_argument("--max", '-m', help="Cantidad a actualizar", type=int)
 parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles",  action="store_true")
+
 
 ArchivoLocal = os.path.join(Path.home(), '.config/tooltube')
 
@@ -158,7 +156,7 @@ def ActualizarVideo(video_id, credenciales, archivo=""):
         return -1
 
 
-def ActualizarDescripcionFolder():
+def ActualizarDescripcionFolder(Max=None):
     credenciales = CargarCredenciales()
     contador = 0
     total = len(os.listdir("."))
@@ -172,7 +170,11 @@ def ActualizarDescripcionFolder():
             Resultado = ActualizarVideo(video_id, credenciales, archivo)
             if Resultado == 1:
                 Actualizados += 1
-                logger.info(f"Link: https://youtu.be/{video_id}")
+                if Max is not None:
+                    logger.info(f"Link: https://youtu.be/{video_id}")
+                    if Max >= Actualizados:
+                        logger.info(f"Se detubo al alcanzar {Actualizados} videos")
+                        return
             elif Resultado == -1:
                 Error += 1
     logger.info(f"Se actualizo {Actualizados}/{total} descripciones de video")
@@ -278,8 +280,15 @@ if __name__ == "__main__":
             else:
                 ActualizarDescripcion(args.video_id)
         elif args.recursivo:
-            logger.info("Empezando recursivo")
-            ActualizarDescripcionFolder()
+            if args.max:
+                logger.info(f"Empezando recursivo, con limite {args.max}")
+                ActualizarDescripcionFolder(args.max)
+                pass
+            else:
+                logger.info("Empezando recursivo")
+                ActualizarDescripcionFolder()
+                pass
+
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
