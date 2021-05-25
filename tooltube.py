@@ -172,7 +172,7 @@ def ActualizarDescripcionFolder(Max=None):
                 Actualizados += 1
                 logger.info(f"Link: https://youtu.be/{video_id}")
                 if Max is not None:
-                    if Max >= Actualizados:
+                    if Actualizados >= Max:
                         logger.info(f"Se detubo al alcanzar {Actualizados} videos")
                         return
             elif Resultado == -1:
