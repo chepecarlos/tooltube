@@ -26,7 +26,7 @@ from googleapiclient.discovery import build
 
 from funcioneslogging import ConfigurarLogging
 
-TagsDefaul = "ASLW"
+TagsDefaul = "ALSW"
 logger = logging.getLogger(__name__)
 ConfigurarLogging(logger)
 
