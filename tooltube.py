@@ -214,7 +214,7 @@ def SubirVideo(Archivo):
 
     body = dict(
         snippet=dict(
-          title="Titulo",
+          title=f"Titulo {Archivo}",
           description="Descripcion",
           tags=tags,
           categoryId=27
@@ -280,15 +280,12 @@ if __name__ == "__main__":
             else:
                 ActualizarDescripcion(args.video_id)
         elif args.recursivo:
+            logger.info("Actualizando descripciones de los video")
             if args.max:
-                logger.info(f"Empezando recursivo, con limite {args.max}")
+                logger.info(f"Con limite {args.max} Videos")
                 ActualizarDescripcionFolder(args.max)
-                pass
             else:
-                logger.info("Empezando recursivo")
                 ActualizarDescripcionFolder()
-                pass
-
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
@@ -300,7 +297,7 @@ if __name__ == "__main__":
                 ActualizarThumbnails(args.video_id)
     elif args.uploader:
         if args.file:
-            logger.info(f"Subiendo Archivo {args.file}")
+            logger.info(f"Subiendo video {args.file} a Youtube")
             try:
                 SubirVideo(args.file)
             except HttpError as e:

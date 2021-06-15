@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 
+# TODO Crear folder automaticamente si no existe
 ArchivoLog = ArchivoConfiguracion = os.path.join(Path.home(), '.config/tooltube')
 ArchivoLog = ArchivoLog + '/logs/{:%Y-%m-%d %H:%M:%S}.log'.format(datetime.now())
 
@@ -13,7 +14,6 @@ def NivelLogging(Nivel):
     # TODO aun no funciona
     global NivelLog
     NivelLog = Nivel
-    pass
 
 
 def ConfigurarLogging(logger):
