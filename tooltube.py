@@ -47,14 +47,14 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 
 parser = argparse.ArgumentParser(description='Heramienta de Automatizacion de Youtube')
-parser.add_argument('--thumbnails', '-t', help="Actualizar de Thumbnails video en Youtube",  action="store_true")
-parser.add_argument("--descripcion", '-d', help="Actualizar de descripcion video en Youtube",  action="store_true")
-parser.add_argument("--uploader", '-u', help="Suvir video a youtube",  action="store_true")
+parser.add_argument('--thumbnails', '-t', help="Actualizar de Thumbnails video en Youtube", action="store_true")
+parser.add_argument("--descripcion", '-d', help="Actualizar de descripcion video en Youtube", action="store_true")
+parser.add_argument("--uploader", '-u', help="Suvir video a youtube", action="store_true")
 
 parser.add_argument('--video_id', '-id', help="ID del video a actualizar Youtube")
 parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube")
 parser.add_argument("--max", '-m', help="Cantidad a actualizar", type=int)
-parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles",  action="store_true")
+parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles", action="store_true")
 
 
 ArchivoLocal = os.path.join(Path.home(), '.config/tooltube')
@@ -65,7 +65,7 @@ if sys.version_info[0] < 3:
 
 
 def CargarCredenciales():
-    '''Optienes credenciales para API de youtube'''
+    """Optienes credenciales para API de youtube."""
     credentials = None
     ArchivoPickle = ArchivoLocal + "/data/token.pickle"
     if os.path.exists(ArchivoPickle):
@@ -100,15 +100,8 @@ def CargarCredenciales():
     return credentials
 
 
-def ActualizarDescripcion(video_id, archivo=""):
-    credenciales = CargarCredenciales()
-    if archivo == "":
-        ActualizarVideo(video_id, credenciales)
-    else:
-        ActualizarVideo(video_id, credenciales, archivo)
-
-
-def ActualizarVideo(video_id, credenciales, archivo=""):
+def ActualizarDescripcionVideo(credenciales, video_id, archivo=""):
+    """Actualizar Descripcion de Video Youtube si es necesario."""
     DescripcionVideo = ""
     if not archivo:
         archivo = video_id + ".txt"
@@ -125,7 +118,7 @@ def ActualizarVideo(video_id, credenciales, archivo=""):
     SolisitudVideo = youtube.videos().list(
         id=video_id,
         part='snippet'
-      )
+    )
 
     DataVideo = SolisitudVideo.execute()
     if len(DataVideo["items"]) > 0:
@@ -140,8 +133,8 @@ def ActualizarVideo(video_id, credenciales, archivo=""):
         SolisituActualizar = youtube.videos().update(
             part='snippet',
             body=dict(
-              snippet=SnippetVideo,
-              id=video_id
+                snippet=SnippetVideo,
+                id=video_id
             ))
 
         RespuestaYoutube = SolisituActualizar.execute()
@@ -156,8 +149,8 @@ def ActualizarVideo(video_id, credenciales, archivo=""):
         return -1
 
 
-def ActualizarDescripcionFolder(Max=None):
-    credenciales = CargarCredenciales()
+def ActualizarDescripcionFolder(credenciales, Max=None):
+    """Actualiza Descripciones de Video desde los archivos de un Folder."""
     contador = 0
     total = len(os.listdir("."))
     Actualizados = 0
@@ -167,7 +160,7 @@ def ActualizarDescripcionFolder(Max=None):
             contador += 1
             video_id = archivo.replace(".txt", "")
             logger.info(f"Verificando ({contador}/{total}) - Video_ID:{video_id}")
-            Resultado = ActualizarVideo(video_id, credenciales, archivo)
+            Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo)
             if Resultado == 1:
                 Actualizados += 1
                 logger.info(f"Link: https://youtu.be/{video_id}")
@@ -182,8 +175,8 @@ def ActualizarDescripcionFolder(Max=None):
         logger.info(f"Hubo error {Error}/{total}")
 
 
-def ActualizarThumbnails(video_id, archivo=""):
-    credenciales = CargarCredenciales()
+def ActualizarThumbnails(credenciales, video_id, archivo=""):
+    """Actualiza la Miniatura de un video de Youtube."""
     if archivo == "":
         archivo = video_id + ".png"
     if os.path.exists(archivo):
@@ -191,7 +184,7 @@ def ActualizarThumbnails(video_id, archivo=""):
         Respuesta = youtube.thumbnails().set(
             videoId=video_id,
             media_body=archivo
-            ).execute()
+        ).execute()
         if Respuesta['items'][0]:
             logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['maxres']['url']}")
         else:
@@ -200,12 +193,12 @@ def ActualizarThumbnails(video_id, archivo=""):
         logger.warning(f"No existe el archivo {archivo}")
 
 
-def SubirVideo(Archivo):
+def SubirVideo(credenciales, Archivo):
+    """Sube Video a Youtube."""
     global TagsDefaul
     if not os.path.exists(Archivo):
         logger.warning(f"No encontrado el archivo {Archivo}")
         exit()
-    credenciales = CargarCredenciales()
     youtube = build("youtube", "v3", credentials=credenciales)
 
     tags = None
@@ -214,13 +207,13 @@ def SubirVideo(Archivo):
 
     body = dict(
         snippet=dict(
-          title=f"Titulo {Archivo}",
-          description="Descripcion",
-          tags=tags,
-          categoryId=27
+            title=f"Titulo {Archivo}",
+            description="Descripcion",
+            tags=tags,
+            categoryId=27
         ),
         status=dict(
-          privacyStatus="unlisted"
+            privacyStatus="unlisted"
         )
     )
 
@@ -234,6 +227,7 @@ def SubirVideo(Archivo):
 
 
 def RegargarSuvida(Respuesta):
+    """Mantiene la subida del video."""
     response = None
     error = None
     retry = 0
@@ -272,34 +266,36 @@ if __name__ == "__main__":
     logger.info("Iniciando el programa ToolTube")
     args = parser.parse_args()
 
+    Credenciales = CargarCredenciales()
+
     if args.descripcion:
         if args.video_id:
             logger.info(f"Actualizando descripcion del Video {args.video_id}")
             if args.file:
-                ActualizarDescripcion(args.video_id, args.file)
+                ActualizarDescripcionVideo(Credenciales, args.video_id, args.file)
             else:
-                ActualizarDescripcion(args.video_id)
+                ActualizarDescripcionVideo(Credenciales, args.video_id)
         elif args.recursivo:
             logger.info("Actualizando descripciones de los video")
             if args.max:
                 logger.info(f"Con limite {args.max} Videos")
-                ActualizarDescripcionFolder(args.max)
+                ActualizarDescripcionFolder(Credenciales, args.max)
             else:
-                ActualizarDescripcionFolder()
+                ActualizarDescripcionFolder(Credenciales)
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
         if args.video_id:
             logger.info(f"Actualizando Miniatura del Video {args.video_id}")
             if args.file:
-                ActualizarThumbnails(args.video_id, args.file)
+                ActualizarThumbnails(Credenciales, args.video_id, args.file)
             else:
-                ActualizarThumbnails(args.video_id)
+                ActualizarThumbnails(Credenciales, args.video_id)
     elif args.uploader:
         if args.file:
             logger.info(f"Subiendo video {args.file} a Youtube")
             try:
-                SubirVideo(args.file)
+                SubirVideo(Credenciales, args.file)
             except HttpError as e:
                 print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
         else:
