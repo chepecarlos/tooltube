@@ -1,4 +1,3 @@
-#!/home/chepecarlos/5.Programas/2.Heramientas/5.tooltube/venv/bin/python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -24,7 +23,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from funcioneslogging import ConfigurarLogging
+from MiLogging.MiLogging import ConfigurarLogging
 
 TagsDefaul = "ALSW"
 logger = logging.getLogger(__name__)
@@ -275,8 +274,7 @@ def RegargarSuvida(Respuesta):
             logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
             time.sleep(sleep_seconds)
 
-
-if __name__ == "__main__":
+def main():
     logger.info("Iniciando el programa ToolTube")
     args = parser.parse_args()
 
@@ -316,3 +314,7 @@ if __name__ == "__main__":
             logger.info("Falta Archivo para subir")
     else:
         logger.info("Comandos no encontrado")
+
+if __name__ == "__main__":
+    main()
+    

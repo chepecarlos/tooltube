@@ -23,6 +23,7 @@ def ConfigurarLogging(logger):
     Programa = os.path.basename(sys.argv[0]).lower()
     Programa = os.path.splitext(Programa)[0]
 
+
     ArchivoLog = os.path.join('.config', Programa)
     ArchivoLog = os.path.join(Path.home(), ArchivoLog)
     ArchivoLog = os.path.join(ArchivoLog, 'logs')
