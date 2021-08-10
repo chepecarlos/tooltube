@@ -138,7 +138,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=""):
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
         if DescripcionVideo == SnippetVideo["description"]:
-            logger.info("Ya Actualizado")
+            # logger.info("Ya Actualizado")
             return 0
 
         SnippetVideo["description"] = DescripcionVideo
@@ -152,7 +152,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=""):
 
         RespuestaYoutube = SolisituActualizar.execute()
         if len(RespuestaYoutube['snippet']) > 0:
-            logger.info("Actualizacion Completa")
+            logger.info(f"Actualizacion Completa - Link: https://youtu.be/{video_id}")
             return 1
         else:
             logger.warning("Hubo un problema?")
@@ -176,14 +176,17 @@ def ActualizarDescripcionFolder(credenciales, Max=None):
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo)
             if Resultado == 1:
                 Actualizados += 1
-                logger.info(f"Link: https://youtu.be/{video_id}")
+                # logger.info(f"Link: https://youtu.be/{video_id}")
                 if Max is not None:
                     if Actualizados >= Max:
-                        logger.info(f"Se detubo al alcanzar {Actualizados} videos")
+                        Porcentaje = (Actualizados / total) * 100
+                        logger.info(f"Se actualizo {Actualizados}/{total} - {Porcentaje:.2f} % descripciones de video")
+                        logger.info(f"Se actualizo {Actualizados}/{total} descripciones de video")
                         return
             elif Resultado == -1:
                 Error += 1
-    logger.info(f"Se actualizo {Actualizados}/{total} descripciones de video")
+    Porcentaje = (Actualizados / total) * 100
+    logger.info(f"Se actualizo {Actualizados}/{total} - {Porcentaje:.2f} % descripciones de video")
     if Error > 0:
         logger.info(f"Hubo error {Error}/{total}")
 
