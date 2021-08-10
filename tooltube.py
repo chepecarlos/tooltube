@@ -56,6 +56,7 @@ parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube
 parser.add_argument("--max", '-m', help="Cantidad a actualizar", type=int)
 parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles", action="store_true")
 
+parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
 
 ArchivoLocal = os.path.join(Path.home(), '.config/tooltube')
 
@@ -64,10 +65,20 @@ if sys.version_info[0] < 3:
     sys.exit(1)
 
 
-def CargarCredenciales():
+def CargarCredenciales(Canal=None):
     """Optienes credenciales para API de youtube."""
     credentials = None
-    ArchivoPickle = ArchivoLocal + "/data/token.pickle"
+    FolderData = os.path.join(ArchivoLocal, "data")
+    
+    if Canal is not None:
+        logger.info(f'Usando canal {Canal}')
+        FolderData = os.path.join(FolderData, Canal)
+
+    if not os.path.exists(FolderData):
+        os.makedirs(FolderData)
+
+    ArchivoPickle = FolderData + "/token.pickle"
+    
     if os.path.exists(ArchivoPickle):
         logger.info('Cargando credenciales API Youtube, del Archivo pickle...')
         with open(ArchivoPickle, 'rb') as token:
@@ -79,7 +90,10 @@ def CargarCredenciales():
             credentials.refresh(Request())
         else:
             logger.info('Opteniendo nuevas credenciales...')
-            client_secrets = ArchivoLocal + "/data/client_secrets.json"
+            client_secrets = FolderData + "/client_secrets.json"
+            if not os.path.exists(client_secrets):
+                logger.warning('No existe client_secrets.json agregalo a {FolderData}')
+                return
             flow = InstalledAppFlow.from_client_secrets_file(
                 client_secrets,
                 scopes=[
@@ -269,7 +283,7 @@ if __name__ == "__main__":
     logger.info("Iniciando el programa ToolTube")
     args = parser.parse_args()
 
-    Credenciales = CargarCredenciales()
+    Credenciales = CargarCredenciales(args.canal)
 
     if args.descripcion:
         if args.video_id:

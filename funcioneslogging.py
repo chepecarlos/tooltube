@@ -1,25 +1,37 @@
 import logging
 import os
+import sys
 from pathlib import Path
 from datetime import datetime
 
-# TODO Crear folder automaticamente si no existe
-ArchivoLog = ArchivoConfiguracion = os.path.join(Path.home(), '.config/tooltube')
-ArchivoLog = ArchivoLog + '/logs/{:%Y-%m-%d %H:%M:%S}.log'.format(datetime.now())
 
 NivelLog = logging.DEBUG
 
 
 def NivelLogging(Nivel):
-    # TODO aun no funciona
+    """Nivel de depuracion."""
+    # TODO aun no funciona niveles de log
     global NivelLog
     NivelLog = Nivel
 
 
 def ConfigurarLogging(logger):
-    global ArchivoLog
+    """Configura el archivo de depuracion."""
     global NivelLog
     logger.setLevel(NivelLog)
+
+    Programa = os.path.basename(sys.argv[0]).lower()
+    Programa = os.path.splitext(Programa)[0]
+
+    ArchivoLog = os.path.join('.config', Programa)
+    ArchivoLog = os.path.join(Path.home(), ArchivoLog)
+    ArchivoLog = os.path.join(ArchivoLog, 'logs')
+
+    if not os.path.isdir(ArchivoLog):
+        os.makedirs(ArchivoLog)
+
+    ArchivoLog = ArchivoLog + '/{:%Y-%m-%d_%H:%M:%S}.log'.format(datetime.now())
+
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(ArchivoLog)
     c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
