@@ -45,18 +45,6 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 
-parser = argparse.ArgumentParser(description='Heramienta de Automatizacion de Youtube')
-parser.add_argument('--thumbnails', '-t', help="Actualizar de Thumbnails video en Youtube", action="store_true")
-parser.add_argument("--descripcion", '-d', help="Actualizar de descripcion video en Youtube", action="store_true")
-parser.add_argument("--uploader", '-u', help="Suvir video a youtube", action="store_true")
-
-parser.add_argument('--video_id', '-id', help="ID del video a actualizar Youtube")
-parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube")
-parser.add_argument("--max", '-m', help="Cantidad a actualizar", type=int)
-parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles", action="store_true")
-
-parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
-
 ArchivoLocal = os.path.join(Path.home(), '.config/tooltube')
 
 if sys.version_info[0] < 3:
@@ -113,12 +101,15 @@ def CargarCredenciales(Canal=None):
     return credentials
 
 
-def ActualizarDescripcionVideo(credenciales, video_id, archivo=""):
+def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=None):
     """Actualizar Descripcion de Video Youtube si es necesario."""
     DescripcionVideo = ""
-    if not archivo:
+    if archivo is None:
         archivo = video_id + ".txt"
         logger.info(f"Usando el archivo {archivo} por defecto")
+
+    if Directorio is not None:
+        archivo = os.path.join(Directorio, archivo)
 
     if os.path.exists(archivo):
         with open(archivo, 'r') as linea:
@@ -162,18 +153,20 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=""):
         return -1
 
 
-def ActualizarDescripcionFolder(credenciales, Max=None):
+def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
     """Actualiza Descripciones de Video desde los archivos de un Folder."""
     contador = 0
-    total = len(os.listdir("."))
+    if Directorio is None:
+        Directorio = "."
+    total = len(os.listdir(Directorio))
     Actualizados = 0
     Error = 0
-    for archivo in os.listdir("."):
+    for archivo in os.listdir(Directorio):
         if archivo.endswith(".txt"):
             contador += 1
             video_id = archivo.replace(".txt", "")
             logger.info(f"Verificando ({contador}/{total}) - Video_ID:{video_id}")
-            Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo)
+            Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1
                 # logger.info(f"Link: https://youtu.be/{video_id}")
@@ -277,26 +270,43 @@ def RegargarSuvida(Respuesta):
             logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
             time.sleep(sleep_seconds)
 
+def ArgumentosCLI():
+
+    parser = argparse.ArgumentParser(prog="tooltube", description='Heramienta de Automatizacion de Youtube')
+    parser.add_argument('--thumbnails', '-t', help="Actualizar de Thumbnails video en Youtube", action="store_true")
+    parser.add_argument("--descripcion", '-d', help="Actualizar de descripcion video en Youtube", action="store_true")
+    parser.add_argument("--uploader", '-u', help="Suvir video a youtube", action="store_true")
+
+    parser.add_argument('--video_id', '-id', help="ID del video a actualizar Youtube")
+    parser.add_argument('--file', '-f', help="Archivo a usar para actualizar Youtube")
+    parser.add_argument('--folder', help="Directorio a usar")
+    parser.add_argument("--max", '-m', help="Cantidad a actualizar", type=int)
+    parser.add_argument("--recursivo", '-r', help="Actualiza con todos los archivos disponibles", action="store_true")
+
+    parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
+
+    return parser.parse_args()
+
 def main():
     logger.info("Iniciando el programa ToolTube")
-    args = parser.parse_args()
+    args = ArgumentosCLI()
+    # args, extras = parser.parse_known_args()
+    # print(args)
 
     Credenciales = CargarCredenciales(args.canal)
 
     if args.descripcion:
+        if args.folder:
+            logger.info(f"Usando Folder {args.folder}")
+
         if args.video_id:
             logger.info(f"Actualizando descripcion del Video {args.video_id}")
-            if args.file:
-                ActualizarDescripcionVideo(Credenciales, args.video_id, args.file)
-            else:
-                ActualizarDescripcionVideo(Credenciales, args.video_id)
+            ActualizarDescripcionVideo(Credenciales, args.video_id, args.file, Directorio=args.folder)
         elif args.recursivo:
-            logger.info("Actualizando descripciones de los video")
+            logger.info("Actualizando descripciones de los video dentro de folder")
             if args.max:
                 logger.info(f"Con limite {args.max} Videos")
-                ActualizarDescripcionFolder(Credenciales, args.max)
-            else:
-                ActualizarDescripcionFolder(Credenciales)
+            ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
