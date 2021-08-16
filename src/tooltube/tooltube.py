@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import logging
 import argparse
 import os
 import pickle
@@ -23,11 +22,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from MiLogging.MiLogging import ConfigurarLogging
+import MisFunciones
+
+logger = MisFunciones.ConfigurarLogging(__name__)
 
 TagsDefaul = "ALSW"
-logger = logging.getLogger(__name__)
-ConfigurarLogging(logger)
 
 httplib2.RETRIES = 1
 
