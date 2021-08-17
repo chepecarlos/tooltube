@@ -22,9 +22,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-import MisFunciones
+import MiLibrerias
 
-logger = MisFunciones.ConfigurarLogging(__name__)
+logger = MiLibrerias.ConfigurarLogging(__name__)
 
 TagsDefaul = "ALSW"
 
