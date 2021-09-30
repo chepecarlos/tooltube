@@ -23,6 +23,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 import MiLibrerias
+from .funcionesExtras import buscarID
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
 
@@ -238,7 +239,7 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
                 snippet=SnippetVideo,
                 id=video_id
             ))
-        
+
         RespuestaYoutube = SolisitudActualizar.execute()
         if len(RespuestaYoutube['snippet']) > 0:
             logger.info(
@@ -247,7 +248,6 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
         else:
             logger.warning("No se puedo Actualizar Lenguaje")
             return -1
-
 
 
 def SubirVideo(credenciales, Archivo):
@@ -378,12 +378,20 @@ def main():
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
+        Video_id = None
         if args.video_id:
+            Video_id = args.video_id
+        else:
+            Video_id = buscarID()
+
+        if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {args.video_id}")
             if args.file:
-                ActualizarThumbnails(Credenciales, args.video_id, args.file)
+                ActualizarThumbnails(Credenciales, Video_id, args.file)
             else:
-                ActualizarThumbnails(Credenciales, args.video_id)
+                ActualizarThumbnails(Credenciales, Video_id)
+        else:
+            logger.info(f"Necesario indicar ID del video")
     elif args.uploader:
         if args.file:
             logger.info(f"Subiendo video {args.file} a Youtube")
