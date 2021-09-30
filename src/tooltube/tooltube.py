@@ -132,7 +132,6 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
         if DescripcionVideo == SnippetVideo["description"]:
-            # logger.info("Ya Actualizado")
             return 0
 
         SnippetVideo["description"] = DescripcionVideo
@@ -167,7 +166,6 @@ def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1
-                # logger.info(f"Link: https://youtu.be/{video_id}")
                 if Max is not None:
                     if Actualizados >= Max:
                         Porcentaje = (Actualizados / total) * 100
@@ -208,8 +206,6 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
 
     video = results["items"][0]
     SnippetVideo = video["snippet"]
-    # import json
-    # print(json.dumps(video, indent=4, sort_keys=True))
 
     if Lenguaje and Lenguaje != "":
 
@@ -317,8 +313,12 @@ def ArgumentosCLI():
 def main():
     logger.info("Iniciando el programa ToolTube")
     args = ArgumentosCLI()
-    # args, extras = parser.parse_known_args()
-    # print(args)
+
+    Video_id = None
+    if args.video_id:
+        Video_id = args.video_id
+    else:
+        Video_id = buscarID()
 
     Credenciales = CargarCredenciales(args.canal)
 
@@ -326,9 +326,9 @@ def main():
         if args.folder:
             logger.info(f"Usando Folder {args.folder}")
 
-        if args.video_id:
-            logger.info(f"Actualizando descripcion del Video {args.video_id}")
-            ActualizarDescripcionVideo(Credenciales, args.video_id, args.file, Directorio=args.folder)
+        if Video_id:
+            logger.info(f"Actualizando descripcion del Video {Video_id}")
+            ActualizarDescripcionVideo(Credenciales, Video_id, args.file, Directorio=args.folder)
         elif args.recursivo:
             logger.info("Actualizando descripciones de los video dentro de folder")
             if args.max:
@@ -337,14 +337,9 @@ def main():
         else:
             logger.info("Falta el ID del video")
     elif args.thumbnails:
-        Video_id = None
-        if args.video_id:
-            Video_id = args.video_id
-        else:
-            Video_id = buscarID()
 
         if Video_id is not None:
-            logger.info(f"Actualizando Miniatura del Video {args.video_id}")
+            logger.info(f"Actualizando Miniatura del Video {Video_id}")
             if args.file:
                 ActualizarThumbnails(Credenciales, Video_id, args.file)
             else:
@@ -361,9 +356,9 @@ def main():
         else:
             logger.info("Falta Archivo para subir")
     elif args.idioma:
-        if args.video_id:
-            logger.info(f"Actualizando Idioma del Video {args.video_id}")
-            ActualizarIdioma(Credenciales, args.video_id)
+        if Video_id:
+            logger.info(f"Actualizando Idioma del Video {Video_id}")
+            ActualizarIdioma(Credenciales, Video_id)
     else:
         logger.info("Comandos no encontrado")
 
