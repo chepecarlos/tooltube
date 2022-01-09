@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 import MiLibrerias
 
@@ -7,33 +7,38 @@ logger = MiLibrerias.ConfigurarLogging(__name__)
 
 from MiLibrerias import ObtenerArchivo, SalvarValor
 
-def ObtenerRuta():
-    Ruta = os.getcwd()
-    Ruta = Ruta.split("/")
-    Ruta = Ruta[:-1]
-    if(Ruta[-1] == "7.Miniatura"):
-        Ruta = Ruta[:-1]
-    Ruta.append("1.Guion")
-    Ruta.append("1.Info.md")
-    Ruta = "/".join(Ruta)
-    return Ruta
+
+def ObtenerRuta(recortar=0):
+    ruta = os.getcwd()
+    ruta = ruta.split("/")
+    if recortar != 0:
+        ruta = ruta[:recortar]
+    ruta.append("1.Guion")
+    ruta.append("1.Info.md")
+    ruta = "/".join(ruta)
+    existe = os.path.isfile(ruta)
+    return existe, ruta
 
 
 def buscarID():
-    logger.info("Buscando ID folder proyecto")
-    Ruta = ObtenerRuta()
-    
-    if not os.path.isfile(Ruta):
-        logger.inf("No encontado ID en folder")
-        return None
-    
-    Data = ObtenerArchivo(Ruta, False)
-    ID = Data["youtube_id"]
-    logger.info(f"ID Youtube encontrado {ID}")
-    return ID
+    for i, _ in enumerate(range(5)):
+        existe, ruta = ObtenerRuta(-i)
+        if existe:
+            data = ObtenerArchivo(ruta, False)
+            if data is not None:
+                if "youtube_id" in data:
+                    return data["youtube_id"]
+    return None
+
 
 def SalvarID(ID):
     logger.info("Intentando Salvar ID")
-    Ruta = ObtenerRuta()
-    SalvarValor(Ruta, "youtube_id", ID, False)
-    logger.info(f"Salvada info en 1.info")
+
+    for i, _ in enumerate(range(5)):
+        existe, ruta = ObtenerRuta(-i)
+        if existe:
+            SalvarValor(ruta, "youtube_id", ID, False)
+            logger.info("Salvada info en 1.info")
+            return
+
+    logger.warning("No se puedo salvar ID")
