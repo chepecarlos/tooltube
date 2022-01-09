@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import argparse
 import os
 import pickle
-import httplib2
 import random
+import sys
 import time
+
+import httplib2
 
 try:
     import httplib
@@ -15,15 +16,15 @@ except ImportError:
 
 from pathlib import Path
 
+import MiLibrerias
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
-
-from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from operaciones import usuario
 
-import MiLibrerias
-from .funcionesExtras import buscarID, SalvarID
+from .funcionesExtras import SalvarID, buscarID
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
 
@@ -107,8 +108,39 @@ def CargarCredenciales(Canal=None):
     return credentials
 
 
+def ActualizarTituloVideo(credenciales, video_id, Titulo):
+    """
+    Actualiza el titulo del Video Youtube si es necesario
+    """
+    youtube = build("youtube", "v3", credentials=credenciales)
+
+    SolisitudVideo = youtube.videos().list(id=video_id, part="snippet")
+
+    DataVideo = SolisitudVideo.execute()
+    if len(DataVideo["items"]) > 0:
+        SnippetVideo = DataVideo["items"][0]["snippet"]
+
+        if Titulo == SnippetVideo["title"]:
+            logger.info(f"Video {video_id} ya actualizado")
+            return 0
+
+        SnippetVideo["title"] = Titulo
+
+        SolisituActualizar = youtube.videos().update(part="snippet", body=dict(snippet=SnippetVideo, id=video_id))
+
+        RespuestaYoutube = SolisituActualizar.execute()
+        if len(RespuestaYoutube["snippet"]) > 0:
+            logger.info(f"Titulo[{Titulo}] - Link: https://youtu.be/{video_id}")
+            return 1
+        else:
+            logger.warning("Hubo un problema?")
+            return -1
+
+
 def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=None):
-    """Actualizar Descripcion de Video Youtube si es necesario."""
+    """
+    Actualizar Descripcion de Video Youtube si es necesario.
+    """
     DescripcionVideo = ""
     if archivo is None:
         archivo = video_id + ".txt"
@@ -294,7 +326,8 @@ def RegargarSuvida(Respuesta):
 def ArgumentosCLI():
 
     parser = argparse.ArgumentParser(prog="tooltube", description="Heramienta de Automatizacion de Youtube")
-    parser.add_argument("--thumbnails", "-t", help="Actualizar de Thumbnails video en Youtube", action="store_true")
+    parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube", action="store_true")
+    parser.add_argument("--titulo", "-t", help="Actualizar de titulo video en Youtube")
     parser.add_argument("--descripcion", "-d", help="Actualizar de descripcion video en Youtube", action="store_true")
     parser.add_argument("--uploader", "-u", help="Suvir video a youtube", action="store_true")
     parser.add_argument("--idioma", "-i", help="Actulizar de Idioma video a youtube", action="store_true")
@@ -302,8 +335,9 @@ def ArgumentosCLI():
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
     parser.add_argument("--file", "-f", help="Archivo a usar para actualizar Youtube")
     parser.add_argument("--folder", help="Directorio a usar")
-    parser.add_argument("--max", "-m", help="Cantidad a actualizar", type=int)
+    parser.add_argument("--max", help="Cantidad a actualizar", type=int)
     parser.add_argument("--recursivo", "-r", help="Actualiza con todos los archivos disponibles", action="store_true")
+    parser.add_argument("--usuario", help="Salvar usuario")
 
     parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
 
@@ -336,8 +370,10 @@ def main():
             ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
         else:
             logger.info("Falta el ID del video")
-    elif args.thumbnails:
-
+    elif args.titulo:
+        if Video_id is not None:
+            ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
+    elif args.miniatura:
         if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {Video_id}")
             if args.file:
@@ -359,6 +395,8 @@ def main():
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
             ActualizarIdioma(Credenciales, Video_id)
+    elif args.usuario:
+        usuario.SalvarUsuario(args.usuario)
     else:
         logger.info("Comandos no encontrado")
 
