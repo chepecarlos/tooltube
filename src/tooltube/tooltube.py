@@ -22,7 +22,7 @@ from apiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from operaciones import usuario
+from operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
 
@@ -131,10 +131,10 @@ def ActualizarTituloVideo(credenciales, video_id, Titulo):
         RespuestaYoutube = SolisituActualizar.execute()
         if len(RespuestaYoutube["snippet"]) > 0:
             logger.info(f"Titulo[{Titulo}] - Link: https://youtu.be/{video_id}")
-            return 1
+            return True
         else:
             logger.warning("Hubo un problema?")
-            return -1
+            return False
 
 
 def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=None):
@@ -340,6 +340,8 @@ def ArgumentosCLI():
     parser.add_argument("--usuario", help="Salvar usuario")
 
     parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
+    parser.add_argument("--nota", "-n", help="Mensaje confirmacion de cambio")
+    parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analitica del video", action="store_true")
 
     return parser.parse_args()
 
@@ -353,6 +355,9 @@ def main():
         Video_id = args.video_id
     else:
         Video_id = buscarID()
+
+    if Video_id is not None:
+        logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
     Credenciales = CargarCredenciales(args.canal)
 
@@ -372,7 +377,9 @@ def main():
             logger.info("Falta el ID del video")
     elif args.titulo:
         if Video_id is not None:
-            ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
+            Respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
+            if Respuesta:
+                analisis.salvar_data_analitica("1.Cambios/titulos.csv", args.titulo, args.nota)
     elif args.miniatura:
         if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {Video_id}")
@@ -397,6 +404,12 @@ def main():
             ActualizarIdioma(Credenciales, Video_id)
     elif args.usuario:
         usuario.SalvarUsuario(args.usuario)
+    elif args.url_analitica:
+        logger.info("Descarga el cvs de la siquiente pagina:")
+        logger.info(f" ID {Video_id}")
+        logger.info(
+            f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&granularity=DAY&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+        )
     else:
         logger.info("Comandos no encontrado")
 

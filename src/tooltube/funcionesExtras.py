@@ -9,6 +9,8 @@ from MiLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 
 
 def ObtenerRuta(suvir, folder):
+    if suvir > 0:
+        suvir = -suvir
     ruta = os.getcwd()
     ruta = ruta.split("/")
     if suvir != 0:
@@ -24,8 +26,7 @@ def buscarID():
     Busca el ID del video de Youtube
     """
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(-i, "1.Guion")
-        print(ruta, existe)
+        existe, ruta = ObtenerRuta(i, "1.Guion")
         if existe:
             ruta = UnirPath(ruta, "1.Info.md")
             data = ObtenerArchivo(ruta, False)
@@ -39,7 +40,7 @@ def SalvarID(ID):
     logger.info("Intentando Salvar ID")
 
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(-i)
+        existe, ruta = ObtenerRuta(i)
         if existe:
             SalvarValor(ruta, "youtube_id", ID, False)
             logger.info("Salvada info en 1.info")
