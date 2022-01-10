@@ -18,5 +18,7 @@ setup(
     install_requires=[],
     packages=find_packages(where="src", exclude=("tests*", "testing*")),
     package_dir={"": "src"},
-    entry_points={"console_scripts": ["tooltube = tooltube.tooltube:main"]},
+    entry_points={
+        "console_scripts": ["tooltube = tooltube.tooltube:main", "tooltube_analisis = tooltube.tooltube_analisis:main"]
+    },
 )

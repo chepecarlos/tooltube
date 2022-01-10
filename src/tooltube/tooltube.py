@@ -221,10 +221,13 @@ def ActualizarThumbnails(credenciales, video_id, archivo=""):
         Respuesta = youtube.thumbnails().set(videoId=video_id, media_body=archivo).execute()
         if Respuesta["items"][0]:
             logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['maxres']['url']}")
+            return True
         else:
             logger.warning("Hubo un problema :(")
     else:
         logger.warning(f"No existe el archivo {archivo}")
+
+    return False
 
 
 def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
@@ -337,11 +340,9 @@ def ArgumentosCLI():
     parser.add_argument("--folder", help="Directorio a usar")
     parser.add_argument("--max", help="Cantidad a actualizar", type=int)
     parser.add_argument("--recursivo", "-r", help="Actualiza con todos los archivos disponibles", action="store_true")
-    parser.add_argument("--usuario", help="Salvar usuario")
 
     parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
     parser.add_argument("--nota", "-n", help="Mensaje confirmacion de cambio")
-    parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analitica del video", action="store_true")
 
     return parser.parse_args()
 
@@ -377,16 +378,17 @@ def main():
             logger.info("Falta el ID del video")
     elif args.titulo:
         if Video_id is not None:
-            Respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
-            if Respuesta:
+            respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
+            if respuesta:
                 analisis.salvar_data_analitica("1.Cambios/titulos.csv", args.titulo, args.nota)
     elif args.miniatura:
         if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {Video_id}")
+            respuesta = None
             if args.file:
-                ActualizarThumbnails(Credenciales, Video_id, args.file)
+                respuesta = ActualizarThumbnails(Credenciales, Video_id, args.file)
             else:
-                ActualizarThumbnails(Credenciales, Video_id)
+                respuesta = ActualizarThumbnails(Credenciales, Video_id)
         else:
             logger.info(f"Necesario indicar ID del video")
     elif args.uploader:
@@ -402,14 +404,7 @@ def main():
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
             ActualizarIdioma(Credenciales, Video_id)
-    elif args.usuario:
-        usuario.SalvarUsuario(args.usuario)
-    elif args.url_analitica:
-        logger.info("Descarga el cvs de la siquiente pagina:")
-        logger.info(f" ID {Video_id}")
-        logger.info(
-            f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&granularity=DAY&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
-        )
+
     else:
         logger.info("Comandos no encontrado")
 
