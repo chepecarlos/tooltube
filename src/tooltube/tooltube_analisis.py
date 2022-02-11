@@ -13,8 +13,15 @@ def ArgumentosCLI():
     parser = argparse.ArgumentParser(prog="tooltube_analisis", description="Heramienta de Analisis de Youtube")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
-    parser.add_argument("--usuario", help="Cambiar usuario del analisis")
 
+    parser.add_argument("--salvar_id", help="Salvar ID del video")
+
+    parser.add_argument("--vista", "-v", help="Mostar Vistas en Grafica")
+    parser.add_argument("--tiempo", "-t", help="Mostar Tiempo de Repoduccion(Horas) en Grafica")
+    parser.add_argument("--duracion", "-d", help="Mostar Duracion promedio de vista en Grafica")
+    parser.add_argument("--porcenta_clip", "-ctr", help="Mostar Click Through Rate en Grafica")
+
+    parser.add_argument("--usuario", help="Cambiar usuario del analisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analitica del video", action="store_true")
 
     return parser.parse_args()
@@ -23,6 +30,11 @@ def ArgumentosCLI():
 def main():
     logger.info("Iniciando el programa ToolTube Analisis")
     args = ArgumentosCLI()
+
+    if args.salvar_id:
+        logger.info(f"Salvando ID[{args.salvar_id}] del Video")
+        SalvarID(args.salvar_id)
+        return
 
     Video_id = None
     if args.video_id:
@@ -44,6 +56,8 @@ def main():
             logger.warning("No encontro ID Video")
     elif args.usuario:
         usuario.SalvarUsuario(args.usuario)
+    else:
+        logger.info("Comandos no encontrado, prueva con -h")
 
 
 if __name__ == "__main__":

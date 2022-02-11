@@ -10,7 +10,7 @@ with open(file="README.md", mode="r") as readme_handle:
 setup(
     name="tooltube",
     version=version,
-    description="Heramienta para Actualizar data Canal de Youtube",
+    description="Herramienta para Actualizar procesos de Youtube",
     long_description=long_description,
     author="ChepeCarlos",
     author_email="chepecarlos@alswblog.org",

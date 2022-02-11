@@ -40,8 +40,9 @@ def SalvarID(ID):
     logger.info("Intentando Salvar ID")
 
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(i)
+        existe, ruta = ObtenerRuta(i, "1.Guion")
         if existe:
+            ruta = UnirPath(ruta, "1.Info.md")
             SalvarValor(ruta, "youtube_id", ID, False)
             logger.info("Salvada info en 1.info")
             return

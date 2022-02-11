@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# https://github.com/youtube/api-samples
 
 import argparse
 import os
@@ -24,11 +25,14 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from operaciones import analisis, usuario
 
+import obtenerDataYoutube as dataYoutube
+
 from .funcionesExtras import SalvarID, buscarID
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
 
-TagsDefaul = "ALSW"
+# Todo cambiar tas por default para agregar el chepecarlos
+TagsDefault = "ALSW,ChepeCarlos,Jose Carlos Garcia Diaz"
 
 httplib2.RETRIES = 1
 
@@ -61,7 +65,7 @@ if sys.version_info[0] < 3:
 
 
 def CargarCredenciales(Canal=None):
-    """Optienes credenciales para API de youtube."""
+    """Buscar credenciales para API de youtube."""
     credentials = None
     FolderData = os.path.join(ArchivoLocal, "data")
 
@@ -84,7 +88,7 @@ def CargarCredenciales(Canal=None):
             logger.info("Recargando credenciales...")
             credentials.refresh(Request())
         else:
-            logger.info("Opteniendo nuevas credenciales...")
+            logger.info("Cargando nuevas credenciales...")
             client_secrets = FolderData + "/client_secrets.json"
             if not os.path.exists(client_secrets):
                 logger.warning("No existe client_secrets.json agregalo a {FolderData}")
@@ -114,9 +118,9 @@ def ActualizarTituloVideo(credenciales, video_id, Titulo):
     """
     youtube = build("youtube", "v3", credentials=credenciales)
 
-    SolisitudVideo = youtube.videos().list(id=video_id, part="snippet")
+    solicitudVideo = youtube.videos().list(id=video_id, part="snippet")
 
-    DataVideo = SolisitudVideo.execute()
+    DataVideo = solicitudVideo.execute()
     if len(DataVideo["items"]) > 0:
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
@@ -141,7 +145,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     """
     Actualizar Descripcion de Video Youtube si es necesario.
     """
-    DescripcionVideo = ""
+    nuevaDescripcion = ""
     if archivo is None:
         archivo = video_id + ".txt"
         logger.info(f"Usando el archivo {archivo} por defecto")
@@ -151,28 +155,38 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
 
     if os.path.exists(archivo):
         with open(archivo, "r") as linea:
-            DescripcionVideo = linea.read()
+            nuevaDescripcion = linea.read()
     else:
         logger.warning(f"Erro fatal el archivo {archivo} no existe")
         return -1
+
+    viejaDescripcion = dataYoutube.obtenerDescripcion(video_id)
+
+    if viejaDescripcion is None:
+        logger.error("Error con youtube-dl")
+        return -1
+
+    if viejaDescripcion == nuevaDescripcion:
+        return 0
+
     youtube = build("youtube", "v3", credentials=credenciales)
 
-    SolisitudVideo = youtube.videos().list(id=video_id, part="snippet")
+    solicitudVideo = youtube.videos().list(id=video_id, part="snippet")
 
-    DataVideo = SolisitudVideo.execute()
+    DataVideo = solicitudVideo.execute()
     if len(DataVideo["items"]) > 0:
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
-        if DescripcionVideo == SnippetVideo["description"]:
+        if nuevaDescripcion == SnippetVideo["description"]:
             return 0
 
-        SnippetVideo["description"] = DescripcionVideo
+        SnippetVideo["description"] = nuevaDescripcion
 
         SolisituActualizar = youtube.videos().update(part="snippet", body=dict(snippet=SnippetVideo, id=video_id))
 
         RespuestaYoutube = SolisituActualizar.execute()
         if len(RespuestaYoutube["snippet"]) > 0:
-            logger.info(f"Actualizacion Completa - Link: https://youtu.be/{video_id}")
+            logger.info(f"Actualización Completa - Link: https://youtu.be/{video_id}")
             return 1
         else:
             logger.warning("Hubo un problema?")
@@ -180,6 +194,41 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     else:
         logger.warning(f"No existe el video con ID {video_id}")
         return -1
+
+
+def ActualizarEstadoVideo(credenciales, video_id, estado):
+
+    lista_estado = {"publico": "public", "privado": "private", "nolistado": "unlisted"}
+
+    if estado in lista_estado:
+        estado = lista_estado[estado]
+    else:
+        logger.warning("Estado no reconocido")
+
+    youtube = build("youtube", "v3", credentials=credenciales)
+    solicitadVideo = youtube.videos().list(id=video_id, part="status")
+    data_video = solicitadVideo.execute()
+    if data_video:
+        data_estado = data_video["items"][0]["status"]
+
+        print(data_video["items"][0])
+
+        if estado == data_estado["privacyStatus"]:
+            logger.info("No necesario cambiar estado")
+            return False
+
+        data_estado["privacyStatus"] = estado
+        print("--" * 40)
+        print(data_estado)
+        print(data_estado["privacyStatus"])
+
+        solicitudActualizar = youtube.videos().update(part="status", body=dict(status=data_estado, id=video_id))
+
+        respuesta_youtube = solicitudActualizar.execute()
+
+        print(respuesta_youtube)
+
+        # print(data_video["status"]["status"])
 
 
 def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
@@ -212,9 +261,9 @@ def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
         logger.info(f"Hubo error {Error}/{total}")
 
 
-def ActualizarThumbnails(credenciales, video_id, archivo=""):
+def ActualizarThumbnails(credenciales, video_id, archivo=None):
     """Actualiza la Miniatura de un video de Youtube."""
-    if archivo == "":
+    if archivo is None:
         archivo = video_id + ".png"
     if os.path.exists(archivo):
         youtube = build("youtube", "v3", credentials=credenciales)
@@ -232,7 +281,7 @@ def ActualizarThumbnails(credenciales, video_id, archivo=""):
 
 def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
     """
-    Actuliza Lenguaje video y descripcion
+    Actualizá Lenguaje video y descripcion
     """
 
     youtube = build("youtube", "v3", credentials=credenciales)
@@ -247,9 +296,9 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
         SnippetVideo["defaultLanguage"] = Lenguaje
         SnippetVideo["defaultAudioLanguage"] = Lenguaje
 
-        SolisitudActualizar = youtube.videos().update(part="snippet", body=dict(snippet=SnippetVideo, id=video_id))
+        SolicitudActualizar = youtube.videos().update(part="snippet", body=dict(snippet=SnippetVideo, id=video_id))
 
-        RespuestaYoutube = SolisitudActualizar.execute()
+        RespuestaYoutube = SolicitudActualizar.execute()
         if len(RespuestaYoutube["snippet"]) > 0:
             logger.info(f"Lenguaje Actualizado - Link: https://youtu.be/{video_id}")
             return 1
@@ -258,17 +307,17 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
             return -1
 
 
-def SubirVideo(credenciales, Archivo):
+def SubirVideo(credenciales, Archivo, Comentario=""):
     """Sube Video a Youtube."""
-    global TagsDefaul
+    global TagsDefault
     if not os.path.exists(Archivo):
         logger.warning(f"No encontrado el archivo {Archivo}")
         exit()
     youtube = build("youtube", "v3", credentials=credenciales)
 
     tags = None
-    if TagsDefaul:
-        tags = TagsDefaul.split(",")
+    if TagsDefault:
+        tags = TagsDefault.split(",")
 
     body = dict(
         snippet=dict(
@@ -286,10 +335,10 @@ def SubirVideo(credenciales, Archivo):
         part=",".join(body.keys()), body=body, media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True)
     )
 
-    RegargarSuvida(Respuesta)
+    RecargarSubida(Respuesta, Comentario)
 
 
-def RegargarSuvida(Respuesta):
+def RecargarSubida(Respuesta, Comentario):
     """Mantiene la subida del video."""
     response = None
     error = None
@@ -302,6 +351,7 @@ def RegargarSuvida(Respuesta):
                 if "id" in response:
                     SalvarID(response["id"])
                     logger.info(f"Se subio con exito {response['id']} | https://youtu.be/{response['id']} ")
+                    analisis.salvar_data_analitica("1.Cambios/estado.csv", "suvido", Comentario)
                 else:
                     logger.warning(f"The upload failed with an unexpected response: {response}")
                     exit()
@@ -317,7 +367,7 @@ def RegargarSuvida(Respuesta):
             print(error)
             retry += 1
             if retry > MAX_RETRIES:
-                logger.warning("No mas intento de reconeccion")
+                logger.warning("No mas intento de conexión")
                 exit()
 
             max_sleep = 2 ** retry
@@ -328,12 +378,13 @@ def RegargarSuvida(Respuesta):
 
 def ArgumentosCLI():
 
-    parser = argparse.ArgumentParser(prog="tooltube", description="Heramienta de Automatizacion de Youtube")
-    parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube", action="store_true")
+    parser = argparse.ArgumentParser(prog="tooltube", description="Herramienta de Automatización de Youtube")
+    parser.add_argument("--estado", "-e", help="Actualiza Estado de un video")
+    parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube")
     parser.add_argument("--titulo", "-t", help="Actualizar de titulo video en Youtube")
     parser.add_argument("--descripcion", "-d", help="Actualizar de descripcion video en Youtube", action="store_true")
-    parser.add_argument("--uploader", "-u", help="Suvir video a youtube", action="store_true")
-    parser.add_argument("--idioma", "-i", help="Actulizar de Idioma video a youtube", action="store_true")
+    parser.add_argument("--uploader", "-u", help="Subir video a youtube", action="store_true")
+    parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
     parser.add_argument("--file", "-f", help="Archivo a usar para actualizar Youtube")
@@ -362,10 +413,21 @@ def main():
 
     Credenciales = CargarCredenciales(args.canal)
 
-    if args.descripcion:
+    if args.uploader:
+        if args.file:
+            logger.info(f"Subiendo video {args.file} a Youtube")
+            try:
+                SubirVideo(Credenciales, args.file, args.nota)
+            except HttpError as e:
+                print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
+        else:
+            logger.info("Falta Archivo para subir -f")
+    elif args.estado:
+        logger.info(f"Actualizando estado del video {Video_id}")
+        ActualizarEstadoVideo(Credenciales, Video_id, args.estado)
+    elif args.descripcion:
         if args.folder:
             logger.info(f"Usando Folder {args.folder}")
-
         if Video_id:
             logger.info(f"Actualizando descripcion del Video {Video_id}")
             ActualizarDescripcionVideo(Credenciales, Video_id, args.file, Directorio=args.folder)
@@ -381,32 +443,24 @@ def main():
             respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
             if respuesta:
                 analisis.salvar_data_analitica("1.Cambios/titulos.csv", args.titulo, args.nota)
+        else:
+            logger.info(f"Necesario indicar ID del video")
     elif args.miniatura:
         if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {Video_id}")
-            respuesta = None
-            if args.file:
-                respuesta = ActualizarThumbnails(Credenciales, Video_id, args.file)
-            else:
-                respuesta = ActualizarThumbnails(Credenciales, Video_id)
+            respuesta = ActualizarThumbnails(Credenciales, Video_id, args.miniatura)
+
+            if respuesta is not None:
+                if respuesta:
+                    analisis.salvar_data_analitica("1.Cambios/miniatura.csv", args.file, args.nota)
         else:
             logger.info(f"Necesario indicar ID del video")
-    elif args.uploader:
-        if args.file:
-            logger.info(f"Subiendo video {args.file} a Youtube")
-            try:
-                SubirVideo(Credenciales, args.file)
-            except HttpError as e:
-                print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
-        else:
-            logger.info("Falta Archivo para subir")
     elif args.idioma:
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
             ActualizarIdioma(Credenciales, Video_id)
-
     else:
-        logger.info("Comandos no encontrado")
+        logger.info("Comandos no encontrado, prueba con -h")
 
 
 if __name__ == "__main__":
