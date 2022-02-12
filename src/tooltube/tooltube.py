@@ -162,11 +162,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
 
     viejaDescripcion = dataYoutube.obtenerDescripcion(video_id)
 
-    if viejaDescripcion is None:
-        logger.error("Error con youtube-dl")
-        return -1
-
-    if viejaDescripcion == nuevaDescripcion:
+    if viejaDescripcion is not None and viejaDescripcion == nuevaDescripcion:
         return 0
 
     youtube = build("youtube", "v3", credentials=credenciales)
@@ -370,7 +366,7 @@ def RecargarSubida(Respuesta, Comentario):
                 logger.warning("No mas intento de conexión")
                 exit()
 
-            max_sleep = 2 ** retry
+            max_sleep = 2**retry
             sleep_seconds = random.random() * max_sleep
             logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
             time.sleep(sleep_seconds)

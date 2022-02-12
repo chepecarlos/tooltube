@@ -1,13 +1,24 @@
+import MiLibrerias
 import youtube_dl
+
+logger = MiLibrerias.ConfigurarLogging(__name__)
 
 
 def obtenerDataVideo(id):
-    ydl = youtube_dl.YoutubeDL({"outtmpl": "%(id)s.%(ext)s"})
 
     resultado = None
 
-    with ydl:
-        resultado = ydl.extract_info(f"http://www.youtube.com/watch?v={id}, download=False")
+    try:
+        ydl = youtube_dl.YoutubeDL({"outtmpl": "%(id)s.%(ext)s", "quiet": True})
+
+        with ydl:
+            resultado = ydl.extract_info(f"http://www.youtube.com/watch?v={id}", download=False)
+    except youtube_dl.utils.ExtractorError:
+        logger.info("Usar YouTube-API")
+        return None
+    except youtube_dl.utils.DownloadError:
+        logger.info("Usar YouTube-API")
+        return None
 
     if resultado is None:
         return None
