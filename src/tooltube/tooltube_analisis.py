@@ -16,10 +16,10 @@ def ArgumentosCLI():
 
     parser.add_argument("--salvar_id", help="Salvar ID del video")
 
-    parser.add_argument("--vista", "-v", help="Mostar Vistas en Gráfica")
-    parser.add_argument("--tiempo", "-t", help="Mostar Tiempo de Reproducción(Horas) en Gráfica")
-    parser.add_argument("--duracion", "-d", help="Mostar Duración promedio de vista en Gráfica")
-    parser.add_argument("--porcenta_clip", "-ctr", help="Mostar Click Through Rate en Gráfica")
+    parser.add_argument("--vista", "-v", help="Mostar Vistas en Gráfica", action="store_true")
+    parser.add_argument("--tiempo", "-t", help="Mostar Tiempo de Reproducción(Horas) en Gráfica", action="store_true")
+    parser.add_argument("--duracion", "-d", help="Mostar Duración promedio de vista en Gráfica", action="store_true")
+    parser.add_argument("--porcenta_clip", "-ctr", help="Mostar Click Through Rate en Gráfica", action="store_true")
 
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
@@ -56,6 +56,8 @@ def main():
             logger.warning("No encontró ID Video")
     elif args.usuario:
         usuario.SalvarUsuario(args.usuario)
+    elif args.vista:
+        analisis.crearGrafica()
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 

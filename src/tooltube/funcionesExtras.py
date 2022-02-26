@@ -48,3 +48,25 @@ def SalvarID(ID):
             return
 
     logger.warning("No se puedo salvar ID")
+
+
+def buscarRaiz():
+    # TODO Mejorar este algoritmo debe existir una forma para buscar el fonder
+    niveles = 5
+    folderObligatorio = "1.Guion"
+    rutaActual = os.getcwd()
+    listaRutaActual = rutaActual.split("/")
+    for i in range(niveles):
+        if i == 0:
+            rutaProbar = listaRutaActual
+        else:
+            rutaProbar = listaRutaActual[:-i]
+
+        rutaProbarObligatoria = rutaProbar[:]
+        rutaProbarObligatoria.append(folderObligatorio)
+        rutaProbarObligatoria = "/".join(rutaProbarObligatoria)
+        if os.path.isdir(rutaProbarObligatoria):
+            rutaBase = "/".join(rutaProbar)
+            return rutaBase
+
+    return None
