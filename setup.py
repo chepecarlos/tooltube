@@ -19,6 +19,10 @@ setup(
     packages=find_packages(where="src", exclude=("tests*", "testing*")),
     package_dir={"": "src"},
     entry_points={
-        "console_scripts": ["tooltube = tooltube.tooltube:main", "tooltube_analisis = tooltube.tooltube_analisis:main"]
+        "console_scripts": [
+            "tooltube = tooltube.tooltube:main",
+            "tooltube_analisis = tooltube.tooltube_analisis:main",
+            "tooltube_get = tooltube.tooltube_get:mail",
+        ]
     },
 )

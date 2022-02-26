@@ -28,4 +28,4 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
                 logger.info(f"Se guardo cambio en {archivo}")
                 return
 
-    logger.info(f"Error no se encontro {archivo}")
+    logger.info(f"Error no se encontró {archivo}")

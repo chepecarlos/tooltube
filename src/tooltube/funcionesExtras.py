@@ -8,13 +8,13 @@ logger = MiLibrerias.ConfigurarLogging(__name__)
 from MiLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 
 
-def ObtenerRuta(suvir, folder):
-    if suvir > 0:
-        suvir = -suvir
+def ObtenerRuta(subir, folder):
+    if subir > 0:
+        subir = -subir
     ruta = os.getcwd()
     ruta = ruta.split("/")
-    if suvir != 0:
-        ruta = ruta[:suvir]
+    if subir != 0:
+        ruta = ruta[:subir]
     ruta.append(folder)
     ruta = "/".join(ruta)
     existe = os.path.isdir(ruta)
