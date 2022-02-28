@@ -366,7 +366,7 @@ def RecargarSubida(Respuesta, Comentario):
                 logger.warning("No mas intento de conexión")
                 exit()
 
-            max_sleep = 2**retry
+            max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
             logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
             time.sleep(sleep_seconds)
@@ -448,7 +448,7 @@ def main():
 
             if respuesta is not None:
                 if respuesta:
-                    analisis.salvar_data_analitica("1.Cambios/miniatura.csv", args.file, args.nota)
+                    analisis.salvar_data_analitica("1.Cambios/miniatura.csv", args.miniatura, args.nota)
         else:
             logger.info(f"Necesario indicar ID del video")
     elif args.idioma:

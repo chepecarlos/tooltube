@@ -26,7 +26,7 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
                 data_archivo = pd.read_csv(ruta)
                 data_archivo = data_archivo.append(data, ignore_index=True)
                 data_archivo.to_csv(ruta, index=False)
-                logger.info(f"Se guardo cambio en {archivo}")
+                logger.info(f"Se guardo cambio {cambio} en {archivo}")
                 return
 
     logger.info(f"Error no se encontró {archivo}")
@@ -43,6 +43,9 @@ def crearGrafica():
     if not os.path.exists(archivo_data):
         logger.warning("No se control `10.Analitica/2.Data/Datos de la tabla.csv`")
         return
-    print("abiendo data")
     data = pd.read_csv(archivo_data)
+    data = data.iloc[1:, :]  # Quitando totales
+    etiquetaFecha = data.columns[0]
+    data[etiquetaFecha] = pd.to_datetime(data[etiquetaFecha])
+    data.sort_values(etiquetaFecha, inplace=True)
     print(data)
