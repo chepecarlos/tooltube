@@ -5,6 +5,8 @@ from setuptools import find_packages, setup
 with open("VERSION", "r") as f:
     version = f.read().strip()
 
+with open("requirements.txt", "r") as f:
+    required = f.read().splitlines()
 
 with open(file="README.md", mode="r") as readme_handle:
     long_description = readme_handle.read()

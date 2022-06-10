@@ -1,2 +1,11 @@
+google-api-python-client
+google-auth 
+google-auth-oauthlib 
+google-auth-httplib2
+PyYAML
+cachetools==4.2.2
+python-telegram-bot
+paho-mqtt
 matplotlib
 pandas
+youtube_dl
