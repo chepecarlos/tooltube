@@ -58,7 +58,13 @@ def main():
     elif args.usuario:
         usuario.SalvarUsuario(args.usuario)
     elif args.vista:
-        analisis.crearGrafica()
+        analisis.crearGrafica("Vistas")
+    elif args.tiempo:
+        analisis.crearGrafica("Tiempo de reproducción (horas)")
+    elif args.duracion:
+        analisis.crearGrafica("Duración promedio de vistas")
+    elif args.porcenta_clip:
+        analisis.crearGrafica("Tasa de clics de las impresiones (%)")
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
