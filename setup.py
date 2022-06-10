@@ -1,3 +1,5 @@
+from shutil import rmtree
+
 from setuptools import find_packages, setup
 
 with open("VERSION", "r") as f:
@@ -7,6 +9,18 @@ with open("VERSION", "r") as f:
 with open(file="README.md", mode="r") as readme_handle:
     long_description = readme_handle.read()
 
+with open("requirements.txt", "r") as f:
+    required = f.read().splitlines()
+
+try:
+    rmtree("build")
+except:
+    pass
+try:
+    rmtree("dist")
+except:
+    pass
+
 setup(
     name="tooltube",
     version=version,
@@ -15,14 +29,14 @@ setup(
     author="ChepeCarlos",
     author_email="chepecarlos@alswblog.org",
     url="https://github.com/chepecarlos/tooltube",
-    install_requires=[],
+    install_requires=required,
     packages=find_packages(where="src", exclude=("tests*", "testing*")),
     package_dir={"": "src"},
     entry_points={
         "console_scripts": [
             "tooltube = tooltube.tooltube:main",
             "tooltube_analisis = tooltube.tooltube_analisis:main",
-            "tooltube_get = tooltube.tooltube_get:mail",
+            "tooltube_get = tooltube.tooltube_get:main",
         ]
     },
 )

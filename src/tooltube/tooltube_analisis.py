@@ -1,7 +1,8 @@
 import argparse
 
 import MiLibrerias
-from operaciones import analisis, usuario
+
+from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
 

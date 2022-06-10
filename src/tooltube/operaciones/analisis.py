@@ -6,8 +6,7 @@ import MiLibrerias
 import pandas as pd
 from MiLibrerias import FuncionesArchivos
 from tooltube import funcionesExtras
-
-from operaciones import usuario
+from tooltube.operaciones import usuario
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
 
@@ -32,6 +31,21 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
     logger.info(f"Error no se encontró {archivo}")
 
 
+def cargarData(ruta, archivo, noTotales=False):
+    archivoData = FuncionesArchivos.UnirPath(ruta, archivo)
+    if not os.path.exists(archivoData):
+        logger.warning(f"No se control {archivo}")
+        return None
+    data = pd.read_csv(archivoData)
+    if noTotales:
+        data = data.iloc[1:, :]  # Quitando totales
+
+    # etiquetaFecha = data.columns[0]
+    # data[etiquetaFecha] = pd.to_datetime(data[etiquetaFecha])
+    # data.sort_values(etiquetaFecha, inplace=True)
+    return data
+
+
 def crearGrafica():
     logger.info("Empezar a hacer gráfica")
     rutaBase = funcionesExtras.buscarRaiz()
@@ -39,13 +53,31 @@ def crearGrafica():
     if rutaBase is None:
         logger.warning("No folder de proyecto")
         return
-    archivo_data = FuncionesArchivos.UnirPath(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv")
-    if not os.path.exists(archivo_data):
-        logger.warning("No se control `10.Analitica/2.Data/Datos de la tabla.csv`")
+    dataYoutube = cargarData(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv", True)
+    if dataYoutube is None:
+        logger.info("Necesario data de youtube descargalo con -csv")
         return
-    data = pd.read_csv(archivo_data)
-    data = data.iloc[1:, :]  # Quitando totales
-    etiquetaFecha = data.columns[0]
-    data[etiquetaFecha] = pd.to_datetime(data[etiquetaFecha])
-    data.sort_values(etiquetaFecha, inplace=True)
-    print(data)
+
+    print()
+    print("Data Youtube")
+    print(dataYoutube)
+
+    dataTitulo = cargarData(rutaBase, "10.Analitica/1.Cambios/titulos.csv")
+
+    print()
+    print("Data Titulo")
+    print(dataTitulo)
+
+    dataMiniatura = cargarData(rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
+
+    print()
+    print("Data Miniatura")
+    print(dataMiniatura)
+
+    etiquetaFecha = dataYoutube.columns[0]
+
+    dataFecha = dataYoutube[etiquetaFecha]
+    # dataValor = dataYoutube["Vistas"]
+
+    print(dataFecha)
+    # print(dataValor)

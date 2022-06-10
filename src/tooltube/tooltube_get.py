@@ -3,9 +3,8 @@ import argparse
 import MiLibrerias
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
-import funcionesExtras
-
-from .funcionesExtras import SalvarID, buscarID
+import tooltube.funcionesExtras as funcionesExtras
+from tooltube.funcionesExtras import SalvarID, buscarID
 
 
 def ArgumentosCLI():
@@ -13,7 +12,6 @@ def ArgumentosCLI():
     parser = argparse.ArgumentParser(prog="tooltube_get", description="Obtiene Data de un video")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
-
     parser.add_argument("--salvar_id", help="Salvar ID del video")
 
     return parser.parse_args()

@@ -23,9 +23,9 @@ from apiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from operaciones import analisis, usuario
 
 import tooltube.obtenerDataYoutube as dataYoutube
+from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
 
@@ -379,7 +379,7 @@ def ArgumentosCLI():
     parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube")
     parser.add_argument("--titulo", "-t", help="Actualizar de titulo video en Youtube")
     parser.add_argument("--descripcion", "-d", help="Actualizar de descripcion video en Youtube", action="store_true")
-    parser.add_argument("--uploader", "-u", help="Subir video a youtube", action="store_true")
+    parser.add_argument("--uploader", "-u", help="Subir video a youtube")
     parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
@@ -410,14 +410,14 @@ def main():
     Credenciales = CargarCredenciales(args.canal)
 
     if args.uploader:
-        if args.file:
-            logger.info(f"Subiendo video {args.file} a Youtube")
-            try:
-                SubirVideo(Credenciales, args.file, args.nota)
-            except HttpError as e:
-                print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
-        else:
-            logger.info("Falta Archivo para subir -f")
+        # if args.file:
+        logger.info(f"Subiendo video {args.uploader} a Youtube")
+        try:
+            SubirVideo(Credenciales, args.uploader, args.nota)
+        except HttpError as e:
+            print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
+        # else:
+        #     logger.info("Falta Archivo para subir -f")
     elif args.estado:
         logger.info(f"Actualizando estado del video {Video_id}")
         ActualizarEstadoVideo(Credenciales, Video_id, args.estado)
