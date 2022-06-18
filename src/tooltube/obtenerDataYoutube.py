@@ -1,7 +1,7 @@
-import MiLibrerias
+import tooltube.miLibrerias as miLibrerias
 import youtube_dl
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 
 
 def obtenerDataVideo(id):

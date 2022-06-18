@@ -2,13 +2,13 @@ import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import MiLibrerias
+import tooltube.miLibrerias as miLibrerias
 import pandas as pd
-from MiLibrerias import FuncionesArchivos
+from tooltube.miLibrerias import FuncionesArchivos
 from tooltube import funcionesExtras
 from tooltube.operaciones import usuario
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 
 
 def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
