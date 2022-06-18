@@ -17,19 +17,19 @@ except ImportError:
 
 from pathlib import Path
 
-import MiLibrerias
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+import tooltube.miLibrerias as miLibrerias
 import tooltube.obtenerDataYoutube as dataYoutube
 from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 
 # Todo cambiar tas por default para agregar el chepecarlos
 TagsDefault = "ALSW,ChepeCarlos,Jose Carlos Garcia Diaz"
