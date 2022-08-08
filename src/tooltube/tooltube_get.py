@@ -1,8 +1,8 @@
 import argparse
 
-import MiLibrerias
+import tooltube.miLibrerias as miLibrerias
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 import tooltube.funcionesExtras as funcionesExtras
 from tooltube.funcionesExtras import SalvarID, buscarID
 

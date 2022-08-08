@@ -1,9 +1,9 @@
 """Funciones de Usuario."""
 
-import MiLibrerias
-from MiLibrerias import FuncionesArchivos
+import tooltube.miLibrerias as miLibrerias
+from tooltube.miLibrerias import FuncionesArchivos
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 
 
 def SalvarUsuario(Nombre):

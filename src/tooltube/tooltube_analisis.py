@@ -1,12 +1,12 @@
 import argparse
 
-import MiLibrerias
+import tooltube.miLibrerias as miLibrerias
 
 from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
 
-logger = MiLibrerias.ConfigurarLogging(__name__)
+logger = miLibrerias.ConfigurarLogging(__name__)
 
 
 def ArgumentosCLI():
