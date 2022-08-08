@@ -8,6 +8,7 @@ import random
 import sys
 import time
 
+import colorama
 import httplib2
 
 try:
@@ -16,6 +17,10 @@ except ImportError:
     import http.client as httplib
 
 from pathlib import Path
+
+from colorama import Back, Fore, Style
+
+colorama.init(autoreset=True)
 
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -210,7 +215,7 @@ def ActualizarEstadoVideo(credenciales, video_id, estado):
         print(data_video["items"][0])
 
         if estado == data_estado["privacyStatus"]:
-            logger.info("No necesario cambiar estado")
+            logger.warning("No necesario cambiar estado")
             return False
 
         data_estado["privacyStatus"] = estado
@@ -425,7 +430,7 @@ def main():
         if args.folder:
             logger.info(f"Usando Folder {args.folder}")
         if Video_id:
-            logger.info(f"Actualizando descripcion del Video {Video_id}")
+            logger.info(f"Actualizando descripción del Video {Video_id}")
             ActualizarDescripcionVideo(Credenciales, Video_id, args.file, Directorio=args.folder)
         elif args.recursivo:
             logger.info("Actualizando descripciones de los video dentro de folder")
@@ -433,14 +438,14 @@ def main():
                 logger.info(f"Con limite {args.max} Videos")
             ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
         else:
-            logger.info("Falta el ID del video")
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Falta el ID del video")
     elif args.titulo:
         if Video_id is not None:
             respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
             if respuesta:
                 analisis.salvar_data_analitica("1.Cambios/titulos.csv", args.titulo, args.nota)
         else:
-            logger.info(f"Necesario indicar ID del video")
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
     elif args.miniatura:
         if Video_id is not None:
             logger.info(f"Actualizando Miniatura del Video {Video_id}")
@@ -450,13 +455,13 @@ def main():
                 if respuesta:
                     analisis.salvar_data_analitica("1.Cambios/miniatura.csv", args.miniatura, args.nota)
         else:
-            logger.info(f"Necesario indicar ID del video")
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
     elif args.idioma:
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
             ActualizarIdioma(Credenciales, Video_id)
     else:
-        logger.info("Comandos no encontrado, prueba con -h")
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Comandos no encontrado, prueba con -h")
 
 
 if __name__ == "__main__":
