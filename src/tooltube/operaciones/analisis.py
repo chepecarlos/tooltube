@@ -3,24 +3,14 @@ from datetime import datetime
 
 import colorama
 import matplotlib.pyplot as plt
-import tooltube.miLibrerias as miLibrerias
 import pandas as pd
-<<<<<<< HEAD
+import tooltube.miLibrerias as miLibrerias
 from colorama import Back, Fore, Style
-from MiLibrerias import FuncionesArchivos
 from tooltube import funcionesExtras
-from tooltube.operaciones import usuario
-
-colorama.init(autoreset=True)
-
-logger = MiLibrerias.ConfigurarLogging(__name__)
-=======
 from tooltube.miLibrerias import FuncionesArchivos
-from tooltube import funcionesExtras
 from tooltube.operaciones import usuario
 
 logger = miLibrerias.ConfigurarLogging(__name__)
->>>>>>> 1ecd079e103de5d52fa25ee846ceac3d56495e64
 
 
 def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
