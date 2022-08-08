@@ -21,6 +21,7 @@ def ArgumentosCLI():
     parser.add_argument("--tiempo", "-t", help="Mostar Tiempo de Reproducción(Horas) en Gráfica", action="store_true")
     parser.add_argument("--duracion", "-d", help="Mostar Duración promedio de vista en Gráfica", action="store_true")
     parser.add_argument("--porcenta_clip", "-ctr", help="Mostar Click Through Rate en Gráfica", action="store_true")
+    parser.add_argument("--subscriptores", "-s", help="Subcriptores Rate en Gráfica", action="store_true")
 
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
@@ -51,7 +52,7 @@ def main():
             logger.info("Descarga el cvs de la siguiente pagina:")
             logger.info(f" ID {Video_id}")
             logger.info(
-                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&granularity=DAY&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
             )
         else:
             logger.warning("No encontró ID Video")
@@ -65,6 +66,8 @@ def main():
         analisis.crearGrafica("Duración promedio de vistas")
     elif args.porcenta_clip:
         analisis.crearGrafica("Tasa de clics de las impresiones (%)")
+    elif args.subscriptores:
+        analisis.crearGrafica("Suscriptores")
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
