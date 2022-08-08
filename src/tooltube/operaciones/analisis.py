@@ -1,12 +1,16 @@
 import os
 from datetime import datetime
 
+import colorama
 import matplotlib.pyplot as plt
 import MiLibrerias
 import pandas as pd
+from colorama import Back, Fore, Style
 from MiLibrerias import FuncionesArchivos
 from tooltube import funcionesExtras
 from tooltube.operaciones import usuario
+
+colorama.init(autoreset=True)
 
 logger = MiLibrerias.ConfigurarLogging(__name__)
 
@@ -28,7 +32,7 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
                 logger.info(f"Se guardo cambio {cambio} en {archivo}")
                 return
 
-    logger.info(f"Error no se encontró {archivo}")
+    logger.warning(Fore.WHITE + Back.RED + f"Error no se encontró {archivo}")
 
 
 def cargarData(ruta, archivo, noTotales=False):
