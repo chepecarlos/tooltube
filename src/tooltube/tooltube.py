@@ -282,7 +282,7 @@ def ActualizarThumbnails(credenciales, video_id, archivo=None):
 
 def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
     """
-    Actualizá Lenguaje video y descripcion
+    Actualiza Lenguaje video y descripción
     """
 
     youtube = build("youtube", "v3", credentials=credenciales)
@@ -373,7 +373,7 @@ def RecargarSubida(Respuesta, Comentario):
 
             max_sleep = 2 ** retry
             sleep_seconds = random.random() * max_sleep
-            logger.warning(f"durmiendo por {sleep_seconds} y despues reintentando")
+            logger.warning(f"durmiendo por {sleep_seconds} y después reintentando")
             time.sleep(sleep_seconds)
 
 
@@ -383,7 +383,7 @@ def ArgumentosCLI():
     parser.add_argument("--estado", "-e", help="Actualiza Estado de un video")
     parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube")
     parser.add_argument("--titulo", "-t", help="Actualizar de titulo video en Youtube")
-    parser.add_argument("--descripcion", "-d", help="Actualizar de descripcion video en Youtube", action="store_true")
+    parser.add_argument("--descripcion", "-d", help="Actualizar de descripción video en Youtube", action="store_true")
     parser.add_argument("--uploader", "-u", help="Subir video a youtube")
     parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
 
@@ -394,7 +394,7 @@ def ArgumentosCLI():
     parser.add_argument("--recursivo", "-r", help="Actualiza con todos los archivos disponibles", action="store_true")
 
     parser.add_argument("--canal", "-c", help="Canal Youtube a usar")
-    parser.add_argument("--nota", "-n", help="Mensaje confirmacion de cambio")
+    parser.add_argument("--nota", "-n", help="Mensaje confirmación de cambio")
 
     return parser.parse_args()
 
@@ -408,6 +408,10 @@ def main():
         Video_id = args.video_id
     else:
         Video_id = buscarID()
+
+    if Video_id == "ID_Youtube":
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
+        return
 
     if Video_id is not None:
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
