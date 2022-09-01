@@ -1,7 +1,9 @@
 import argparse
 
-import tooltube.miLibrerias as miLibrerias
+import colorama
+from colorama import Back, Fore, Style
 
+import tooltube.miLibrerias as miLibrerias
 from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
@@ -22,6 +24,7 @@ def ArgumentosCLI():
     parser.add_argument("--duracion", "-d", help="Mostar Duración promedio de vista en Gráfica", action="store_true")
     parser.add_argument("--porcenta_clip", "-ctr", help="Mostar Click Through Rate en Gráfica", action="store_true")
     parser.add_argument("--subscriptores", "-s", help="Subcriptores Rate en Gráfica", action="store_true")
+    parser.add_argument("--ingresos", "-i", help="Ingresos estimados en Gráfica", action="store_true")
 
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
@@ -31,6 +34,7 @@ def ArgumentosCLI():
 
 def main():
     logger.info("Iniciando el programa ToolTube Analisis")
+    colorama.init(autoreset=True)
     args = ArgumentosCLI()
 
     if args.salvar_id:
@@ -48,14 +52,14 @@ def main():
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
     if args.url_analitica:
-        if Video_id is not None:
+        if Video_id is not None and Video_id != "ID_Youtube":
             logger.info("Descarga el cvs de la siguiente pagina:")
             logger.info(f" ID {Video_id}")
             logger.info(
-                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=TOTAL_ESTIMATED_EARNINGS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=TOTAL_ESTIMATED_EARNINGS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
             )
         else:
-            logger.warning("No encontró ID Video")
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
     elif args.usuario:
         usuario.SalvarUsuario(args.usuario)
     elif args.vista:
@@ -64,6 +68,8 @@ def main():
         analisis.crearGrafica("Tiempo de reproducción (horas)")
     elif args.duracion:
         analisis.crearGrafica("Duración promedio de vistas")
+    elif args.ingresos:
+        analisis.crearGrafica("Tus ingresos estimados (USD)")
     elif args.porcenta_clip:
         analisis.crearGrafica("Tasa de clics de las impresiones (%)")
     elif args.subscriptores:
