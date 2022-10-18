@@ -1,11 +1,13 @@
 import os
 from datetime import datetime
 
+import colorama
 import matplotlib.pyplot as plt
-import tooltube.miLibrerias as miLibrerias
 import pandas as pd
-from tooltube.miLibrerias import FuncionesArchivos
+import tooltube.miLibrerias as miLibrerias
+from colorama import Back, Fore, Style
 from tooltube import funcionesExtras
+from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.operaciones import usuario
 
 logger = miLibrerias.ConfigurarLogging(__name__)
@@ -28,7 +30,7 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
                 logger.info(f"Se guardo cambio {cambio} en {archivo}")
                 return
 
-    logger.info(f"Error no se encontró {archivo}")
+    logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no se encontró {archivo}")
 
 
 def cargarData(ruta, archivo, noTotales=False):
@@ -55,30 +57,17 @@ def crearGrafica(etiqueta):
         return
     dataYoutube = cargarData(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv", True)
     if dataYoutube is None:
-        logger.info("Necesario data de youtube descargalo con -csv")
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Necesario data de youtube descargalo con -csv")
         return
 
-    dataTitulo = cargarData(rutaBase, "10.Analitica/1.Cambios/titulos.csv")
-
-    # fecha = dataMiniatura.columns[0]
-    # dataMiniatura[fecha] = pd.to_datetime(dataMiniatura[fecha])
-
-    if not dataTitulo.empty:
-        print("Data Titulo:")
-        print(dataTitulo)
-        print()
-
-    dataMiniatura = cargarData(rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
-
-    fechaMiniatura = dataMiniatura.columns[0]
-    dataMiniatura[fechaMiniatura] = pd.to_datetime(dataMiniatura[fechaMiniatura])
-
-    if not dataMiniatura.empty:
-        print("Data Miniatura:")
-        print(dataMiniatura)
-        print()
+    dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
+    dataMiniatura = cargarCambios("miniatura", rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
+    dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
 
     etiquetaFecha = dataYoutube.columns[0]
+    dataYoutube = dataYoutube.drop(
+        dataYoutube[dataYoutube[etiquetaFecha] == "Mostrando los 500 resultados principales"].index
+    )
 
     dataFecha = dataYoutube[etiquetaFecha]
 
@@ -98,6 +87,29 @@ def crearGrafica(etiqueta):
 
     [sum7, sum30] = encontrarSumas(valores)
 
+    inicioMes = []
+    etiquetaMes = []
+
+    listaMeses = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
+    ]
+
+    for dia in dataYoutube[etiquetaFecha]:
+        if dia.is_month_start:
+            inicioMes.append(dia)
+            etiquetaMes.append(f"{listaMeses[dia.month-1]}/{dia.year}")
+
     fig, axs = plt.subplots(3, 1)
 
     [min30, max30] = encontrarMaxMin(sum30[30:])
@@ -111,7 +123,7 @@ def crearGrafica(etiqueta):
     grafica30.legend(loc="upper left")
     grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
     grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
-    grafica30.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=grafica30.get_xaxis_transform(), colors="r")
+    graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
 
     [min30, max30] = encontrarMaxMin(sum7[30:])
     grafica7 = axs[1]
@@ -123,7 +135,7 @@ def crearGrafica(etiqueta):
     grafica7.legend(loc="upper left")
     grafica7.hlines(max30, fechas.iloc[7], fechas.iloc[-1], colors="#000000")
     grafica7.hlines(min30, fechas.iloc[7], fechas.iloc[-1], colors="#ff0000")
-    grafica7.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=grafica7.get_xaxis_transform(), colors="r")
+    graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
@@ -134,13 +146,37 @@ def crearGrafica(etiqueta):
     graficaNormal.legend(loc="upper left")
     # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
     # graficaNormal.hlines(min30, fechas.iloc[0], fechas.iloc[-1], colors="#ff0000")
-    graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")
+    graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
+
+    # graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")
 
     plt.gcf().autofmt_xdate()
+    plt.xticks(inicioMes, etiquetaMes)
 
     plt.tight_layout()
     fig.suptitle(f"Gráfica suma7 y suma30 de {etiqueta}", y=0.99, fontsize=10)
     plt.show()
+
+
+def cargarCambios(tipo, rutaBase, direccion):
+    data = cargarData(rutaBase, direccion)
+    etiquetaFechas = data.columns[0]
+    data[etiquetaFechas] = pd.to_datetime(data[etiquetaFechas])
+
+    if not data.empty:
+        print(f"Cambios {tipo}:")
+        print(data)
+        print()
+
+    return data
+
+
+def graficaCambios(grafica, titulo, miniatura, estado):
+    etiquetaFecha = titulo.columns[0]
+    grafica.vlines(titulo[etiquetaFecha], 0, 1, transform=grafica.get_xaxis_transform(), colors="r")
+    grafica.vlines(miniatura[etiquetaFecha], 0, 1, transform=grafica.get_xaxis_transform(), colors="g")
+    grafica.vlines(estado[etiquetaFecha], 0, 1, transform=grafica.get_xaxis_transform(), colors="b")
+    # grafica.legend()
 
 
 def encontrarMaxMin(valores):

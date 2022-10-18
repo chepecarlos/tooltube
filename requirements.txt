@@ -9,3 +9,4 @@ paho-mqtt
 matplotlib
 pandas
 youtube_dl
+colorama
