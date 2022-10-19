@@ -462,7 +462,10 @@ def main():
             logger.info("Actualizando descripciones de los video dentro de folder")
             if args.max:
                 logger.info(f"Con limite {args.max} Videos")
-            ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
+            try:
+                ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
+            except KeyboardInterrupt:
+                logger.info("Cancelando Actualización de Folder")
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Falta el ID del video")
     elif args.titulo:
