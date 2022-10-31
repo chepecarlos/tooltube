@@ -57,7 +57,7 @@ def crearGrafica(etiqueta):
         return
     dataYoutube = cargarData(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv", True)
     if dataYoutube is None:
-        logger.info("Necesario data de youtube descargalo con -csv")
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Necesario data de youtube descargalo con -csv")
         return
 
     dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
@@ -65,6 +65,9 @@ def crearGrafica(etiqueta):
     dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
 
     etiquetaFecha = dataYoutube.columns[0]
+    dataYoutube = dataYoutube.drop(
+        dataYoutube[dataYoutube[etiquetaFecha] == "Mostrando los 500 resultados principales"].index
+    )
 
     dataFecha = dataYoutube[etiquetaFecha]
 
@@ -83,6 +86,29 @@ def crearGrafica(etiqueta):
             valores.iloc[id] = tiempoASegundos(valores.iloc[id])
 
     [sum7, sum30] = encontrarSumas(valores)
+
+    inicioMes = []
+    etiquetaMes = []
+
+    listaMeses = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
+    ]
+
+    for dia in dataYoutube[etiquetaFecha]:
+        if dia.is_month_start:
+            inicioMes.append(dia)
+            etiquetaMes.append(f"{listaMeses[dia.month-1]}/{dia.year}")
 
     fig, axs = plt.subplots(3, 1)
 
@@ -125,6 +151,7 @@ def crearGrafica(etiqueta):
     # graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")
 
     plt.gcf().autofmt_xdate()
+    plt.xticks(inicioMes, etiquetaMes)
 
     plt.tight_layout()
     fig.suptitle(f"Gráfica suma7 y suma30 de {etiqueta}", y=0.99, fontsize=10)

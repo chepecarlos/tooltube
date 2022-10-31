@@ -232,19 +232,28 @@ def ActualizarEstadoVideo(credenciales, video_id, estado):
         # print(data_video["status"]["status"])
 
 
-def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
+def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None, total=None, contador=None, error=None, Actualizados=None):
     """Actualiza Descripciones de Video desde los archivos de un Folder."""
-    contador = 0
+    if contador is None:
+        contador = 0
+    if error is None:
+        error = 0
     if Directorio is None:
         Directorio = "."
-    total = len(os.listdir(Directorio))
-    Actualizados = 0
-    Error = 0
-    for archivo in os.listdir(Directorio):
-        if archivo.endswith(".txt"):
+    if total is None:
+        total = totalTxt(Directorio)
+        logger.info(f"Total Videos: {total}")
+    if Actualizados is None:
+        Actualizados = 0
+    listaArchivos = sorted(os.listdir(Directorio), reverse=True)
+    for archivo in listaArchivos:
+        direcionArchivo = Directorio + "/" + archivo
+        if os.path.isdir(direcionArchivo):
+            [contador, Actualizados] = ActualizarDescripcionFolder(credenciales, contador=contador, Directorio=direcionArchivo, total=total, Actualizados=Actualizados)
+        if  archivo.endswith(".txt"):
             contador += 1
             video_id = archivo.replace(".txt", "")
-            logger.info(f"Verificando ({contador}/{total}) - Video_ID:{video_id}")
+            logger.info(f"Verificando ({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}")
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1
@@ -252,15 +261,28 @@ def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None):
                     if Actualizados >= Max:
                         Porcentaje = (Actualizados / total) * 100
                         logger.info(f"Se actualizo {Actualizados}/{total} - {Porcentaje:.2f} % descripciones de video")
-                        logger.info(f"Se actualizo {Actualizados}/{total} descripciones de video")
                         return
             elif Resultado == -1:
-                Error += 1
-    Porcentaje = (Actualizados / total) * 100
-    logger.info(f"Se actualizo {Actualizados}/{total} - {Porcentaje:.2f} % descripciones de video")
-    if Error > 0:
-        logger.info(f"Hubo error {Error}/{total}")
+                error += 1
+    if contador == total:
+        # Todo: error de mostrar multiples veces esta linea por recursividad
+        porcentaje = (Actualizados / total) * 100
+        logger.info(f"Se actualizo {Actualizados}/{total} - {porcentaje:.2f} % descripciones de video")
+        if error > 0:
+            logger.info(f"Hubo error {error}/{total}")
+    return [contador, Actualizados]
 
+def totalTxt(Directorio):
+    contador = 0
+    for archivo in os.listdir(Directorio):
+        direccionArchivo = Directorio + "/" + archivo
+        if os.path.isdir(direccionArchivo):
+            contador += totalTxt(direccionArchivo)
+
+        if direccionArchivo.endswith(".txt"):
+            contador += 1
+
+    return contador
 
 def ActualizarThumbnails(credenciales, video_id, archivo=None):
     """Actualiza la Miniatura de un video de Youtube."""
@@ -439,7 +461,10 @@ def main():
             logger.info("Actualizando descripciones de los video dentro de folder")
             if args.max:
                 logger.info(f"Con limite {args.max} Videos")
-            ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
+            try:
+                ActualizarDescripcionFolder(Credenciales, Max=args.max, Directorio=args.folder)
+            except KeyboardInterrupt:
+                logger.info("Cancelando Actualización de Folder")
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Falta el ID del video")
     elif args.titulo:
