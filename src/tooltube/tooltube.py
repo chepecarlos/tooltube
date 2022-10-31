@@ -409,11 +409,10 @@ def main():
     else:
         Video_id = buscarID()
 
-    if Video_id == "ID_Youtube":
-        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
-        return
-
     if Video_id is not None:
+        if Video_id == "ID_Youtube":
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
+            return
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
     Credenciales = CargarCredenciales(args.canal)
