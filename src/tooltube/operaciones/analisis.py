@@ -110,16 +110,20 @@ def crearGrafica(etiqueta):
             inicioMes.append(dia)
             etiquetaMes.append(f"{listaMeses[dia.month-1]}/{dia.year}")
 
+    etiquetaVisible = etiqueta
+    if etiquetaVisible == "Tasa de clics de las impresiones (%)":
+        etiquetaVisible = "CTR"
+
     fig, axs = plt.subplots(3, 1)
 
     [min30, max30] = encontrarMaxMin(sum30[30:])
     grafica30 = axs[0]
-    grafica30.plot(fechas, valores, "#cfcfcf", label=etiqueta)
+    grafica30.plot(fechas, valores, "#cfcfcf", label=etiquetaVisible)
     # grafica30.plot(fechas, sum7, label=f"Suma7")
     grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
     grafica30.grid(axis="y", color="gray", linestyle="dashed")
     grafica30.set_xlabel(etiquetaFecha)
-    grafica30.set_ylabel(etiqueta)
+    grafica30.set_ylabel(etiquetaVisible)
     grafica30.legend(loc="upper left")
     grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
     grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
@@ -127,11 +131,11 @@ def crearGrafica(etiqueta):
 
     [min30, max30] = encontrarMaxMin(sum7[30:])
     grafica7 = axs[1]
-    grafica7.plot(fechas, valores, "#cfcfcf", label=etiqueta)
+    grafica7.plot(fechas, valores, "#cfcfcf", label=etiquetaVisible)
     grafica7.plot(fechas[7:], sum7[7:], "#1414fa", label=f"Suma7")
     grafica7.grid(axis="y", color="gray", linestyle="dashed")
     grafica7.set_xlabel(etiquetaFecha)
-    grafica7.set_ylabel(etiqueta)
+    grafica7.set_ylabel(etiquetaVisible)
     grafica7.legend(loc="upper left")
     grafica7.hlines(max30, fechas.iloc[7], fechas.iloc[-1], colors="#000000")
     grafica7.hlines(min30, fechas.iloc[7], fechas.iloc[-1], colors="#ff0000")
@@ -139,10 +143,10 @@ def crearGrafica(etiqueta):
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
-    graficaNormal.plot(fechas, valores, "#fa8714", label=etiqueta)
+    graficaNormal.plot(fechas, valores, "#fa8714", label=etiquetaVisible)
     graficaNormal.grid(axis="y", color="gray", linestyle="dashed")
     graficaNormal.set_xlabel(etiquetaFecha)
-    graficaNormal.set_ylabel(etiqueta)
+    graficaNormal.set_ylabel(etiquetaVisible)
     # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
     # graficaNormal.hlines(min30, fechas.iloc[0], fechas.iloc[-1], colors="#ff0000")
     graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
@@ -154,7 +158,7 @@ def crearGrafica(etiqueta):
     plt.xticks(inicioMes, etiquetaMes)
 
     plt.tight_layout()
-    fig.suptitle(f"Gráfica suma7 y suma30 de {etiqueta}", y=0.99, fontsize=10)
+    fig.suptitle(f"Gráfica suma7 y suma30 de {etiquetaVisible}", y=0.99, fontsize=10)
     plt.show()
 
 
