@@ -4,7 +4,7 @@ import os
 import colorama
 
 import tooltube.miLibrerias as miLibrerias
-from tooltube.miLibrerias import ObtenerArchivo
+from tooltube.miLibrerias import FuncionesArchivos, ObtenerArchivo
 
 logger = miLibrerias.ConfigurarLogging(__name__)
 import tooltube.funcionesExtras as funcionesExtras
@@ -19,7 +19,7 @@ def ArgumentosCLI():
     parser.add_argument("--salvar_id", "-s", help="Salvar ID del video")
     parser.add_argument("--buscar", "-b", help="Buscar un proyecto")
 
-    parser.add_argument("-url", help="URL importante del video")
+    parser.add_argument("-url", help="URL importante del video", action="store_true")
 
     return parser.parse_args()
 
