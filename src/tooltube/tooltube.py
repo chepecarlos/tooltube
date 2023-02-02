@@ -33,8 +33,6 @@ import tooltube.miLibrerias as miLibrerias
 import tooltube.obtenerDataYoutube as dataYoutube
 from tooltube.operaciones import analisis, usuario
 
-from .funcionesExtras import SalvarID, buscarID
-
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 # Todo cambiar tas por default para agregar el chepecarlos
@@ -375,7 +373,7 @@ def SubirVideo(credenciales, Archivo, Comentario=""):
         part=",".join(body.keys()), body=body, media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True)
     )
 
-    RecargarSubida(Respuesta, Comentario)
+    return RecargarSubida(Respuesta, Comentario)
 
 
 def RecargarSubida(Respuesta, Comentario):
@@ -389,7 +387,7 @@ def RecargarSubida(Respuesta, Comentario):
             status, response = Respuesta.next_chunk()
             if response is not None:
                 if "id" in response:
-                    SalvarID(response["id"])
+                    FuncionesExtras.SalvarDato("youtube_id", response["id"])
                     logger.info(f"Se subio con exito {response['id']} | https://youtu.be/{response['id']} ")
                     analisis.salvar_data_analitica("1.Cambios/estado.csv", "suvido", Comentario)
                 else:
@@ -455,7 +453,7 @@ def main():
     if args.video_id:
         Video_id = args.video_id
     else:
-        Video_id = buscarID()
+        Video_id = FuncionesExtras.buscarDato("youtube_id")
 
     if Video_id is not None and not args.uploader:
         if Video_id == "ID_Youtube":

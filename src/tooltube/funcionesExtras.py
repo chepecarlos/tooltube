@@ -50,6 +50,21 @@ def SalvarID(ID):
     logger.warning("No se puedo salvar ID")
 
 
+def buscarDato(Atributo):
+    """
+    Busca el ID del video de Youtube
+    """
+    for i, _ in enumerate(range(5)):
+        existe, ruta = ObtenerRuta(i, "1.Guion")
+        if existe:
+            ruta = UnirPath(ruta, "1.Info.md")
+            data = ObtenerArchivo(ruta, False)
+            if data is not None:
+                if Atributo in data:
+                    return data[Atributo]
+    return None
+
+
 def SalvarDato(Atributo, Dato):
     for i, _ in enumerate(range(5)):
         existe, ruta = ObtenerRuta(i, "1.Guion")

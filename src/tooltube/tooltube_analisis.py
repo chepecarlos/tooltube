@@ -6,8 +6,10 @@ import numpy as np
 import pandas as pd
 from colorama import Back, Fore, Style
 
+import tooltube.funcionesExtras as FuncionesExtras
 import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
+from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
@@ -22,6 +24,8 @@ def ArgumentosCLI():
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
 
     parser.add_argument("--salvar_id", help="Salvar ID del video")
+
+    parser.add_argument("--data", help="Mostar Data del video", action="store_true")
 
     parser.add_argument("--vista", "-v", help="Mostar Vistas en Gráfica", action="store_true")
     parser.add_argument("--tiempo", "-t", help="Mostar Tiempo de Reproducción(Horas) en Gráfica", action="store_true")
@@ -106,6 +110,12 @@ def cargarData(ruta, archivo, noTotales=False):
     return data
 
 
+def DataVideo(ID_Video):
+    print(f"Buscando data  https://youtu.be/{ID_Video}")
+    data = obtenerDataVideo(ID_Video)
+    print(data)
+
+
 def main():
     logger.info("Iniciando el programa ToolTube Analisis")
     colorama.init(autoreset=True)
@@ -113,7 +123,7 @@ def main():
 
     if args.salvar_id:
         logger.info(f"Salvando ID[{args.salvar_id}] del Video")
-        SalvarID(args.salvar_id)
+        FuncionesExtras.SalvarDato("youtube_id", args.salvar_id)
         return
 
     Video_id = None
@@ -150,6 +160,8 @@ def main():
         analisis.crearGrafica("Suscriptores")
     elif args.resumen:
         cambiosGlobales()
+    elif args.data and Video_id:
+        DataVideo(Video_id)
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
