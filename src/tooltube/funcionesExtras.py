@@ -50,6 +50,17 @@ def SalvarID(ID):
     logger.warning("No se puedo salvar ID")
 
 
+def SalvarDato(Atributo, Dato):
+    for i, _ in enumerate(range(5)):
+        existe, ruta = ObtenerRuta(i, "1.Guion")
+        if existe:
+
+            ruta = UnirPath(ruta, "1.Info.md")
+            SalvarValor(ruta, Atributo, Dato, False)
+            logger.info(f"Salvando {Atributo}, para el futuro")
+            return
+
+
 def buscarRaiz():
     # TODO Mejorar este algoritmo debe existir una forma para buscar el fonder
     niveles = 5

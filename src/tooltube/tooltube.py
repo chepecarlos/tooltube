@@ -28,6 +28,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+import tooltube.funcionesExtras as FuncionesExtras
 import tooltube.miLibrerias as miLibrerias
 import tooltube.obtenerDataYoutube as dataYoutube
 from tooltube.operaciones import analisis, usuario
@@ -232,7 +233,9 @@ def ActualizarEstadoVideo(credenciales, video_id, estado):
         # print(data_video["status"]["status"])
 
 
-def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None, total=None, contador=None, error=None, Actualizados=None):
+def ActualizarDescripcionFolder(
+    credenciales, Max=None, Directorio=None, total=None, contador=None, error=None, Actualizados=None
+):
     """Actualiza Descripciones de Video desde los archivos de un Folder."""
     if contador is None:
         contador = 0
@@ -249,11 +252,15 @@ def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None, total=N
     for archivo in listaArchivos:
         direcionArchivo = Directorio + "/" + archivo
         if os.path.isdir(direcionArchivo):
-            [contador, Actualizados] = ActualizarDescripcionFolder(credenciales, contador=contador, Directorio=direcionArchivo, total=total, Actualizados=Actualizados)
-        if  archivo.endswith(".txt"):
+            [contador, Actualizados] = ActualizarDescripcionFolder(
+                credenciales, contador=contador, Directorio=direcionArchivo, total=total, Actualizados=Actualizados
+            )
+        if archivo.endswith(".txt"):
             contador += 1
             video_id = archivo.replace(".txt", "")
-            logger.info(f"Verificando ({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}")
+            logger.info(
+                f"Verificando ({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}"
+            )
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1
@@ -272,6 +279,7 @@ def ActualizarDescripcionFolder(credenciales, Max=None, Directorio=None, total=N
             logger.info(f"Hubo error {error}/{total}")
     return [contador, Actualizados]
 
+
 def totalTxt(Directorio):
     contador = 0
     for archivo in os.listdir(Directorio):
@@ -283,6 +291,7 @@ def totalTxt(Directorio):
             contador += 1
 
     return contador
+
 
 def ActualizarThumbnails(credenciales, video_id, archivo=None):
     """Actualiza la Miniatura de un video de Youtube."""
@@ -399,6 +408,15 @@ def RecargarSubida(Respuesta, Comentario):
             time.sleep(sleep_seconds)
 
 
+def FuncionSinID(args):
+    if args.titulo:
+        FuncionesExtras.SalvarDato("titulo", args.titulo)
+    elif args.miniatura:
+        FuncionesExtras.SalvarDato("miniatura", args.miniatura)
+    else:
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
+
+
 def ArgumentosCLI():
 
     parser = argparse.ArgumentParser(prog="tooltube", description="Herramienta de Automatización de Youtube")
@@ -431,9 +449,9 @@ def main():
     else:
         Video_id = buscarID()
 
-    if Video_id is not None:
+    if Video_id is not None and not args.uploader:
         if Video_id == "ID_Youtube":
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
+            FuncionSinID(args)
             return
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
