@@ -175,7 +175,12 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
 
     solicitudVideo = youtube.videos().list(id=video_id, part="snippet")
 
-    DataVideo = solicitudVideo.execute()
+    try:
+        DataVideo = solicitudVideo.execute()
+    except HttpError as e:
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
+        return -1
+
     if len(DataVideo["items"]) > 0:
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
@@ -186,7 +191,12 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
 
         SolisituActualizar = youtube.videos().update(part="snippet", body=dict(snippet=SnippetVideo, id=video_id))
 
-        RespuestaYoutube = SolisituActualizar.execute()
+        try:
+            RespuestaYoutube = SolisituActualizar.execute()
+        except HttpError as e:
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
+            return -1
+
         if len(RespuestaYoutube["snippet"]) > 0:
             logger.info(f"Actualización Completa - Link: https://youtu.be/{video_id}")
             return 1
@@ -258,9 +268,7 @@ def ActualizarDescripcionFolder(
         if archivo.endswith(".txt"):
             contador += 1
             video_id = archivo.replace(".txt", "")
-            logger.info(
-                f"Verificando ({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}"
-            )
+            logger.info(f"V({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}")
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1

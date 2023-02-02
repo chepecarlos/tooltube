@@ -1,9 +1,13 @@
 import argparse
+import os
 
 import colorama
+import numpy as np
+import pandas as pd
 from colorama import Back, Fore, Style
 
 import tooltube.miLibrerias as miLibrerias
+from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.operaciones import analisis, usuario
 
 from .funcionesExtras import SalvarID, buscarID
@@ -26,10 +30,80 @@ def ArgumentosCLI():
     parser.add_argument("--subscriptores", "-s", help="Subcriptores Rate en Gráfica", action="store_true")
     parser.add_argument("--ingresos", "-i", help="Ingresos estimados en Gráfica", action="store_true")
 
+    parser.add_argument("--resumen", "-r", help="Cambios Globales", action="store_true")
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
 
     return parser.parse_args()
+
+
+def cambiosGlobales():
+    actual = os.getcwd()
+    for base, dirs, files in os.walk(actual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                filepath = base + os.sep + name
+                idArchivo = miLibrerias.ObtenerValor(filepath, "youtube_id")
+                if idArchivo is not None and idArchivo != "ID_Youtube":
+                    print(f"Video {idArchivo} - https://www.youtube.com/watch?v={idArchivo}")
+                    folderProyecto = os.path.dirname(filepath).replace("/1.Guion", "")
+                    print(f"Folder {folderProyecto}")
+                    verCambios(folderProyecto)
+                    print("-" * 50)
+                    print()
+
+
+def verCambios(rutaBase):
+    dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
+    dataMiniatura = cargarCambios("miniatura", rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
+    dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
+
+    if dataTitulo.size:
+        mostarData(dataTitulo)
+
+    if dataMiniatura.size:
+        mostarData(dataMiniatura)
+        # for index, row in dataMiniatura.iterrows():
+        #     fecha = row["fecha"]
+
+        #     print(f"{fecha.day}/{fecha.month}/{fecha.year} ", end="")
+        #     print(row["cambio"], end="")
+        #     if row["mensaje"] is np.nan:
+        #         print(row["mensaje"])
+        #     print()
+
+    if dataEstado.size:
+        mostarData(dataEstado)
+
+
+def mostarData(data):
+    for index, row in data.iterrows():
+        fecha = row["fecha"]
+
+        print(f"{fecha.day}/{fecha.month}/{fecha.year} ", end="")
+        print(row["cambio"], end="")
+        if row["mensaje"] is np.nan:
+            print(row["mensaje"])
+        print()
+
+
+def cargarCambios(tipo, rutaBase, direccion):
+    data = cargarData(rutaBase, direccion)
+    if data is None:
+        return
+    etiquetaFechas = data.columns[0]
+    data[etiquetaFechas] = pd.to_datetime(data[etiquetaFechas])
+    return data
+    print(data)
+
+
+def cargarData(ruta, archivo, noTotales=False):
+    archivoData = FuncionesArchivos.UnirPath(ruta, archivo)
+    if not os.path.exists(archivoData):
+        logger.warning(f"No se control {archivo}")
+        return None
+    data = pd.read_csv(archivoData)
+    return data
 
 
 def main():
@@ -74,6 +148,8 @@ def main():
         analisis.crearGrafica("Tasa de clics de las impresiones (%)")
     elif args.subscriptores:
         analisis.crearGrafica("Suscriptores")
+    elif args.resumen:
+        cambiosGlobales()
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 

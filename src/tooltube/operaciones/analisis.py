@@ -4,8 +4,9 @@ from datetime import datetime
 import colorama
 import matplotlib.pyplot as plt
 import pandas as pd
-import tooltube.miLibrerias as miLibrerias
 from colorama import Back, Fore, Style
+
+import tooltube.miLibrerias as miLibrerias
 from tooltube import funcionesExtras
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.operaciones import usuario
@@ -25,6 +26,7 @@ def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
             ruta = funcionesExtras.UnirPath(ruta, archivo)
             if os.path.isfile(ruta):
                 data_archivo = pd.read_csv(ruta)
+                # data_archivo = pd.concat(data_archivo, data)
                 data_archivo = data_archivo.append(data, ignore_index=True)
                 data_archivo.to_csv(ruta, index=False)
                 logger.info(f"Se guardo cambio {cambio} en {archivo}")
@@ -137,14 +139,15 @@ def crearGrafica(etiqueta):
     grafica7.set_xlabel(etiquetaFecha)
     grafica7.set_ylabel(etiquetaVisible)
     grafica7.legend(loc="upper left")
-    grafica7.hlines(max30, fechas.iloc[7], fechas.iloc[-1], colors="#000000")
-    grafica7.hlines(min30, fechas.iloc[7], fechas.iloc[-1], colors="#ff0000")
+    grafica7.hlines(max30, fechas.iloc[7], fechas.iloc[-1], colors=["#000000"])
+    grafica7.hlines(min30, fechas.iloc[7], fechas.iloc[-1], colors=["#ff0000"])
     graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
     graficaNormal.plot(fechas, valores, "#fa8714", label=etiquetaVisible)
-    graficaNormal.grid(axis="y", color="gray", linestyle="dashed")
+
+    graficaNormal.grid(axis="y", color="gray", linestyle="-")
     graficaNormal.set_xlabel(etiquetaFecha)
     graficaNormal.set_ylabel(etiquetaVisible)
     # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
