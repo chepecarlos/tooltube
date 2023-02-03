@@ -113,7 +113,6 @@ def cargarData(ruta, archivo, noTotales=False):
 def DataVideo(ID_Video):
     print(f"Buscando data  https://youtu.be/{ID_Video}")
     data = obtenerDataVideo(ID_Video)
-    print(data)
 
 
 def main():

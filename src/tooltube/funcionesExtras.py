@@ -36,6 +36,17 @@ def buscarID():
     return None
 
 
+def rutaBase():
+    for i, _ in enumerate(range(5)):
+        existe, ruta = ObtenerRuta(i, "1.Guion")
+        if existe:
+            ruta = ruta.split("/")
+            ruta = ruta[:-1]
+            ruta = "/".join(ruta)
+            return ruta
+    return None
+
+
 def SalvarID(ID):
     logger.info("Intentando Salvar ID")
 

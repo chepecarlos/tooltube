@@ -129,7 +129,7 @@ def ActualizarTituloVideo(credenciales, video_id, Titulo):
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
         if Titulo == SnippetVideo["title"]:
-            logger.info(f"Video {video_id} ya actualizado")
+            logger.info(f"Titulo del Video {video_id} ya actualizado")
             return 0
 
         SnippetVideo["title"] = Titulo
@@ -414,6 +414,34 @@ def RecargarSubida(Respuesta, Comentario):
             time.sleep(sleep_seconds)
 
 
+def ActualizarMiniatura(Credenciales, miniatura, id, nota):
+    logger.info(f"Actualizando Miniatura del Video {id}")
+    respuesta = ActualizarThumbnails(Credenciales, id, miniatura)
+
+    if respuesta is not None:
+        if respuesta:
+            analisis.salvar_data_analitica("1.Cambios/miniatura.csv", miniatura, nota)
+
+
+def ActualizarTitulo(Credenciales, titulo, id, nota):
+    respuesta = ActualizarTituloVideo(Credenciales, id, titulo)
+    if respuesta:
+        analisis.salvar_data_analitica("1.Cambios/titulos.csv", titulo, nota)
+        FuncionesExtras.SalvarDato("titulo", titulo)
+
+
+def ActualizarMetadata(credenciales, ID):
+    Titulo = FuncionesExtras.buscarDato("titulo")
+    Miniatura = FuncionesExtras.buscarDato("miniatura")
+    if Titulo and Titulo != "Titulo Video":
+        print(f"Titulo: {Titulo} ")
+        ActualizarTitulo(credenciales, Titulo, ID, "Actualizado por herramienta")
+    if Miniatura:
+        print(f"Miniatura: {Miniatura} ")
+        archivo = FuncionesExtras.rutaBase() + "/7.Miniatura/2.Render/" + Miniatura
+        ActualizarMiniatura(credenciales, archivo, ID, "Actualizado por herramienta")
+
+
 def FuncionSinID(args):
     if args.titulo:
         FuncionesExtras.SalvarDato("titulo", args.titulo)
@@ -431,6 +459,7 @@ def ArgumentosCLI():
     parser.add_argument("--titulo", "-t", help="Actualizar de titulo video en Youtube")
     parser.add_argument("--descripcion", "-d", help="Actualizar de descripción video en Youtube", action="store_true")
     parser.add_argument("--uploader", "-u", help="Subir video a youtube")
+    parser.add_argument("--actualizar", "-a", help="Actualizar la metadata", action="store_true")
     parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
@@ -468,6 +497,7 @@ def main():
         logger.info(f"Subiendo video {args.uploader} a Youtube")
         try:
             SubirVideo(Credenciales, args.uploader, args.nota)
+            ActualizarMetadata(Credenciales, FuncionesExtras.buscarDato("youtube_id"))
         except HttpError as e:
             print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
         # else:
@@ -493,25 +523,20 @@ def main():
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Falta el ID del video")
     elif args.titulo:
         if Video_id is not None:
-            respuesta = ActualizarTituloVideo(Credenciales, Video_id, args.titulo)
-            if respuesta:
-                analisis.salvar_data_analitica("1.Cambios/titulos.csv", args.titulo, args.nota)
+            ActualizarTitulo(Credenciales, args.titulo, Video_id, args.nota)
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
     elif args.miniatura:
         if Video_id is not None:
-            logger.info(f"Actualizando Miniatura del Video {Video_id}")
-            respuesta = ActualizarThumbnails(Credenciales, Video_id, args.miniatura)
-
-            if respuesta is not None:
-                if respuesta:
-                    analisis.salvar_data_analitica("1.Cambios/miniatura.csv", args.miniatura, args.nota)
+            ActualizarMiniatura(Credenciales, args.miniatura, Video_id, args.nota)
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
     elif args.idioma:
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
             ActualizarIdioma(Credenciales, Video_id)
+    elif args.actualizar:
+        ActualizarMetadata(Credenciales, Video_id)
     else:
         logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Comandos no encontrado, prueba con -h")
 
