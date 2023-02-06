@@ -307,7 +307,12 @@ def ActualizarThumbnails(credenciales, video_id, archivo=None):
         youtube = build("youtube", "v3", credentials=credenciales)
         Respuesta = youtube.thumbnails().set(videoId=video_id, media_body=archivo).execute()
         if Respuesta["items"][0]:
-            logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['maxres']['url']}")
+            if "maxres" in Respuesta["items"][0]:
+                logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['maxres']['url']}")
+            elif "default" in Respuesta["items"][0]:
+                logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['default']['url']}")
+            else:
+                print(Respuesta["items"][0])
             return True
         else:
             logger.warning("Hubo un problema :(")
