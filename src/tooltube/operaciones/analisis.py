@@ -50,21 +50,27 @@ def cargarData(ruta, archivo, noTotales=False):
     return data
 
 
-def crearGrafica(etiqueta):
+def crearGrafica(etiqueta, archivo=None):
     logger.info("Empezar a hacer gráfica")
-    rutaBase = funcionesExtras.buscarRaiz()
 
-    if rutaBase is None:
-        logger.warning("No folder de proyecto")
-        return
-    dataYoutube = cargarData(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv", True)
-    if dataYoutube is None:
-        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Necesario data de youtube descargalo con -csv")
-        return
+    if archivo is None:
+        rutaBase = funcionesExtras.buscarRaiz()
 
-    dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
-    dataMiniatura = cargarCambios("miniatura", rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
-    dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
+        if rutaBase is None:
+            logger.warning("No folder de proyecto")
+            return
+        dataYoutube = cargarData(rutaBase, "10.Analitica/2.Data/Datos de la tabla.csv", True)
+        if dataYoutube is None:
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Necesario data de youtube descargalo con -csv")
+            return
+    else:
+        rutaBase = "."
+        dataYoutube = cargarData(rutaBase, archivo, True)
+
+    if archivo is None:
+        dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
+        dataMiniatura = cargarCambios("miniatura", rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
+        dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
 
     etiquetaFecha = dataYoutube.columns[0]
     dataYoutube = dataYoutube.drop(
@@ -130,7 +136,8 @@ def crearGrafica(etiqueta):
         grafica30.legend(loc="upper left")
         grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
         grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
-        graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
+        if archivo is None:
+            graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
 
     if len(valores) > 7:
         [min7, max7] = encontrarMaxMin(sum7[7:])
@@ -143,7 +150,8 @@ def crearGrafica(etiqueta):
         grafica7.legend(loc="upper left")
         grafica7.hlines(max7, fechas.iloc[7], fechas.iloc[-1], colors=["#000000"])
         grafica7.hlines(min7, fechas.iloc[7], fechas.iloc[-1], colors=["#ff0000"])
-        graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
+        if archivo is None:
+            graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
@@ -154,7 +162,8 @@ def crearGrafica(etiqueta):
     graficaNormal.set_ylabel(etiquetaVisible)
     # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
     # graficaNormal.hlines(min30, fechas.iloc[0], fechas.iloc[-1], colors="#ff0000")
-    graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
+    if archivo is None:
+        graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
     graficaNormal.legend(loc="upper left")
 
     # graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")

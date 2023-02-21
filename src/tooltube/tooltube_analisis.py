@@ -38,6 +38,8 @@ def ArgumentosCLI():
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
 
+    parser.add_argument("--file", "-f", help="Usando archivo")
+
     return parser.parse_args()
 
 
@@ -119,6 +121,11 @@ def main():
     logger.info("Iniciando el programa ToolTube Analisis")
     colorama.init(autoreset=True)
     args = ArgumentosCLI()
+
+    if args.file:
+        logger.info(f"Usando el Archivo: {args.file}")
+        analisis.crearGrafica("Vistas", args.file)
+        return
 
     if args.salvar_id:
         logger.info(f"Salvando ID[{args.salvar_id}] del Video")
