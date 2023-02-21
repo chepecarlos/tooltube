@@ -118,30 +118,32 @@ def crearGrafica(etiqueta):
 
     fig, axs = plt.subplots(3, 1)
 
-    [min30, max30] = encontrarMaxMin(sum30[30:])
-    grafica30 = axs[0]
-    grafica30.plot(fechas, valores, "#cfcfcf", label=etiquetaVisible)
-    # grafica30.plot(fechas, sum7, label=f"Suma7")
-    grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
-    grafica30.grid(axis="y", color="gray", linestyle="dashed")
-    grafica30.set_xlabel(etiquetaFecha)
-    grafica30.set_ylabel(etiquetaVisible)
-    grafica30.legend(loc="upper left")
-    grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
-    grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
-    graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
+    if len(valores) > 30:
+        [min30, max30] = encontrarMaxMin(sum30[30:])
+        grafica30 = axs[0]
+        grafica30.plot(fechas[30:], valores[30:], "#cfcfcf", label=etiquetaVisible)
+        grafica30.plot(fechas[30:], sum7[30:], label=f"Suma7")
+        grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
+        grafica30.grid(axis="y", color="gray", linestyle="dashed")
+        grafica30.set_xlabel(etiquetaFecha)
+        grafica30.set_ylabel(etiquetaVisible)
+        grafica30.legend(loc="upper left")
+        grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
+        grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
+        graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
 
-    [min30, max30] = encontrarMaxMin(sum7[30:])
-    grafica7 = axs[1]
-    grafica7.plot(fechas, valores, "#cfcfcf", label=etiquetaVisible)
-    grafica7.plot(fechas[7:], sum7[7:], "#1414fa", label=f"Suma7")
-    grafica7.grid(axis="y", color="gray", linestyle="dashed")
-    grafica7.set_xlabel(etiquetaFecha)
-    grafica7.set_ylabel(etiquetaVisible)
-    grafica7.legend(loc="upper left")
-    grafica7.hlines(max30, fechas.iloc[7], fechas.iloc[-1], colors=["#000000"])
-    grafica7.hlines(min30, fechas.iloc[7], fechas.iloc[-1], colors=["#ff0000"])
-    graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
+    if len(valores) > 7:
+        [min7, max7] = encontrarMaxMin(sum7[7:])
+        grafica7 = axs[1]
+        grafica7.plot(fechas[7:], valores[7:], "#cfcfcf", label=etiquetaVisible)
+        grafica7.plot(fechas[7:], sum7[7:], "#1414fa", label=f"Suma7")
+        grafica7.grid(axis="y", color="gray", linestyle="dashed")
+        grafica7.set_xlabel(etiquetaFecha)
+        grafica7.set_ylabel(etiquetaVisible)
+        grafica7.legend(loc="upper left")
+        grafica7.hlines(max7, fechas.iloc[7], fechas.iloc[-1], colors=["#000000"])
+        grafica7.hlines(min7, fechas.iloc[7], fechas.iloc[-1], colors=["#ff0000"])
+        graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
@@ -209,11 +211,11 @@ def encontrarSumas(valores):
         for j in range(id - 6, id + 1):
             if j >= 0 and j < cantidad:
                 sum7[id] += valores.iloc[j]
-        # sum7[id] /= 7
+        sum7[id] /= 7
         for j in range(id - 29, id + 1):
             if j >= 0 and j < cantidad:
                 sum30[id] += valores.iloc[j]
-        # sum30[id] /= 30
+        sum30[id] /= 30
     return (sum7, sum30)
 
 
