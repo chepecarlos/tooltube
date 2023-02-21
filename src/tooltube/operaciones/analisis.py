@@ -93,7 +93,7 @@ def crearGrafica(etiqueta, archivo=None):
         for id in range(len(valores)):
             valores.iloc[id] = tiempoASegundos(valores.iloc[id])
 
-    [sum7, sum30] = encontrarSumas(valores)
+    [sum7, sum30, suma365] = encontrarSumas(valores)
 
     inicioMes = []
     etiquetaMes = []
@@ -130,6 +130,7 @@ def crearGrafica(etiqueta, archivo=None):
         # grafica30.plot(fechas[30:], valores[30:], "#cfcfcf", label=etiquetaVisible)
         grafica30.plot(fechas[30:], sum7[30:], label=f"Suma7")
         grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
+        grafica30.plot(fechas[365:], suma365[365:], "#ff1493", label=f"Suma365")
         grafica30.grid(axis="y", color="gray", linestyle="dashed")
         grafica30.set_xlabel(etiquetaFecha)
         grafica30.set_ylabel(etiquetaVisible)
@@ -213,10 +214,12 @@ def encontrarMaxMin(valores):
 def encontrarSumas(valores):
     sum7 = []
     sum30 = []
+    suma365 = []
     cantidad = len(valores)
     for id in range(len(valores)):
         sum7.append(0)
         sum30.append(0)
+        suma365.append(0)
         for j in range(id - 6, id + 1):
             if j >= 0 and j < cantidad:
                 sum7[id] += valores.iloc[j]
@@ -225,7 +228,11 @@ def encontrarSumas(valores):
             if j >= 0 and j < cantidad:
                 sum30[id] += valores.iloc[j]
         sum30[id] /= 30
-    return (sum7, sum30)
+        for j in range(id - 364, id + 1):
+            if j >= 0 and j < cantidad:
+                suma365[id] += valores.iloc[j]
+        suma365[id] /= 365
+    return (sum7, sum30, suma365)
 
 
 def tiempoASegundos(tiempo):
