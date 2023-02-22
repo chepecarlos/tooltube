@@ -1,5 +1,6 @@
 import argparse
 import os
+from datetime import datetime
 
 import colorama
 import numpy as np
@@ -34,11 +35,14 @@ def ArgumentosCLI():
     parser.add_argument("--subscriptores", "-s", help="Subcriptores Rate en Gráfica", action="store_true")
     parser.add_argument("--ingresos", "-i", help="Ingresos estimados en Gráfica", action="store_true")
 
-    parser.add_argument("--resumen", "-r", help="Cambios Globales", action="store_true")
+    parser.add_argument("--resumen", help="Cambios Globales", action="store_true")
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
 
     parser.add_argument("--file", "-f", help="Usando archivo")
+
+    parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
+    parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
 
     return parser.parse_args()
 
@@ -166,6 +170,14 @@ def main():
         analisis.crearGrafica("Suscriptores")
     elif args.resumen:
         cambiosGlobales()
+    elif args.revisar:
+        logger.info(f"Revisar video en {args.revisar} días")
+        FuncionesExtras.SalvarDato("revisar", args.revisar)
+        FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
+    elif args.revisado:
+        logger.info(f"Video revisado")
+        FuncionesExtras.SalvarDato("revisar", "Listo")
+        FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
     elif args.data and Video_id:
         DataVideo(Video_id)
     else:
