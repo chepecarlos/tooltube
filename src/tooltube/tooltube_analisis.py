@@ -1,6 +1,6 @@
 import argparse
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import colorama
 import numpy as np
@@ -43,6 +43,7 @@ def ArgumentosCLI():
 
     parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
+    parser.add_argument("--buscar_revision", help="Buscar video aa revisar", action="store_true")
 
     return parser.parse_args()
 
@@ -60,6 +61,28 @@ def cambiosGlobales():
                     print(f"Folder {folderProyecto}")
                     verCambios(folderProyecto)
                     print("-" * 50)
+                    print()
+
+
+def mostrandoRevisar():
+    actual = os.getcwd()
+    for base, dirs, files in os.walk(actual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                filepath = base + os.sep + name
+                revisar = miLibrerias.ObtenerValor(filepath, "revisar")
+                if revisar is None:
+                    continue
+
+                if revisar == "Listo":
+                    continue
+                fechaCreacion = miLibrerias.ObtenerValor(filepath, "fecha_revisar")
+                dias = timedelta(days=revisar)
+                fechaRevisar = fechaCreacion + dias
+                if fechaRevisar < datetime.now():
+                    print("---" * 30)
+                    print(f"Revisar en {revisar} días, después de {fechaRevisar.strftime('%d/%m/%Y')}")
+                    print(f"Dirección: {filepath}")
                     print()
 
 
@@ -178,6 +201,9 @@ def main():
         logger.info(f"Video revisado")
         FuncionesExtras.SalvarDato("revisar", "Listo")
         FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
+    elif args.buscar_revision:
+        logger.info(f"Video a revisar")
+        mostrandoRevisar()
     elif args.data and Video_id:
         DataVideo(Video_id)
     else:
