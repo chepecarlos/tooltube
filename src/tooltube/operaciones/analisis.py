@@ -93,6 +93,9 @@ def crearGrafica(etiqueta, archivo=None):
         for id in range(len(valores)):
             valores.iloc[id] = tiempoASegundos(valores.iloc[id])
 
+    # for valor, fecha in zip(valores, fechas):
+    # print(fecha, valor)
+
     [sum7, sum30, suma365] = encontrarSumas(valores)
 
     inicioMes = []
@@ -184,7 +187,13 @@ def cargarCambios(tipo, rutaBase, direccion):
 
     if not data.empty:
         print(f"Cambios {tipo}:")
-        print(data)
+        for i, linea in data.iterrows():
+            fechaActual = linea["fecha"].strftime("%H:%M %d/%m/%Y")
+            mensaje = linea["mensaje"]
+            if pd.isnull(mensaje):
+                mensaje = ""
+            print(f" {fechaActual} - {linea['autor']} - {mensaje}")
+            print(f"Cambio: {linea['cambio']}")
         print()
 
     return data
