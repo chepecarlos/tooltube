@@ -188,7 +188,7 @@ def cargarCambios(tipo, rutaBase, direccion):
     if not data.empty:
         print(f"Cambios {tipo}:")
         for i, linea in data.iterrows():
-            fechaActual = linea["fecha"].strftime("%H:%M %d/%m/%Y")
+            fechaActual = linea["fecha"].strftime("%I:%M %p %d/%m/%Y")
             mensaje = linea["mensaje"]
             if pd.isnull(mensaje):
                 mensaje = ""
