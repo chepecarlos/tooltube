@@ -171,9 +171,12 @@ def main():
     if args.url_analitica:
         if Video_id is not None and Video_id != "ID_Youtube":
             logger.info("Descarga el cvs de la siguiente pagina:")
-            logger.info(f" ID {Video_id}")
-            logger.info(
-                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            logger.info(f"Youtube-ID {Video_id}")
+            print(
+                f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            )
+            print(
+                f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
             )
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
