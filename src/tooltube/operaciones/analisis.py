@@ -73,11 +73,11 @@ def crearGrafica(etiqueta, archivo=None):
         dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
 
     etiquetaFecha = dataYoutube.columns[0]
+
+    # Quitar mensaje de hasta 500
     dataYoutube = dataYoutube.drop(
         dataYoutube[dataYoutube[etiquetaFecha] == "Mostrando los 500 resultados principales"].index
     )
-
-    dataFecha = dataYoutube[etiquetaFecha]
 
     etiquetaFecha = dataYoutube.columns[0]
 
@@ -85,9 +85,15 @@ def crearGrafica(etiqueta, archivo=None):
 
     dataYoutube.sort_values(etiquetaFecha, inplace=True)
 
+    all_data = pd.DataFrame(
+        pd.date_range(dataYoutube[etiquetaFecha].min(), dataYoutube[etiquetaFecha].max()), columns=[etiquetaFecha]
+    )
+
+    dataYoutube = all_data.merge(right=dataYoutube, how="left", on=etiquetaFecha)
+
     fechas = dataYoutube[etiquetaFecha]
     valores = dataYoutube[etiqueta]
-    valores.fillna(0, inplace=True)
+    valores.fillna(valores.min() / 2, inplace=True)  # valor a mitad del mínimo
 
     if etiqueta == "Duración promedio de vistas":
         for id in range(len(valores)):
@@ -176,7 +182,12 @@ def crearGrafica(etiqueta, archivo=None):
     plt.xticks(inicioMes, etiquetaMes)
 
     plt.tight_layout()
-    fig.suptitle(f"Gráfica suma7 y suma30 de {etiquetaVisible}", y=0.99, fontsize=10)
+    diferencia = fechas.max() - fechas.min()
+    fig.suptitle(
+        f"Gráfica de {etiquetaVisible} de {fechas.min().strftime('%d/%m/%Y')} al {fechas.max().strftime('%d/%m/%Y')} ({diferencia.days} días)",
+        y=0.99,
+        fontsize=10,
+    )
     plt.show()
 
 
