@@ -139,7 +139,8 @@ def crearGrafica(etiqueta, archivo=None):
         # grafica30.plot(fechas[30:], valores[30:], "#cfcfcf", label=etiquetaVisible)
         grafica30.plot(fechas[30:], sum7[30:], label=f"Suma7")
         grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
-        grafica30.plot(fechas[365:], suma365[365:], "#ff1493", label=f"Suma365")
+        if len(fechas) > 365:
+            grafica30.plot(fechas[365:], suma365[365:], "#ff1493", label=f"Suma365")
         grafica30.grid(axis="y", color="gray", linestyle="dashed")
         grafica30.set_xlabel(etiquetaFecha)
         grafica30.set_ylabel(etiquetaVisible)
