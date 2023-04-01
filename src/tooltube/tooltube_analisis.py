@@ -43,7 +43,7 @@ def ArgumentosCLI():
 
     parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
-    parser.add_argument("--buscar_revision", help="Buscar video aa revisar", action="store_true")
+    parser.add_argument("--buscar_revision", "-br", help="Buscar video aa revisar", action="store_true")
 
     return parser.parse_args()
 
@@ -79,10 +79,15 @@ def mostrandoRevisar():
                 fechaCreacion = miLibrerias.ObtenerValor(filepath, "fecha_revisar")
                 dias = timedelta(days=revisar)
                 fechaRevisar = fechaCreacion + dias
+                direccionFolder = base.split("/")
+                direccionFolder = direccionFolder[:-1]
+                direccionFolder = "/".join(direccionFolder)
                 if fechaRevisar < datetime.now():
+                    diferencia = int((datetime.now() - fechaCreacion).total_seconds() / 60 / 60 / 24)
                     print("---" * 30)
-                    print(f"Revisar en {revisar} días, después de {fechaRevisar.strftime('%d/%m/%Y')}")
-                    print(f"Dirección: {filepath}")
+                    print(f"Creado {fechaCreacion.strftime('%d/%m/%Y')} - {diferencia} Dias")
+                    print(f"Control {revisar} días, desde {fechaRevisar.strftime('%d/%m/%Y')}")
+                    print(f"Dirección: {direccionFolder}")
                     print()
 
 
