@@ -3,6 +3,7 @@ from datetime import datetime
 
 import colorama
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from colorama import Back, Fore, Style
 
@@ -137,10 +138,34 @@ def crearGrafica(etiqueta, archivo=None):
         [min30, max30] = encontrarMaxMin(sum30[30:])
         grafica30 = axs[0]
         # grafica30.plot(fechas[30:], valores[30:], "#cfcfcf", label=etiquetaVisible)
-        grafica30.plot(fechas[30:], sum7[30:], label=f"Suma7")
-        grafica30.plot(fechas[30:], sum30[30:], "#016f10", label=f"Suma30")
+        suma7_30 = np.array(sum7[30:])
+        sum30_30 = np.array(sum30[30:])
+        tiempo_30 = np.array(fechas[30:])
+        grafica30.plot(tiempo_30, suma7_30, label=f"Suma7")
+        grafica30.plot(tiempo_30, sum30_30, linewidth=2, color="indigo", label=f"Suma30")
+
+        grafica30.fill_between(
+            tiempo_30,
+            suma7_30,
+            sum30_30,
+            where=(suma7_30 > sum30_30),
+            interpolate=True,
+            alpha=0.5,
+            color="cyan",
+        )
+
+        grafica30.fill_between(
+            tiempo_30,
+            suma7_30,
+            sum30_30,
+            where=(suma7_30 < sum30_30),
+            # where=1500,
+            interpolate=True,
+            alpha=0.5,
+            color="red",
+        )
         if len(fechas) > 365:
-            grafica30.plot(fechas[365:], suma365[365:], "#ff1493", label=f"Suma365")
+            grafica30.plot(fechas[365:], suma365[365:], color="lawngreen", linewidth=3, alpha=0.9, label=f"Suma365")
         grafica30.grid(axis="y", color="gray", linestyle="dashed")
         grafica30.set_xlabel(etiquetaFecha)
         grafica30.set_ylabel(etiquetaVisible)
@@ -153,7 +178,7 @@ def crearGrafica(etiqueta, archivo=None):
     if len(valores) > 7:
         [min7, max7] = encontrarMaxMin(sum7[7:])
         grafica7 = axs[1]
-        grafica7.plot(fechas[7:], valores[7:], "#cfcfcf", label=etiquetaVisible)
+        grafica7.plot(fechas[7:], valores[7:], "#cfcfcf", linewidth=1.5, label=etiquetaVisible)
         grafica7.plot(fechas[7:], sum7[7:], "#1414fa", label=f"Suma7")
         grafica7.grid(axis="y", color="gray", linestyle="dashed")
         grafica7.set_xlabel(etiquetaFecha)
@@ -166,7 +191,7 @@ def crearGrafica(etiqueta, archivo=None):
 
     # [min30, max30] = encontrarMaxMin(valores)
     graficaNormal = axs[2]
-    graficaNormal.plot(fechas, valores, "#fa8714", label=etiquetaVisible)
+    graficaNormal.plot(fechas, valores, "#fa8714", linewidth=1.2, label=etiquetaVisible)
 
     graficaNormal.grid(axis="y", color="gray", linestyle="-")
     graficaNormal.set_xlabel(etiquetaFecha)
