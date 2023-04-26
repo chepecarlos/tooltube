@@ -38,8 +38,7 @@ def obtenerTitulo(id):
     if data is None:
         return None
 
-    if "title" in data:
-        return data["title"]
+    return data.get("title", None)
 
 
 def obtenerDescripcion(id):
@@ -49,5 +48,4 @@ def obtenerDescripcion(id):
     if data is None:
         return None
 
-    if "description" in data:
-        return data["description"]
+    return data.get("description", None)
