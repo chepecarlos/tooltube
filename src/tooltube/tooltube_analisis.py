@@ -1,5 +1,6 @@
 import argparse
 import os
+from datetime import datetime, timedelta
 
 import colorama
 import numpy as np
@@ -34,9 +35,15 @@ def ArgumentosCLI():
     parser.add_argument("--subscriptores", "-s", help="Subcriptores Rate en Gráfica", action="store_true")
     parser.add_argument("--ingresos", "-i", help="Ingresos estimados en Gráfica", action="store_true")
 
-    parser.add_argument("--resumen", "-r", help="Cambios Globales", action="store_true")
+    parser.add_argument("--resumen", help="Cambios Globales", action="store_true")
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
+
+    parser.add_argument("--file", "-f", help="Usando archivo")
+
+    parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
+    parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
+    parser.add_argument("--buscar_revision", "-br", help="Buscar video aa revisar", action="store_true")
 
     return parser.parse_args()
 
@@ -54,6 +61,33 @@ def cambiosGlobales():
                     print(f"Folder {folderProyecto}")
                     verCambios(folderProyecto)
                     print("-" * 50)
+                    print()
+
+
+def mostrandoRevisar():
+    actual = os.getcwd()
+    for base, dirs, files in os.walk(actual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                filepath = base + os.sep + name
+                revisar = miLibrerias.ObtenerValor(filepath, "revisar")
+                if revisar is None:
+                    continue
+
+                if revisar == "Listo":
+                    continue
+                fechaCreacion = miLibrerias.ObtenerValor(filepath, "fecha_revisar")
+                dias = timedelta(days=revisar)
+                fechaRevisar = fechaCreacion + dias
+                direccionFolder = base.split("/")
+                direccionFolder = direccionFolder[:-1]
+                direccionFolder = "/".join(direccionFolder)
+                if fechaRevisar < datetime.now():
+                    diferencia = int((datetime.now() - fechaCreacion).total_seconds() / 60 / 60 / 24)
+                    print("---" * 30)
+                    print(f"Creado {fechaCreacion.strftime('%d/%m/%Y')} - {diferencia} Dias")
+                    print(f"Control {revisar} días, desde {fechaRevisar.strftime('%d/%m/%Y')}")
+                    print(f"Dirección: {direccionFolder}")
                     print()
 
 
@@ -120,6 +154,11 @@ def main():
     colorama.init(autoreset=True)
     args = ArgumentosCLI()
 
+    if args.file:
+        logger.info(f"Usando el Archivo: {args.file}")
+        analisis.crearGrafica("Vistas", args.file)
+        return
+
     if args.salvar_id:
         logger.info(f"Salvando ID[{args.salvar_id}] del Video")
         FuncionesExtras.SalvarDato("youtube_id", args.salvar_id)
@@ -137,9 +176,12 @@ def main():
     if args.url_analitica:
         if Video_id is not None and Video_id != "ID_Youtube":
             logger.info("Descarga el cvs de la siguiente pagina:")
-            logger.info(f" ID {Video_id}")
-            logger.info(
-                f"https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=TOTAL_ESTIMATED_EARNINGS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=DAY&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            logger.info(f"Youtube-ID {Video_id}")
+            print(
+                f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            )
+            print(
+                f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
             )
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
@@ -159,6 +201,17 @@ def main():
         analisis.crearGrafica("Suscriptores")
     elif args.resumen:
         cambiosGlobales()
+    elif args.revisar:
+        logger.info(f"Revisar video en {args.revisar} días")
+        FuncionesExtras.SalvarDato("revisar", args.revisar)
+        FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
+    elif args.revisado:
+        logger.info(f"Video revisado")
+        FuncionesExtras.SalvarDato("revisar", "Listo")
+        FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
+    elif args.buscar_revision:
+        logger.info(f"Video a revisar")
+        mostrandoRevisar()
     elif args.data and Video_id:
         DataVideo(Video_id)
     else:
