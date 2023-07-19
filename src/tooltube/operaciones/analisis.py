@@ -135,7 +135,9 @@ def crearGrafica(etiqueta, archivo=None):
     if etiquetaVisible == "Tasa de clics de las impresiones (%)":
         etiquetaVisible = "CTR"
 
-    fig, axs = plt.subplots(3, 1)
+    cantidadGraficas = 2
+
+    fig, axs = plt.subplots(cantidadGraficas, 1)
 
     if len(valores) > 30:
         [min30, max30] = encontrarMaxMin(sum30[30:])
@@ -163,22 +165,18 @@ def crearGrafica(etiqueta, archivo=None):
             suma7_30,
             sum30_30,
             where=(suma7_30 < sum30_30),
-            # where=1500,
             interpolate=True,
             alpha=0.5,
             color="red",
         )
         if len(fechas) > 365:
-            grafica30.plot(fechas[365:], suma365[365:], color="lawngreen",
-                           linewidth=3, alpha=0.9, label=f"Suma365")
+            grafica30.plot(fechas[365:], suma365[365:], color="lawngreen", linewidth=3, alpha=0.9, label=f"Suma365")
         grafica30.grid(axis="y", color="gray", linestyle="dashed")
         grafica30.set_xlabel(etiquetaFecha)
         grafica30.set_ylabel(etiquetaVisible)
         grafica30.legend(loc="upper left")
-        grafica30.hlines(
-            max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000")
-        grafica30.hlines(
-            min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000")
+        grafica30.hlines(max30, fechas.iloc[30], fechas.iloc[-1], colors="#000000", linestyles="dashed")
+        grafica30.hlines(min30, fechas.iloc[30], fechas.iloc[-1], colors="#ff0000", linestyles="dashed")
         if archivo is None:
             graficaCambios(grafica30, dataTitulo, dataMiniatura, dataEstado)
 
@@ -192,28 +190,28 @@ def crearGrafica(etiqueta, archivo=None):
         grafica7.set_xlabel(etiquetaFecha)
         grafica7.set_ylabel(etiquetaVisible)
         grafica7.legend(loc="upper left")
-        grafica7.hlines(max7, fechas.iloc[7],
-                        fechas.iloc[-1], colors=["#000000"])
-        grafica7.hlines(min7, fechas.iloc[7],
-                        fechas.iloc[-1], colors=["#ff0000"])
+        grafica7.hlines(max7, fechas.iloc[7], fechas.iloc[-1], colors=["#000000"], linestyles="dashed")
+        grafica7.hlines(min7, fechas.iloc[7], fechas.iloc[-1], colors=["#ff0000"], linestyles="dashed")
         if archivo is None:
             graficaCambios(grafica7, dataTitulo, dataMiniatura, dataEstado)
 
-    # [min30, max30] = encontrarMaxMin(valores)
-    graficaNormal = axs[2]
-    graficaNormal.plot(fechas, valores, "#fa8714",
-                       linewidth=1.2, label=etiquetaVisible)
+    if cantidadGraficas >= 3:
 
-    graficaNormal.grid(axis="y", color="gray", linestyle="-")
-    graficaNormal.set_xlabel(etiquetaFecha)
-    graficaNormal.set_ylabel(etiquetaVisible)
-    # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
-    # graficaNormal.hlines(min30, fechas.iloc[0], fechas.iloc[-1], colors="#ff0000")
-    if archivo is None:
-        graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
-    graficaNormal.legend(loc="upper left")
+        # [min30, max30] = encontrarMaxMin(valores)
+        graficaNormal = axs[2]
+        graficaNormal.plot(fechas, valores, "#fa8714",
+                        linewidth=1.2, label=etiquetaVisible)
 
-    # graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")
+        graficaNormal.grid(axis="y", color="gray", linestyle="-")
+        graficaNormal.set_xlabel(etiquetaFecha)
+        graficaNormal.set_ylabel(etiquetaVisible)
+        # graficaNormal.hlines(max30, fechas.iloc[0], fechas.iloc[-1], colors="#000000")
+        # graficaNormal.hlines(min30, fechas.iloc[0], fechas.iloc[-1], colors="#ff0000")
+        if archivo is None:
+            graficaCambios(graficaNormal, dataTitulo, dataMiniatura, dataEstado)
+        graficaNormal.legend(loc="upper left")
+
+        graficaNormal.vlines(dataMiniatura[fechaMiniatura], 0, 1, transform=graficaNormal.get_xaxis_transform(), colors="r")
 
     plt.gcf().autofmt_xdate()
     plt.xticks(inicioMes, etiquetaMes)
