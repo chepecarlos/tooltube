@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import colorama
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from colorama import Back, Fore, Style
 
 import tooltube.funcionesExtras as FuncionesExtras
@@ -45,6 +46,8 @@ def ArgumentosCLI():
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
     parser.add_argument("--buscar_revision", "-br", help="Buscar video aa revisar", action="store_true")
 
+    parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
+
     return parser.parse_args()
 
 
@@ -64,7 +67,34 @@ def cambiosGlobales():
                     print()
 
 
-def mostrandoRevisar():
+def actualizarEstado():
+    actual = os.getcwd()
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
+    for base, dirs, files in os.walk(actual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                filepath = base + os.sep + name
+                estado = miLibrerias.ObtenerValor(filepath, "estado")
+                if estado is None:
+                    estado = "desconocido"
+                folderProyecto = Path(base + os.sep).parent
+                nombreProyecto = folderProyecto.name
+                iconoProyecto = iconos.get(estado, estado[0])
+                print(f"Proyecto: {nombreProyecto} - {estado}")
+                actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+
+
+def actualizarIconoDeterminado(icono, folder):
+
+    if icono is None or folder is None:
+        print("Error Faltan Datos")
+        return
+
+    Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
+    os.system(Comando)
+
+
+def mostraRevisar():
     actual = os.getcwd()
     for base, dirs, files in os.walk(actual):
         for name in files:
@@ -177,12 +207,8 @@ def main():
         if Video_id is not None and Video_id != "ID_Youtube":
             logger.info("Descarga el cvs de la siguiente pagina:")
             logger.info(f"Youtube-ID {Video_id}")
-            print(
-                f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
-            )
-            print(
-                f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
-            )
+            print(f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC")
+            print(f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC")
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
     elif args.usuario:
@@ -211,9 +237,11 @@ def main():
         FuncionesExtras.SalvarDato("fecha_revisar", datetime.now())
     elif args.buscar_revision:
         logger.info(f"Video a revisar")
-        mostrandoRevisar()
+        mostraRevisar()
     elif args.data and Video_id:
         DataVideo(Video_id)
+    elif args.actualizar_estado:
+        actualizarEstado()
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
