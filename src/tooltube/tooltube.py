@@ -93,6 +93,7 @@ def CargarCredenciales(Canal=None):
         else:
             logger.info("Cargando nuevas credenciales...")
             client_secrets = FolderData + "/client_secrets.json"
+            # Todo: Hacer un error mas fatal
             if not os.path.exists(client_secrets):
                 logger.warning("No existe client_secrets.json agregalo a {FolderData}")
                 return
@@ -179,12 +180,11 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     try:
         DataVideo = solicitudVideo.execute()
     except HttpError as e:
-        logger.warning(
-            Fore.WHITE
-            + Back.RED
-            + Style.BRIGHT
-            + f"Erro con API-Youtube: {e.resp.status}"
-        )
+        if e.resp.status == 403:
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
+            exit()
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
+
         return -1
 
     if len(DataVideo["items"]) > 0:
@@ -200,12 +200,10 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
         try:
             RespuestaYoutube = SolisituActualizar.execute()
         except HttpError as e:
-            logger.warning(
-                Fore.WHITE
-                + Back.RED
-                + Style.BRIGHT
-                + f"Erro con API-Youtube: {e.resp.status}"
-            )
+            if e.resp.status == 403:
+                logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
+                exit()
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
             return -1
 
         if len(RespuestaYoutube["snippet"]) > 0:
