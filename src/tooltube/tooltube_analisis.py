@@ -8,6 +8,7 @@ import pandas as pd
 from pathlib import Path
 from colorama import Back, Fore, Style
 
+from tooltube import funcionesExtras
 import tooltube.funcionesExtras as FuncionesExtras
 import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
@@ -46,6 +47,20 @@ def ArgumentosCLI():
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
     parser.add_argument("--buscar_revision", "-br", help="Buscar video aa revisar", action="store_true")
 
+    parser.add_argument("--estado", "-e",
+                        help="actualiza estado del proyecto de video",
+                        choices=[
+                            'desconocido',
+                            'pendiente',
+                            'idea',
+                            'desarrollo',
+                            'guion',
+                            'grabado',
+                            'tomab',
+                            'revision',
+                            'publicado'
+                        ]
+                        )
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
     return parser.parse_args()
@@ -67,10 +82,29 @@ def cambiosGlobales():
                     print()
 
 
-def actualizarEstado():
-    actual = os.getcwd()
+def cambiarEstado(estadoNuevo):
+
+    if estadoNuevo is None:
+        print("Error estado vacilo")
+
+    rutaBase = funcionesExtras.buscarRaiz()
+    nombreProyecto = Path(rutaBase).name
+    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+    estadoActual = miLibrerias.ObtenerValor(rutaInfo, "estado")
+    if estadoActual is None:
+        estadoActual = "desconocido"
+    miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
+    print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
+    print("Actualizar Icono")
+    actualizarEstado(rutaBase)
+
+
+def actualizarEstado(rutaActual=None):
+
+    if rutaActual is None:
+        rutaActual = os.getcwd()
     iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
-    for base, dirs, files in os.walk(actual):
+    for base, dirs, files in os.walk(rutaActual):
         for name in files:
             if name.endswith(("Info.md")):
                 filepath = base + os.sep + name
@@ -242,6 +276,8 @@ def main():
         DataVideo(Video_id)
     elif args.actualizar_estado:
         actualizarEstado()
+    elif args.estado:
+        cambiarEstado(args.estado)
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
