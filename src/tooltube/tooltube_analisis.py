@@ -234,7 +234,7 @@ def main():
     else:
         Video_id = buscarID()
 
-    if Video_id is not None:
+    if Video_id is not None and Video_id != "ID_Youtube":
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
     if args.url_analitica:
