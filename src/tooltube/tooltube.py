@@ -80,6 +80,24 @@ def CargarCredenciales(Canal=None):
         os.makedirs(FolderData)
 
     ArchivoPickle = FolderData + "/token.pickle"
+    ArchivoInfo = FolderData + "/info.md"
+
+    if os.path.exists(ArchivoInfo):
+        logger.info("Permisos sin Membrecía")
+        permisosYoutube = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.readonly",
+            "https://www.googleapis.com/auth/youtubepartner",
+            "https://www.googleapis.com/auth/youtube.force-ssl",
+        ]
+    else:
+        permisosYoutube = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.readonly",
+            "https://www.googleapis.com/auth/youtubepartner",
+            "https://www.googleapis.com/auth/youtube.channel-memberships",
+            "https://www.googleapis.com/auth/youtube.force-ssl",
+        ]
 
     if os.path.exists(ArchivoPickle):
         logger.info("Cargando credenciales API Youtube, del Archivo pickle...")
@@ -99,13 +117,7 @@ def CargarCredenciales(Canal=None):
                 return
             flow = InstalledAppFlow.from_client_secrets_file(
                 client_secrets,
-                scopes=[
-                    "https://www.googleapis.com/auth/youtube",
-                    "https://www.googleapis.com/auth/youtube.readonly",
-                    "https://www.googleapis.com/auth/youtubepartner",
-                    "https://www.googleapis.com/auth/youtube.channel-memberships",
-                    "https://www.googleapis.com/auth/youtube.force-ssl",
-                ],
+                scopes=permisosYoutube,
             )
 
             flow.run_local_server(
