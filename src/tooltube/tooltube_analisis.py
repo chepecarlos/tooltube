@@ -123,6 +123,8 @@ def actualizarIconoDeterminado(icono, folder):
     if icono is None or folder is None:
         print("Error Faltan Datos")
         return
+    
+    # TODO cambiar icono solo si es diferente
 
     Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
     os.system(Comando)
@@ -220,7 +222,7 @@ def main():
 
     if args.file:
         logger.info(f"Usando el Archivo: {args.file}")
-        analisis.crearGrafica("Vistas", args.file)
+        analisis.crearGraficaLocal(args.file)
         return
 
     if args.salvar_id:
