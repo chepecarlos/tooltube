@@ -7,8 +7,12 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos, ObtenerArchivo
 
 logger = miLibrerias.ConfigurarLogging(__name__)
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
 import tooltube.funcionesExtras as funcionesExtras
 from tooltube.funcionesExtras import SalvarID, buscarID
+from tooltube.tooltube import CargarCredenciales
 
 
 def ArgumentosCLI():
@@ -18,6 +22,7 @@ def ArgumentosCLI():
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
     parser.add_argument("--salvar_id", "-s", help="Salvar ID del video")
     parser.add_argument("--buscar", "-b", help="Buscar un proyecto")
+    parser.add_argument("--miembros", "-m", help="Descarga miembros actuales", action="store_true")
 
     parser.add_argument("-url", help="URL importante del video", action="store_true")
 
@@ -39,6 +44,46 @@ def buscarProyecto(ID):
                     os.system(f"nemo {filepath}")
                     return
     print(f"No encontrado {ID} :(")
+
+
+def descargarMiembros():
+    pass
+    # credenciales = CargarCredenciales()
+
+    # youtube = build('youtube', 'v3', credentials=credenciales)
+    # MEMBERS_SECTION_ID = '181'
+    # MEMBERS_SECTION_LEVEL = 2
+    # try:
+    #     # Realizar la solicitud para obtener la lista de miembros del canal.
+    #     next_page_token = None
+
+    #     request = youtube.members().list(
+    #         part='snippet',
+    #         filterByMemberChannelId="UCS5yb75qx5GFOG-uV5JLYlQ",
+    #         maxResults=50,
+    #         pageToken=next_page_token
+    #     )
+
+    #     response = request.execute()
+
+
+    #     print(response)
+
+        # Abrir el archivo CSV para escribir la lista de miembros.
+        # with open('miembros.csv', mode='w', newline='') as file:
+        #     writer = csv.writer(file)
+
+        #     # Escribir los encabezados de las columnas.
+        #     writer.writerow(['ID de canal', 'Nombre de usuario'])
+
+        #     # Escribir los datos de cada miembro.
+        #     for item in response['items']:
+        #         writer.writerow([item['snippet']['memberDetails']['channelId'], item['snippet']['memberDetails']['displayName']])
+
+        # print("Se ha descargado la lista de miembros en el archivo 'miembros.csv'.")
+
+    # except HttpError as error:
+    #     print(f"Se produjo un error al intentar obtener la lista de miembros: {error}")
 
 
 def main():
@@ -65,5 +110,7 @@ def main():
     elif args.buscar:
         print(f"Buscando {args.buscar}")
         buscarProyecto(args.buscar)
+    elif args.miembros:
+        descargarMiembros()
     else:
         print("No se encontró opción prueba con -h")

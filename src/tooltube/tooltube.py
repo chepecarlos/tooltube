@@ -10,6 +10,16 @@ import time
 
 import colorama
 import httplib2
+from apiclient.errors import HttpError
+from apiclient.http import MediaFileUpload
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+import tooltube.funcionesExtras as FuncionesExtras
+import tooltube.miLibrerias as miLibrerias
+import tooltube.obtenerDataYoutube as dataYoutube
+from tooltube.operaciones import analisis, usuario
 
 try:
     import httplib
@@ -21,17 +31,6 @@ from pathlib import Path
 from colorama import Back, Fore, Style
 
 colorama.init(autoreset=True)
-
-from apiclient.errors import HttpError
-from apiclient.http import MediaFileUpload
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-
-import tooltube.funcionesExtras as FuncionesExtras
-import tooltube.miLibrerias as miLibrerias
-import tooltube.obtenerDataYoutube as dataYoutube
-from tooltube.operaciones import analisis, usuario
 
 logger = miLibrerias.ConfigurarLogging(__name__)
 
@@ -81,6 +80,24 @@ def CargarCredenciales(Canal=None):
         os.makedirs(FolderData)
 
     ArchivoPickle = FolderData + "/token.pickle"
+    ArchivoInfo = FolderData + "/info.md"
+
+    if os.path.exists(ArchivoInfo):
+        logger.info("Permisos sin Membrecía")
+        permisosYoutube = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.readonly",
+            "https://www.googleapis.com/auth/youtubepartner",
+            "https://www.googleapis.com/auth/youtube.force-ssl",
+        ]
+    else:
+        permisosYoutube = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.readonly",
+            "https://www.googleapis.com/auth/youtubepartner",
+            "https://www.googleapis.com/auth/youtube.channel-memberships",
+            "https://www.googleapis.com/auth/youtube.force-ssl",
+        ]
 
     if os.path.exists(ArchivoPickle):
         logger.info("Cargando credenciales API Youtube, del Archivo pickle...")
@@ -100,14 +117,12 @@ def CargarCredenciales(Canal=None):
                 return
             flow = InstalledAppFlow.from_client_secrets_file(
                 client_secrets,
-                scopes=[
-                    "https://www.googleapis.com/auth/youtube.readonly",
-                    "https://www.googleapis.com/auth/youtube",
-                    "https://www.googleapis.com/auth/youtubepartner",
-                ],
+                scopes=permisosYoutube,
             )
 
-            flow.run_local_server(port=8080, prompt="consent", authorization_prompt_message="")
+            flow.run_local_server(
+                port=8080, prompt="consent", authorization_prompt_message=""
+            )
             credentials = flow.credentials
 
             with open(ArchivoPickle, "wb") as f:
@@ -219,7 +234,6 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
 
 
 def ActualizarEstadoVideo(credenciales, video_id, estado):
-
     lista_estado = {"publico": "public", "privado": "private", "nolistado": "unlisted"}
 
     if estado in lista_estado:
@@ -244,7 +258,9 @@ def ActualizarEstadoVideo(credenciales, video_id, estado):
         print(data_estado)
         print(data_estado["privacyStatus"])
 
-        solicitudActualizar = youtube.videos().update(part="status", body=dict(status=data_estado, id=video_id))
+        solicitudActualizar = youtube.videos().update(
+            part="status", body=dict(status=data_estado, id=video_id)
+        )
 
         respuesta_youtube = solicitudActualizar.execute()
 
@@ -254,7 +270,13 @@ def ActualizarEstadoVideo(credenciales, video_id, estado):
 
 
 def ActualizarDescripcionFolder(
-    credenciales, Max=None, Directorio=None, total=None, contador=None, error=None, Actualizados=None
+    credenciales,
+    Max=None,
+    Directorio=None,
+    total=None,
+    contador=None,
+    error=None,
+    Actualizados=None,
 ):
     """Actualiza Descripciones de Video desde los archivos de un Folder."""
     if contador is None:
@@ -273,7 +295,11 @@ def ActualizarDescripcionFolder(
         direcionArchivo = Directorio + "/" + archivo
         if os.path.isdir(direcionArchivo):
             [contador, Actualizados] = ActualizarDescripcionFolder(
-                credenciales, contador=contador, Directorio=direcionArchivo, total=total, Actualizados=Actualizados
+                credenciales,
+                contador=contador,
+                Directorio=direcionArchivo,
+                total=total,
+                Actualizados=Actualizados,
             )
         if archivo.endswith(".txt"):
             contador += 1
@@ -318,7 +344,7 @@ def ActualizarThumbnails(credenciales, video_id, archivo=None):
         archivo = video_id + ".png"
     if os.path.exists(archivo):
         youtube = build("youtube", "v3", credentials=credenciales)
-        Respuesta = youtube.thumbnails().set(videoId=video_id, media_body=archivo).execute()
+        Respuesta = (youtube.thumbnails().set(videoId=video_id, media_body=archivo).execute())
         if Respuesta["items"][0]:
             if "maxres" in Respuesta["items"][0]:
                 logger.info(f"Imagen Actualizada para {video_id} - {Respuesta['items'][0]['maxres']['url']}")
@@ -348,7 +374,6 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
     SnippetVideo = video["snippet"]
 
     if Lenguaje and Lenguaje != "":
-
         SnippetVideo["defaultLanguage"] = Lenguaje
         SnippetVideo["defaultAudioLanguage"] = Lenguaje
 
@@ -388,7 +413,9 @@ def SubirVideo(credenciales, Archivo, Comentario=""):
     )
 
     Respuesta = youtube.videos().insert(
-        part=",".join(body.keys()), body=body, media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True)
+        part=",".join(body.keys()),
+        body=body,
+        media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True),
     )
 
     return RecargarSubida(Respuesta, Comentario)
@@ -413,7 +440,7 @@ def RecargarSubida(Respuesta, Comentario):
                     exit()
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
-                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status, e.content,)
             else:
                 raise
         except RETRIABLE_EXCEPTIONS as e:
@@ -426,7 +453,7 @@ def RecargarSubida(Respuesta, Comentario):
                 logger.warning("No mas intento de conexión")
                 exit()
 
-            max_sleep = 2 ** retry
+            max_sleep = 2**retry
             sleep_seconds = random.random() * max_sleep
             logger.warning(f"durmiendo por {sleep_seconds} y después reintentando")
             time.sleep(sleep_seconds)
@@ -470,7 +497,6 @@ def FuncionSinID(args):
 
 
 def ArgumentosCLI():
-
     parser = argparse.ArgumentParser(prog="tooltube", description="Herramienta de Automatización de Youtube")
     parser.add_argument("--estado", "-e", help="Actualiza Estado de un video")
     parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube")
@@ -543,12 +569,22 @@ def main():
         if Video_id is not None:
             ActualizarTitulo(Credenciales, args.titulo, Video_id, args.nota)
         else:
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
+            logger.warning(
+                Fore.WHITE
+                + Back.RED
+                + Style.BRIGHT
+                + f"Error no encontrado ID Video en 1.Info.md"
+            )
     elif args.miniatura:
         if Video_id is not None:
             ActualizarMiniatura(Credenciales, args.miniatura, Video_id, args.nota)
         else:
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Error no encontrado ID Video en 1.Info.md")
+            logger.warning(
+                Fore.WHITE
+                + Back.RED
+                + Style.BRIGHT
+                + f"Error no encontrado ID Video en 1.Info.md"
+            )
     elif args.idioma:
         if Video_id:
             logger.info(f"Actualizando Idioma del Video {Video_id}")
@@ -556,7 +592,12 @@ def main():
     elif args.actualizar:
         ActualizarMetadata(Credenciales, Video_id)
     else:
-        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Comandos no encontrado, prueba con -h")
+        logger.warning(
+            Fore.WHITE
+            + Back.RED
+            + Style.BRIGHT
+            + "Comandos no encontrado, prueba con -h"
+        )
 
 
 if __name__ == "__main__":

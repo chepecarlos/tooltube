@@ -50,6 +50,12 @@ def cargarData(ruta, archivo, noTotales=False):
     # data.sort_values(etiquetaFecha, inplace=True)
     return data
 
+def crearGraficaLocal(archivo=None):
+    logger.info("Empezar gráfica Local")
+    rutaBase = "."
+    dataYoutube = cargarData(rutaBase, archivo, True)
+    etiqueta = list(dataYoutube.columns)[1]
+    crearGrafica(etiqueta, archivo)
 
 def crearGrafica(etiqueta, archivo=None):
     logger.info("Empezar a hacer gráfica")
