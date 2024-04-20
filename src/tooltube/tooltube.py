@@ -181,8 +181,13 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
             exit()
         logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
-        return -1
-
+    except httplib2.error.ServerNotFoundError as error:
+        print(f"Error fatal con solicitud {error}")
+        exit()
+    except:
+        print("Error fatal con solicitud")
+        exit()
+    
     if len(DataVideo["items"]) > 0:
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
@@ -273,7 +278,8 @@ def ActualizarDescripcionFolder(
         if archivo.endswith(".txt"):
             contador += 1
             video_id = archivo.replace(".txt", "")
-            logger.info(f"V({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}")
+            # logger.info(f"V({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}")
+            print(f"V({contador}/{total}) A/{Actualizados} - Video_ID:{video_id} - folder:{Directorio}\r", end="")
             Resultado = ActualizarDescripcionVideo(credenciales, video_id, archivo, Directorio)
             if Resultado == 1:
                 Actualizados += 1
