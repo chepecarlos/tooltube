@@ -56,10 +56,12 @@ def ArgumentosCLI():
                             'desarrollo',
                             'guion',
                             'grabado',
+                            'edicion',
                             'tomab',
                             'revision',
+                            'preparado',
                             'publicado'
-                        ]
+                            ]
                         )
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
