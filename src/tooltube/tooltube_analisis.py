@@ -63,6 +63,17 @@ def ArgumentosCLI():
                             'publicado'
                             ]
                         )
+    parser.add_argument("--asignado", "-a",
+                        help="actualiza a quien esta asignado del proyecto de video",
+                        choices=[
+                            'desconocido',
+                            'paty',
+                            'chepecarlos',
+                            'ingjuan',
+                            'luis'
+                            ]
+                        )
+    
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
     return parser.parse_args()
@@ -84,7 +95,7 @@ def cambiosGlobales():
                     print()
 
 
-def cambiarEstado(estadoNuevo):
+def cambiarEstado(estadoNuevo: str) -> None:
 
     if estadoNuevo is None:
         print("Error estado vacilo")
@@ -101,6 +112,20 @@ def cambiarEstado(estadoNuevo):
     print("Actualizar Icono")
     
     actualizarEstado(rutaBase)
+    
+def cambiarAsignado(asignadoNuevo: str)-> None:
+    
+    if asignadoNuevo is None:
+        print("Error asignado vacilo")
+        
+    rutaBase = funcionesExtras.buscarRaiz()
+    nombreProyecto = Path(rutaBase).name
+    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+    estadoActual = miLibrerias.ObtenerValor(rutaInfo, "asignado")
+    if estadoActual is None:
+        estadoActual = "desconocido"
+    miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNuevo)
+    print(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
 
 
 def actualizarEstado(rutaActual=None):
@@ -284,6 +309,9 @@ def main():
         actualizarEstado()
     elif args.estado:
         cambiarEstado(args.estado)
+    elif args.asignado:
+        cambiarAsignado(args.asignado)
+        pass
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 
