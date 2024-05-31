@@ -29,7 +29,7 @@ def consultaPost(dataNotion, ruta):
         "filter": {
             "property": "URL NocheProgramacion",
             "text": {
-                "equals": ruta
+                "contains": ruta
             }
         }
     }
