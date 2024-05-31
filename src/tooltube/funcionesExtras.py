@@ -61,7 +61,7 @@ def SalvarID(ID):
     logger.warning("No se puedo salvar ID")
 
 
-def buscarDato(Atributo):
+def buscarDato(Atributo: str) -> str:
     """
     Busca el ID del video de Youtube
     """

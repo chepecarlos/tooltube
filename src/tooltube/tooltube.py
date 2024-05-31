@@ -468,14 +468,14 @@ def ActualizarMiniatura(Credenciales, miniatura, id, nota):
             analisis.salvar_data_analitica("1.Cambios/miniatura.csv", miniatura, nota)
 
 
-def ActualizarTitulo(Credenciales, titulo, id, nota):
+def ActualizarTitulo(Credenciales, titulo, id, nota) -> None:
     respuesta = ActualizarTituloVideo(Credenciales, id, titulo)
     if respuesta:
         analisis.salvar_data_analitica("1.Cambios/titulos.csv", titulo, nota)
         FuncionesExtras.SalvarDato("titulo", titulo)
 
 
-def ActualizarMetadata(credenciales, ID):
+def ActualizarMetadata(credenciales, ID) -> None:
     Titulo = FuncionesExtras.buscarDato("titulo")
     Miniatura = FuncionesExtras.buscarDato("miniatura")
     if Titulo and Titulo != "Titulo Video":
@@ -496,7 +496,7 @@ def FuncionSinID(args):
         logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
 
 
-def ArgumentosCLI():
+def ArgumentosCLI() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="tooltube", description="Herramienta de Automatización de Youtube")
     parser.add_argument("--estado", "-e", help="Actualiza Estado de un video")
     parser.add_argument("--miniatura", "-m", help="Actualizar de Miniatura de video en Youtube")
