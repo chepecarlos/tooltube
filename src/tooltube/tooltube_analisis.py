@@ -14,6 +14,7 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
+from tooltube.minotion.minotion import estadoNotion
 
 from .funcionesExtras import SalvarID, buscarID
 
@@ -51,7 +52,6 @@ def ArgumentosCLI():
                         help="actualiza estado del proyecto de video",
                         choices=[
                             'desconocido',
-                            'pendiente',
                             'idea',
                             'desarrollo',
                             'guion',
@@ -96,8 +96,10 @@ def cambiarEstado(estadoNuevo):
     if estadoActual is None:
         estadoActual = "desconocido"
     miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
+    estadoNotion(estadoNuevo)
     print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
     print("Actualizar Icono")
+    
     actualizarEstado(rutaBase)
 
 
