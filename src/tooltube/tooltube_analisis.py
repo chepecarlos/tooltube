@@ -14,7 +14,7 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
-from tooltube.minotion.minotion import estadoNotion
+from tooltube.minotion.minotion import estadoNotion, asignadoNotion
 
 from .funcionesExtras import SalvarID, buscarID
 
@@ -106,10 +106,11 @@ def cambiarEstado(estadoNuevo: str) -> None:
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "estado")
     if estadoActual is None:
         estadoActual = "desconocido"
-    miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
-    estadoNotion(estadoNuevo)
-    print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
-    print("Actualizar Icono")
+    funcionoNotion = estadoNotion(estadoNuevo)
+    if funcionoNotion:
+        miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
+        print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
+        print("Actualizar Icono")
     
     actualizarEstado(rutaBase)
     
@@ -124,8 +125,10 @@ def cambiarAsignado(asignadoNuevo: str)-> None:
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "asignado")
     if estadoActual is None:
         estadoActual = "desconocido"
-    miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNuevo)
-    print(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
+    funcionoNotion = asignadoNotion(asignadoNuevo)
+    if funcionoNotion:
+        miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNuevo)
+        print(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
 
 
 def actualizarEstado(rutaActual=None):

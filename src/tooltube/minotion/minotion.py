@@ -72,17 +72,17 @@ def urlNotion():
     return idNotion
 
 
-def estadoNotion(estado: str):
+def estadoNotion(estado: str) -> bool:
     idPagina = urlNotion()
 
     if idPagina is None:
         logger.warning("Error no se encontró ID")
-        return
+        return False
 
     dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
     if dataNotion is None:
         logger.warning("No data de Notion")
-        return
+        return False
 
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
@@ -106,5 +106,46 @@ def estadoNotion(estado: str):
 
     if respuesta.status_code == 200:
         logger.info("Se actualizar pagina de Notion")
+        return True
     else:
         logger.warning("No se puede actualizar Notion")
+        return False
+
+def asignadoNotion(asignado: str) -> bool:
+    idPagina = urlNotion()
+
+    if idPagina is None:
+        logger.warning("Error no se encontró ID")
+        return False
+
+    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    if dataNotion is None:
+        logger.warning("No data de Notion")
+        return False
+    
+    urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
+
+    cabezaConsulta = {
+        "Authorization": f"Bearer {dataNotion.get('token')}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-08-16"
+    }
+
+    asignado = {
+        "properties": {
+            "Asignado": {
+                "select": {
+                    "name": asignado
+                }
+            }
+        }
+    }
+
+    respuesta = requests.patch(urlConsulta, json=asignado, headers=cabezaConsulta)
+
+    if respuesta.status_code == 200:
+        logger.info("Se actualizar pagina de Notion")
+        return True
+    else:
+        logger.warning("No se puede actualizar Notion")
+        return False
