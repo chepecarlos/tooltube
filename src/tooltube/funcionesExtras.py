@@ -107,3 +107,34 @@ def buscarRaiz():
             return rutaBase
 
     return None
+
+
+def actualizarEstado(rutaActual=None):
+
+    if rutaActual is None:
+        rutaActual = os.getcwd()
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
+    for base, dirs, files in os.walk(rutaActual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                filepath = base + os.sep + name
+                estado = miLibrerias.ObtenerValor(filepath, "estado")
+                if estado is None:
+                    estado = "desconocido"
+                folderProyecto = Path(base + os.sep).parent
+                nombreProyecto = folderProyecto.name
+                iconoProyecto = iconos.get(estado, estado[0])
+                print(f"Proyecto: {nombreProyecto} - {estado}")
+                actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+
+
+def actualizarIconoDeterminado(icono, folder):
+
+    if icono is None or folder is None:
+        print("Error Faltan Datos")
+        return
+    
+    # TODO cambiar icono solo si es diferente
+
+    Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
+    os.system(Comando)

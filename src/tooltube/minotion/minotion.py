@@ -222,6 +222,7 @@ def crearNotion(ruta: str) -> bool:
         
         miLibrerias.SalvarValor(rutaInfo, "url_notion", urlNotion)
         miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
+        funcionesExtras.actualizarEstado(ruta)
         
         print(f"Información Salvada Notion en URL: {urlNotion}")
     else:
