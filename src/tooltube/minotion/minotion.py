@@ -111,6 +111,7 @@ def estadoNotion(estado: str) -> bool:
         logger.warning("No se puede actualizar Notion")
         return False
 
+
 def asignadoNotion(asignado: str) -> bool:
     idPagina = urlNotion()
 
@@ -122,7 +123,7 @@ def asignadoNotion(asignado: str) -> bool:
     if dataNotion is None:
         logger.warning("No data de Notion")
         return False
-    
+
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
     cabezaConsulta = {
@@ -149,3 +150,79 @@ def asignadoNotion(asignado: str) -> bool:
     else:
         logger.warning("No se puede actualizar Notion")
         return False
+
+
+def crearNotion(ruta: str) -> bool:
+
+    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    if dataNotion is None:
+        logger.warning("No data de Notion")
+        return False
+
+    nombreTitulo = ruta.split("/")[-1]
+    nombreTitulo = nombreTitulo.split("_")[1:]
+    nombreTitulo = "".join(nombreTitulo)
+    rutaRelativa = ruta.split(dataNotion.get("base"))[1]
+    print()
+    print(f"Creando en Notion {nombreTitulo}- {ruta}")
+
+    urlConsulta = "https://api.notion.com/v1/pages"
+
+    cabezaConsulta = {
+        "Authorization": f"Bearer {dataNotion.get('token')}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-08-16"
+    }
+
+    dataPagina = {
+        "parent": {
+            "database_id": dataNotion.get('base_datos')
+        },
+        "properties": {
+            "Nombre": {
+                "title": [
+                    {
+                        "text": {
+                            "content": nombreTitulo
+                        }
+                    }
+                ]
+            },
+            "Asignado": {
+                "select": {
+                    "name": "desconocido"
+                }
+            },
+            "Estado": {
+                "select": {
+                    "name": "desconocido"
+                }
+            },
+            "URL NocheProgramacion": {
+                "rich_text": [
+                    {
+                        "text": {
+                            "content": rutaRelativa
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    
+    respuesta = requests.post(urlConsulta, headers=cabezaConsulta, data=json.dumps(dataPagina))
+    
+    if respuesta.status_code == 200:
+        
+        dataNotion = respuesta.json()
+
+        rutaInfo = f"{ruta}/1.Guion/1.Info.md"
+        urlNotion = dataNotion.get("url")
+        idNotion = dataNotion.get("id")
+        
+        miLibrerias.SalvarValor(rutaInfo, "url_notion", urlNotion)
+        miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
+        
+        print(f"Información Salvada Notion en URL: {urlNotion}")
+    else:
+        print("Error notion subiendo el video")
