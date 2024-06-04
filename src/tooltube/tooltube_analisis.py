@@ -14,9 +14,10 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
-from tooltube.minotion.minotion import estadoNotion, asignadoNotion
+from tooltube.minotion.minotion import estadoNotion, asignadoNotion, actualizarNotion
 
-from .funcionesExtras import SalvarID, buscarID, actualizarEstado
+from tooltube.funcionesExtras import SalvarID, buscarID
+
 
 logger = miLibrerias.ConfigurarLogging(__name__)
 
@@ -214,6 +215,26 @@ def cargarData(ruta, archivo, noTotales=False):
 def DataVideo(ID_Video):
     print(f"Buscando data  https://youtu.be/{ID_Video}")
     data = obtenerDataVideo(ID_Video)
+
+def actualizarEstado(rutaActual: str = None):
+
+    if rutaActual is None:
+        rutaActual = os.getcwd()
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
+    for base, dirs, files in os.walk(rutaActual):
+        for name in files:
+            if name.endswith(("Info.md")):
+                archivoInfo = base + os.sep + name
+                actualizarNotion(archivoInfo)
+                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
+                if estado is None:
+                    estado = "desconocido"
+                folderProyecto = Path(base + os.sep).parent
+                nombreProyecto = folderProyecto.name
+                iconoProyecto = iconos.get(estado, estado[0])
+                print(f"Proyecto: {nombreProyecto} - {estado}")
+                FuncionesExtras.actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+                print()
 
 
 def main():

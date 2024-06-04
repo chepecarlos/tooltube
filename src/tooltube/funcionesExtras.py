@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import tooltube.miLibrerias as miLibrerias
-from tooltube.minotion.minotion import actualizarNotion
 
 logger = miLibrerias.ConfigurarLogging(__name__)
 
@@ -107,29 +106,6 @@ def buscarRaiz():
             return rutaBase
 
     return None
-
-
-def actualizarEstado(rutaActual: str = None):
-
-    if rutaActual is None:
-        rutaActual = os.getcwd()
-    iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
-    for base, dirs, files in os.walk(rutaActual):
-        for name in files:
-            if name.endswith(("Info.md")):
-                archivoInfo = base + os.sep + name
-                # urlNotion(archivoInfo)
-                actualizarNotion(archivoInfo)
-                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
-                if estado is None:
-                    estado = "desconocido"
-                folderProyecto = Path(base + os.sep).parent
-                nombreProyecto = folderProyecto.name
-                iconoProyecto = iconos.get(estado, estado[0])
-                print(f"Proyecto: {nombreProyecto} - {estado}")
-                actualizarIconoDeterminado(iconoProyecto, folderProyecto)
-                print()
-
 
 def actualizarIconoDeterminado(icono, folder):
 

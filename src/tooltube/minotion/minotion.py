@@ -164,7 +164,7 @@ def crearNotion(ruta: str) -> bool:
 
     nombreTitulo = ruta.split("/")[-1]
     nombreTitulo = nombreTitulo.split("_")[1:]
-    nombreTitulo = "".join(nombreTitulo)
+    nombreTitulo = " ".join(nombreTitulo)
     rutaRelativa = ruta.split(dataNotion.get("base"))[1]
     print()
     print(f"Creando en Notion {nombreTitulo}- {ruta}")
@@ -225,7 +225,6 @@ def crearNotion(ruta: str) -> bool:
 
         miLibrerias.SalvarValor(rutaInfo, "url_notion", urlNotion)
         miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
-        funcionesExtras.actualizarEstado(ruta)
 
         print(f"Información Salvada Notion en URL: {urlNotion}")
     else:
