@@ -230,27 +230,38 @@ def crearNotion(ruta: str) -> bool:
     else:
         print("Error notion subiendo el video")
 
+
 def actualizarNotion(rutaInfo: str) -> None:
     rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
     dataNotion = consultaPost(rutaRelativa)
-    
+
     if dataNotion is None:
         return
-    
+
     urlNotion = dataNotion.get("url")
-    estadoNotion = dataNotion.get("properties").get("Estado").get("select").get("name")
-    asignadoNotion = dataNotion.get("properties").get("Asignado").get("select").get("name")
-    
+
+    estadoNotion = dataNotion.get("properties").get("Estado").get("select")
+    if estadoNotion is None:
+        estadoNotion = "desconocido"
+    else:
+        estadoNotion = estadoNotion.get("name")
+
+    asignadoNotion = dataNotion.get("properties").get("Asignado").get("select", "desconocido")
+    if asignadoNotion is None:
+        asignadoNotion = "desconocido"
+    else:
+        asignadoNotion = asignadoNotion.get("name")
+
     estadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "estado")
     asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
-    
+
     miLibrerias.SalvarValor(rutaInfo, "estado", estadoNotion)
     miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNotion)
-    
+
     if estadoAnterior != estadoNotion:
         print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
-        
+
     if asignadoAnterior != asignadoNotion:
         print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
-        
+
     print(f"Ruta: {urlNotion}")
