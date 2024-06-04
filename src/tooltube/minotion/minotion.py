@@ -240,11 +240,14 @@ def actualizarNotion(rutaInfo: str) -> None:
 
     urlNotion = dataNotion.get("url")
 
-    estadoNotion = dataNotion.get("properties").get("Estado").get("select")
-    if estadoNotion is None:
-        estadoNotion = "desconocido"
+    terminadoNotion = dataNotion.get("properties").get("Terminad").get("checkbox")
+    estadoNotion = "desconocido"
+    if terminadoNotion == True:
+        estadoNotion = "publicado"
     else:
-        estadoNotion = estadoNotion.get("name")
+        estadoNotion = dataNotion.get("properties").get("Estado").get("select")
+        if estadoNotion is not None:
+            estadoNotion = estadoNotion.get("name")
 
     asignadoNotion = dataNotion.get("properties").get("Asignado").get("select", "desconocido")
     if asignadoNotion is None:
