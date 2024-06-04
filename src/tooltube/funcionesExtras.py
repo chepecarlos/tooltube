@@ -1,11 +1,11 @@
+from tooltube.miLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 import os
 from pathlib import Path
 
 import tooltube.miLibrerias as miLibrerias
+from tooltube.minotion.minotion import actualizarNotion
 
 logger = miLibrerias.ConfigurarLogging(__name__)
-
-from tooltube.miLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 
 
 def ObtenerRuta(subir, folder):
@@ -109,7 +109,7 @@ def buscarRaiz():
     return None
 
 
-def actualizarEstado(rutaActual=None):
+def actualizarEstado(rutaActual: str = None):
 
     if rutaActual is None:
         rutaActual = os.getcwd()
@@ -117,8 +117,10 @@ def actualizarEstado(rutaActual=None):
     for base, dirs, files in os.walk(rutaActual):
         for name in files:
             if name.endswith(("Info.md")):
-                filepath = base + os.sep + name
-                estado = miLibrerias.ObtenerValor(filepath, "estado")
+                archivoInfo = base + os.sep + name
+                # urlNotion(archivoInfo)
+                actualizarNotion(archivoInfo)
+                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
                 if estado is None:
                     estado = "desconocido"
                 folderProyecto = Path(base + os.sep).parent
@@ -126,6 +128,7 @@ def actualizarEstado(rutaActual=None):
                 iconoProyecto = iconos.get(estado, estado[0])
                 print(f"Proyecto: {nombreProyecto} - {estado}")
                 actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+                print()
 
 
 def actualizarIconoDeterminado(icono, folder):
@@ -133,7 +136,7 @@ def actualizarIconoDeterminado(icono, folder):
     if icono is None or folder is None:
         print("Error Faltan Datos")
         return
-    
+
     # TODO cambiar icono solo si es diferente
 
     Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"

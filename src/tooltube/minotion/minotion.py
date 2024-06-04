@@ -10,16 +10,21 @@ import tooltube.miLibrerias as miLibrerias
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
-def urlBase() -> str:
+def urlBase(raiz: str = None) -> str:
     data = miLibrerias.ObtenerArchivo("data/notion.md")
     if data is None:
         logger.warning("No data de Notion")
-    raiz = funcionesExtras.buscarRaiz()
+    if raiz is None:
+        raiz = funcionesExtras.buscarRaiz()
     raiz = raiz.split(data["base"])[1]
     return raiz
 
 
-def consultaPost(dataNotion, ruta):
+def consultaPost(ruta: str):
+    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    if dataNotion is None:
+        logger.warning("No data de Notion")
+        return
     urlConsulta = f"https://api.notion.com/v1/databases/{dataNotion.get('base_datos')}/query"
     cabezaConsulta = {
         "Authorization": f"Bearer {dataNotion.get('token')}",
@@ -47,28 +52,26 @@ def consultaPost(dataNotion, ruta):
         return dataRespuesta
 
 
-def urlNotion():
-    logger.info("buscando url notion")
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return
-    raiz = funcionesExtras.buscarRaiz()
-    rutaInfo = f"{raiz}/1.Guion/1.Info.md"
+def urlNotion(rutaInfo: str = None):
+    if rutaInfo is None:
+        raiz = funcionesExtras.buscarRaiz()
+        rutaInfo = f"{raiz}/1.Guion/1.Info.md"
     dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
     if "id_notion" in dataInfo:
         urlNotion = dataInfo.get("url_notion")
         print(f"URL Proyecto {urlNotion}")
         return dataInfo.get("id_notion")
-    base = urlBase()
-    dataNotion = consultaPost(dataNotion, base)
+    rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
+    logger.info(f"Buscando {rutaRelativa} en Notion")
+    dataNotion = consultaPost(rutaRelativa)
     if dataNotion is None:
         return
+    tituloNotion = dataNotion.get("title")
     urlNotion = dataNotion.get("url")
     idNotion = dataNotion.get("id")
     miLibrerias.SalvarValor(rutaInfo, "url_notion", urlNotion)
     miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
-    print(f"URL Proyecto {urlNotion}")
+    print(f"URL {tituloNotion}: {urlNotion}")
     return idNotion
 
 
@@ -209,21 +212,46 @@ def crearNotion(ruta: str) -> bool:
             }
         }
     }
-    
+
     respuesta = requests.post(urlConsulta, headers=cabezaConsulta, data=json.dumps(dataPagina))
-    
+
     if respuesta.status_code == 200:
-        
+
         dataNotion = respuesta.json()
 
         rutaInfo = f"{ruta}/1.Guion/1.Info.md"
         urlNotion = dataNotion.get("url")
         idNotion = dataNotion.get("id")
-        
+
         miLibrerias.SalvarValor(rutaInfo, "url_notion", urlNotion)
         miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
         funcionesExtras.actualizarEstado(ruta)
-        
+
         print(f"Información Salvada Notion en URL: {urlNotion}")
     else:
         print("Error notion subiendo el video")
+
+def actualizarNotion(rutaInfo: str) -> None:
+    rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
+    dataNotion = consultaPost(rutaRelativa)
+    
+    if dataNotion is None:
+        return
+    
+    urlNotion = dataNotion.get("url")
+    estadoNotion = dataNotion.get("properties").get("Estado").get("select").get("name")
+    asignadoNotion = dataNotion.get("properties").get("Asignado").get("select").get("name")
+    
+    estadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "estado")
+    asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
+    
+    miLibrerias.SalvarValor(rutaInfo, "estado", estadoNotion)
+    miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNotion)
+    
+    if estadoAnterior != estadoNotion:
+        print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
+        
+    if asignadoAnterior != asignadoNotion:
+        print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
+        
+    print(f"Ruta: {urlNotion}")
