@@ -14,7 +14,7 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
-from tooltube.minotion.minotion import estadoNotion, asignadoNotion, actualizarNotion
+from tooltube.minotion.minotion import estadoNotion, asignadoNotion, actualizarNotion, crearNotion
 
 from tooltube.funcionesExtras import SalvarID, buscarID
 
@@ -47,7 +47,8 @@ def ArgumentosCLI():
 
     parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
-    parser.add_argument("--buscar_revision", "-br", help="Buscar video aa revisar", action="store_true")
+    parser.add_argument("--buscar_revision", "-br", help="Buscar video a revisar", action="store_true")
+    parser.add_argument("--update", "-u", help="actualizar obligado", action="store_true")
 
     parser.add_argument("--estado", "-e",
                         help="actualiza estado del proyecto de video",
@@ -62,7 +63,7 @@ def ArgumentosCLI():
                             'revision',
                             'preparado',
                             'publicado'
-                            ]
+                        ]
                         )
     parser.add_argument("--asignado", "-a",
                         help="actualiza a quien esta asignado del proyecto de video",
@@ -72,9 +73,9 @@ def ArgumentosCLI():
                             'chepecarlos',
                             'ingjuan',
                             'luis'
-                            ]
+                        ]
                         )
-    
+
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
     return parser.parse_args()
@@ -112,14 +113,15 @@ def cambiarEstado(estadoNuevo: str) -> None:
         miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
         print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
         print("Actualizar Icono")
-    
+
     actualizarEstado(rutaBase)
-    
-def cambiarAsignado(asignadoNuevo: str)-> None:
-    
+
+
+def cambiarAsignado(asignadoNuevo: str) -> None:
+
     if asignadoNuevo is None:
         print("Error asignado vacilo")
-        
+
     rutaBase = funcionesExtras.buscarRaiz()
     nombreProyecto = Path(rutaBase).name
     rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
@@ -216,7 +218,8 @@ def DataVideo(ID_Video):
     print(f"Buscando data  https://youtu.be/{ID_Video}")
     data = obtenerDataVideo(ID_Video)
 
-def actualizarEstado(rutaActual: str = None):
+
+def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
     if rutaActual is None:
         rutaActual = os.getcwd()
@@ -225,11 +228,14 @@ def actualizarEstado(rutaActual: str = None):
         for name in files:
             if name.endswith(("Info.md")):
                 archivoInfo = base + os.sep + name
-                actualizarNotion(archivoInfo)
+                folderProyecto = Path(base + os.sep).parent
+                seActualizoNotion = actualizarNotion(archivoInfo)
+                if seActualizoNotion is None and subir:
+                    crearNotion(folderProyecto)
+                    actualizarNotion(archivoInfo)
                 estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
                 if estado is None:
                     estado = "desconocido"
-                folderProyecto = Path(base + os.sep).parent
                 nombreProyecto = folderProyecto.name
                 iconoProyecto = iconos.get(estado, estado[0])
                 print(f"Proyecto: {nombreProyecto} - {estado}")
@@ -299,7 +305,11 @@ def main():
     elif args.data and Video_id:
         DataVideo(Video_id)
     elif args.actualizar_estado:
-        actualizarEstado()
+        logger.info("Empezando a buscar Proyecto contenido")
+        if args.update:
+            actualizarEstado(subir=True)
+        else:
+            actualizarEstado()
     elif args.estado:
         cambiarEstado(args.estado)
     elif args.asignado:

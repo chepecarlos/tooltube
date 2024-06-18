@@ -34,7 +34,7 @@ def consultaPost(ruta: str):
 
     busqueda = {
         "filter": {
-            "property": "URL NocheProgramacion",
+            "property": "Ruta Archivo",
             "text": {
                 "contains": ruta
             }
@@ -52,12 +52,12 @@ def consultaPost(ruta: str):
         return dataRespuesta
 
 
-def urlNotion(rutaInfo: str = None):
+def urlNotion(rutaInfo: str = None, buscar: bool = False):
     if rutaInfo is None:
         raiz = funcionesExtras.buscarRaiz()
         rutaInfo = f"{raiz}/1.Guion/1.Info.md"
     dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
-    if "id_notion" in dataInfo:
+    if "id_notion" in dataInfo and not buscar:
         urlNotion = dataInfo.get("url_notion")
         print(f"URL Proyecto {urlNotion}")
         return dataInfo.get("id_notion")
@@ -162,6 +162,7 @@ def crearNotion(ruta: str) -> bool:
         logger.warning("No data de Notion")
         return False
 
+    ruta = str(ruta)
     nombreTitulo = ruta.split("/")[-1]
     nombreTitulo = nombreTitulo.split("_")[1:]
     nombreTitulo = " ".join(nombreTitulo)
@@ -201,7 +202,7 @@ def crearNotion(ruta: str) -> bool:
                     "name": "desconocido"
                 }
             },
-            "URL NocheProgramacion": {
+            "Ruta Archivo": {
                 "rich_text": [
                     {
                         "text": {
@@ -209,6 +210,13 @@ def crearNotion(ruta: str) -> bool:
                         }
                     }
                 ]
+            },
+            "Área": {
+                "relation":[
+                    {
+                        "id": dataNotion.get("id_creacion_contenido")
+                    }  
+                ] 
             }
         }
     }
@@ -229,9 +237,10 @@ def crearNotion(ruta: str) -> bool:
         print(f"Información Salvada Notion en URL: {urlNotion}")
     else:
         print("Error notion subiendo el video")
+        print(respuesta.json())
 
 
-def actualizarNotion(rutaInfo: str) -> None:
+def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
     dataNotion = consultaPost(rutaRelativa)
 
@@ -240,7 +249,7 @@ def actualizarNotion(rutaInfo: str) -> None:
 
     urlNotion = dataNotion.get("url")
 
-    terminadoNotion = dataNotion.get("properties").get("Terminad").get("checkbox")
+    terminadoNotion = dataNotion.get("properties").get("Terminado").get("checkbox")
     estadoNotion = "desconocido"
     if terminadoNotion == True:
         estadoNotion = "publicado"

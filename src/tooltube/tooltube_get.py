@@ -26,6 +26,7 @@ def ArgumentosCLI():
     parser.add_argument("--notion", "-n", help="URL proyecto en Notion", action="store_true")
 
     parser.add_argument("-url", help="URL importante del video", action="store_true")
+    parser.add_argument("--update", "-u", help="actualizar obligado", action="store_true")
 
     return parser.parse_args()
 
@@ -113,6 +114,9 @@ def main():
     elif args.miembros:
         descargarMiembros()
     elif args.notion:
-        urlNotion()
+        if args.update:
+            urlNotion(buscar=True)
+        else:
+            urlNotion()
     else:
         print("No se encontró opción prueba con -h")
