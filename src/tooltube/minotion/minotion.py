@@ -245,7 +245,7 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     dataNotion = consultaPost(rutaRelativa)
 
     if dataNotion is None:
-        return
+        return None
 
     urlNotion = dataNotion.get("url")
 
@@ -277,3 +277,4 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
         print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
 
     print(f"Ruta: {urlNotion}")
+    return True
