@@ -10,3 +10,4 @@ matplotlib
 pandas
 youtube_dl
 colorama
+PyQt5
