@@ -7,6 +7,7 @@ import pickle
 import random
 import sys
 import time
+import json
 
 import colorama
 import httplib2
@@ -202,7 +203,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     except:
         print("Error fatal con solicitud")
         exit()
-    
+
     if len(DataVideo["items"]) > 0:
         SnippetVideo = DataVideo["items"][0]["snippet"]
 
@@ -543,7 +544,12 @@ def main():
             SubirVideo(Credenciales, args.uploader, args.nota)
             ActualizarMetadata(Credenciales, FuncionesExtras.buscarDato("youtube_id"))
         except HttpError as e:
-            print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
+            dataProblema = json.loads(e.content)
+            problema = dataProblema.get("error").get("errors")[0].get("reason")
+            if problema == "quotaExceeded":
+                logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Cuota sobre pasada esperar al siguiente dia")
+            else:
+                print("un error HTTP %d occurred:\n%s" % (e.resp.status, e.content))
         # else:
         #     logger.info("Falta Archivo para subir -f")
     elif args.estado:
