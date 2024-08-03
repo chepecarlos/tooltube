@@ -62,7 +62,8 @@ def ArgumentosCLI():
                             'tomab',
                             'revision',
                             'preparado',
-                            'publicado'
+                            'publicado',
+                            'analizando'
                         ]
                         )
     parser.add_argument("--asignado", "-a",
