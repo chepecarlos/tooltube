@@ -75,8 +75,8 @@ def urlNotion(rutaInfo: str = None, buscar: bool = False):
     return idNotion
 
 
-def estadoNotion(estado: str) -> bool:
-    idPagina = urlNotion()
+def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
+    idPagina = urlNotion(rutaInfo)
 
     if idPagina is None:
         logger.warning("Error no se encontró ID")

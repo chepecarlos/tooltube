@@ -44,6 +44,7 @@ def ArgumentosCLI():
     parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
 
     parser.add_argument("--file", "-f", help="Usando archivo")
+    parser.add_argument("--folder", help="Folder a Realizar operacion")
 
     parser.add_argument("--revisar", "-r", help="Dias a revisar el video", type=int)
     parser.add_argument("--revisado", help="Video ya revisado", action="store_true")
@@ -107,18 +108,27 @@ def cambiosGlobales():
                     print()
 
 
-def cambiarEstado(estadoNuevo: str) -> None:
+def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
 
     if estadoNuevo is None:
         print("Error estado Bacillo")
 
     rutaBase = funcionesExtras.buscarRaiz()
-    nombreProyecto = Path(rutaBase).name
-    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+    if folderActual is None:
+        nombreProyecto = Path(rutaBase).name
+        rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+    else:
+        nombreProyecto = Path(folderActual).name
+        rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
+
+    if not Path(rutaInfo).exists():
+        print("No es un proyecto")
+        return
+    
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "estado")
     if estadoActual is None:
         estadoActual = "desconocido"
-    funcionoNotion = estadoNotion(estadoNuevo)
+    funcionoNotion = estadoNotion(estadoNuevo, rutaInfo)
     if funcionoNotion:
         miLibrerias.SalvarValor(rutaInfo, "estado", estadoNuevo)
         print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
@@ -336,7 +346,7 @@ def main():
         else:
             actualizarEstado()
     elif args.estado:
-        cambiarEstado(args.estado)
+        cambiarEstado(args.estado, args.folder)
     elif args.canal:
         cambiarCanal(args.canal)
     elif args.asignado:
