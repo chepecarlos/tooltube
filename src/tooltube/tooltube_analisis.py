@@ -14,7 +14,7 @@ import tooltube.miLibrerias as miLibrerias
 from tooltube.miLibrerias import FuncionesArchivos
 from tooltube.obtenerDataYoutube import obtenerDataVideo
 from tooltube.operaciones import analisis, usuario
-from tooltube.minotion.minotion import estadoNotion, asignadoNotion, actualizarNotion, crearNotion
+from tooltube.minotion.minotion import estadoNotion, asignadoNotion, actualizarNotion, crearNotion, canalNotion
 
 from tooltube.funcionesExtras import SalvarID, buscarID
 
@@ -76,6 +76,15 @@ def ArgumentosCLI():
                             'luis'
                         ]
                         )
+    parser.add_argument("--canal", "-c",
+                        help="actualiza a canal proyecto de video",
+                        choices=[
+                            'desconocido',
+                            'ChepeCarlos',
+                            'Curso_Venta',
+                            'CtrlZ'
+                        ]
+                        )
 
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
@@ -101,7 +110,7 @@ def cambiosGlobales():
 def cambiarEstado(estadoNuevo: str) -> None:
 
     if estadoNuevo is None:
-        print("Error estado vacilo")
+        print("Error estado Bacillo")
 
     rutaBase = funcionesExtras.buscarRaiz()
     nombreProyecto = Path(rutaBase).name
@@ -116,6 +125,21 @@ def cambiarEstado(estadoNuevo: str) -> None:
         print("Actualizar Icono")
 
     actualizarEstado(rutaBase)
+
+
+def cambiarCanal(canalNuevo: str) -> None:
+    if canalNuevo is None:
+        print("Error canal Bacillo")
+    rutaBase = funcionesExtras.buscarRaiz()
+    nombreProyecto = Path(rutaBase).name
+    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+    canalActual = miLibrerias.ObtenerValor(rutaInfo, "canal")
+    if canalActual is None:
+        canalActual = "desconocido"
+    funcionoNotion = canalNotion(canalNuevo)
+    if funcionoNotion:
+        miLibrerias.SalvarValor(rutaInfo, "canal", canalActual)
+        print(f"Estado de {nombreProyecto}: {canalActual} a {canalNuevo}")
 
 
 def cambiarAsignado(asignadoNuevo: str) -> None:
@@ -313,6 +337,8 @@ def main():
             actualizarEstado()
     elif args.estado:
         cambiarEstado(args.estado)
+    elif args.canal:
+        cambiarCanal(args.canal)
     elif args.asignado:
         cambiarAsignado(args.asignado)
         pass
