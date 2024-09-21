@@ -39,6 +39,7 @@ setup(
             "tooltube = tooltube.tooltube:main",
             "tooltube_analisis = tooltube.tooltube_analisis:main",
             "tooltube_get = tooltube.tooltube_get:main",
+            "tooltube_gui = tooltube.tooltube_gui:main"
         ]
     },
 )
