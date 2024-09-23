@@ -113,13 +113,11 @@ def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
     if estadoNuevo is None:
         print("Error estado Bacillo")
 
-    rutaBase = funcionesExtras.buscarRaiz()
     if folderActual is None:
-        nombreProyecto = Path(rutaBase).name
-        rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
-    else:
-        nombreProyecto = Path(folderActual).name
-        rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
+        folderActual = funcionesExtras.buscarRaiz()
+
+    nombreProyecto = Path(folderActual).name
+    rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
@@ -134,7 +132,7 @@ def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
         print(f"Estado de {nombreProyecto}: {estadoActual} a {estadoNuevo}")
         print("Actualizar Icono")
 
-    actualizarEstado(rutaBase)
+    actualizarEstado(folderActual)
 
 
 def cambiarCanal(canalNuevo: str) -> None:
@@ -152,21 +150,27 @@ def cambiarCanal(canalNuevo: str) -> None:
         print(f"Estado de {nombreProyecto}: {canalActual} a {canalNuevo}")
 
 
-def cambiarAsignado(asignadoNuevo: str) -> None:
-
+def cambiarAsignado(asignadoNuevo: str, folderActual: str = None) -> None:
+    logger.info(f"Iniciando el cambio de usuario {asignadoNuevo} - {folderActual}")
     if asignadoNuevo is None:
-        print("Error asignado vacilo")
+        logger.error("Error asignado vacilo")
+        return
+    
+    if folderActual is None:
+        folderActual = funcionesExtras.buscarRaiz()
+      
+    nombreProyecto = Path(folderActual).name
+    rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
-    rutaBase = funcionesExtras.buscarRaiz()
-    nombreProyecto = Path(rutaBase).name
-    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "asignado")
     if estadoActual is None:
         estadoActual = "desconocido"
-    funcionoNotion = asignadoNotion(asignadoNuevo)
+    funcionoNotion = asignadoNotion(asignadoNuevo, rutaInfo)
     if funcionoNotion:
         miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNuevo)
-        print(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
+        logger.info(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
+    else:
+        logger.error("Error con consulta")
 
 
 def mostraRevisar():

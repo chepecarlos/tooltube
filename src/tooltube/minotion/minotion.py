@@ -52,11 +52,14 @@ def consultaPost(ruta: str):
         return dataRespuesta
 
 
-def urlNotion(rutaInfo: str = None, buscar: bool = False):
+def urlNotion(rutaInfo: str = None, buscar: bool = False, ):
     if rutaInfo is None:
         raiz = funcionesExtras.buscarRaiz()
         rutaInfo = f"{raiz}/1.Guion/1.Info.md"
     dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
+    if dataInfo is None:
+        logger.warning("Error obtener Notion")
+        return
     if "id_notion" in dataInfo and not buscar:
         urlNotion = dataInfo.get("url_notion")
         print(f"URL Proyecto {urlNotion}")
@@ -155,8 +158,8 @@ def canalNotion(canal: str) -> bool:
         return False
 
 
-def asignadoNotion(asignado: str) -> bool:
-    idPagina = urlNotion()
+def asignadoNotion(asignado: str, folderInfo: str = None) -> bool:
+    idPagina = urlNotion(folderInfo)
 
     if idPagina is None:
         logger.warning("Error no se encontró ID")

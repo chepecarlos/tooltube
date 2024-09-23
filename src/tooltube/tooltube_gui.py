@@ -31,7 +31,10 @@ class ventanaEstados(QMainWindow):
                 'analizando'
             ]
         )
+        
+        # TODO selecionado esta actual del video
 
+        self.setWindowTitle("Asignar Estado")
         seleccionaEstados.currentTextChanged.connect(self.cambiarEstado)
 
     def cambiarEstado(self, estado):
@@ -39,18 +42,53 @@ class ventanaEstados(QMainWindow):
         analitica.cambiarEstado(estado, self.ruta)
 
 
+class ventanaAsignado(QMainWindow):
+    def __init__(self, ruta: str):
+        super().__init__()
+        self.ruta = ruta
+
+        seleccionaAsignado = QComboBox()
+        self.setCentralWidget(seleccionaAsignado)
+        seleccionaAsignado.addItems(
+            [
+                'desconocido',
+                'paty',
+                'chepecarlos',
+                'ingjuan',
+                'luis'
+            ]
+        )
+
+        self.setWindowTitle("Asignar Encargado")
+        seleccionaAsignado.currentTextChanged.connect(self.cambiarAsignado)
+        logger.info("Creando ventana Asignado")
+
+
+    def cambiarAsignado(self, asignado):
+        logger.info(f"Nuevo asignado {asignado}")
+        analitica.cambiarAsignado(asignado, self.ruta)
+
+
 def menuEstado(ruta: str):
     app = QApplication(sys.argv)
     ventana = ventanaEstados(ruta)
     ventana.show()
     sys.exit(app.exec_())
- 
+
+
+def menuAsignado(ruta: str):
+    app = QApplication(sys.argv)
+    ventana = ventanaAsignado(ruta)
+    ventana.show()
+    sys.exit(app.exec_())
 
 
 def ArgumentosCLI():
     parser = argparse.ArgumentParser(prog="tooltube_gui", description="Herramienta de gui de Youtube")
-    
+
     parser.add_argument("--estado", "-e", help="actualiza estado del proyecto de video",  action="store_true")
+    parser.add_argument("--asignado", "-a",  help="actualiza a quien esta asignado del proyecto de video", action="store_true")
+
     parser.add_argument("--folder", help="Folder a Realizar operación")
 
     return parser.parse_args()
@@ -59,13 +97,15 @@ def ArgumentosCLI():
 def main():
     logger.info("Iniciando el programa ToolTube Analisis")
     args = ArgumentosCLI()
-    
+
     if args.folder is None:
         logger.error("falta folder")
         return
-    
+
     if args.estado:
         menuEstado(args.folder)
+    elif args.asignado:
+        menuAsignado(args.folder)
 
 
 if __name__ == "__main__":
