@@ -15,14 +15,14 @@ from tooltube.operaciones import usuario
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
-def salvar_data_analitica(archivo: str, cambio: str, mensaje: str):
+def salvar_data_analitica(archivo: str, cambio: str, mensaje: str, folderArchivo: str = None):
     nombre_usuario = usuario.ObtenerUsuario()
     fecha_actual = pd.Timestamp.now()
 
     data = pd.DataFrame([(fecha_actual, cambio, mensaje, nombre_usuario)], columns=['fecha', 'cambio', 'mensaje', 'autor'])
 
     for i, _ in enumerate(range(5)):
-        existe, ruta = funcionesExtras.ObtenerRuta(i, "10.Analitica")
+        existe, ruta = funcionesExtras.ObtenerRuta(i, "10.Analitica", folderArchivo)
         if existe:
             ruta = funcionesExtras.UnirPath(ruta, archivo)
             if os.path.isfile(ruta):
@@ -50,12 +50,14 @@ def cargarData(ruta, archivo, noTotales=False):
     # data.sort_values(etiquetaFecha, inplace=True)
     return data
 
+
 def crearGraficaLocal(archivo=None):
     logger.info("Empezar gráfica Local")
     rutaBase = "."
     dataYoutube = cargarData(rutaBase, archivo, True)
     etiqueta = list(dataYoutube.columns)[1]
     crearGrafica(etiqueta, archivo)
+
 
 def crearGrafica(etiqueta, archivo=None):
     logger.info("Empezar a hacer gráfica")
@@ -206,7 +208,7 @@ def crearGrafica(etiqueta, archivo=None):
         # [min30, max30] = encontrarMaxMin(valores)
         graficaNormal = axs[2]
         graficaNormal.plot(fechas, valores, "#fa8714",
-                        linewidth=1.2, label=etiquetaVisible)
+                           linewidth=1.2, label=etiquetaVisible)
 
         graficaNormal.grid(axis="y", color="gray", linestyle="-")
         graficaNormal.set_xlabel(etiquetaFecha)

@@ -389,11 +389,11 @@ def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
             return -1
 
 
-def SubirVideo(credenciales, Archivo, Comentario=""):
+def SubirVideo(credenciales, archivo, Comentario=""):
     """Sube Video a Youtube."""
     global TagsDefault
-    if not os.path.exists(Archivo):
-        logger.warning(f"No encontrado el archivo {Archivo}")
+    if not os.path.exists(archivo):
+        logger.warning(f"No encontrado el archivo {archivo}")
         exit()
     youtube = build("youtube", "v3", credentials=credenciales)
 
@@ -401,9 +401,11 @@ def SubirVideo(credenciales, Archivo, Comentario=""):
     if TagsDefault:
         tags = TagsDefault.split(",")
 
+    tituloVideo = archivo.split("/")[-1]
+
     body = dict(
         snippet=dict(
-            title=f"Titulo {Archivo}",
+            title=f"Titulo {tituloVideo}",
             description="Descripcion",
             tags=tags,
             categoryId=27,
@@ -416,13 +418,13 @@ def SubirVideo(credenciales, Archivo, Comentario=""):
     Respuesta = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(Archivo, chunksize=-1, resumable=True),
+        media_body=MediaFileUpload(archivo, chunksize=-1, resumable=True),
     )
 
-    return RecargarSubida(Respuesta, Comentario)
+    return RecargarSubida(Respuesta, Comentario, archivo)
 
 
-def RecargarSubida(Respuesta, Comentario):
+def RecargarSubida(respuesta, comentario, archivo: str = None):
     """Mantiene la subida del video."""
     response = None
     error = None
@@ -430,12 +432,15 @@ def RecargarSubida(Respuesta, Comentario):
     while response is None:
         try:
             logger.info("Subiendo Archivo...")
-            status, response = Respuesta.next_chunk()
+            status, response = respuesta.next_chunk()
             if response is not None:
                 if "id" in response:
-                    FuncionesExtras.SalvarDato("youtube_id", response["id"])
+                    folderArchivo = None
+                    if archivo is not None:
+                        folderArchivo = Path(archivo).parents[0]
+                    FuncionesExtras.SalvarDato("youtube_id", response["id"], folderArchivo)
                     logger.info(f"Se subio con exito {response['id']} | https://youtu.be/{response['id']} ")
-                    analisis.salvar_data_analitica("1.Cambios/estado.csv", "suvido", Comentario)
+                    analisis.salvar_data_analitica("1.Cambios/estado.csv", "suvido", comentario, folderArchivo)
                 else:
                     logger.warning(f"The upload failed with an unexpected response: {response}")
                     exit()
@@ -476,15 +481,15 @@ def ActualizarTitulo(Credenciales, titulo, id, nota) -> None:
         FuncionesExtras.SalvarDato("titulo", titulo)
 
 
-def ActualizarMetadata(credenciales, ID) -> None:
-    Titulo = FuncionesExtras.buscarDato("titulo")
-    Miniatura = FuncionesExtras.buscarDato("miniatura")
+def ActualizarMetadata(credenciales, ID, folderActual: str = None) -> None:
+    Titulo = FuncionesExtras.buscarDato("titulo", folderActual)
+    Miniatura = FuncionesExtras.buscarDato("miniatura", folderActual)
     if Titulo and Titulo != "Titulo Video":
         print(f"Titulo: {Titulo} ")
         ActualizarTitulo(credenciales, Titulo, ID, "Actualizado por herramienta")
     if Miniatura:
         print(f"Miniatura: {Miniatura} ")
-        archivo = FuncionesExtras.rutaBase() + "/7.Miniatura/2.Render/" + Miniatura
+        archivo = FuncionesExtras.rutaBase(folderActual) + "/7.Miniatura/2.Render/" + Miniatura
         ActualizarMiniatura(credenciales, archivo, ID, "Actualizado por herramienta")
 
 

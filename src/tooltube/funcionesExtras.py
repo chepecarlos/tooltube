@@ -7,17 +7,20 @@ import tooltube.miLibrerias as miLibrerias
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
-def ObtenerRuta(subir, folder):
+def ObtenerRuta(subir, archivo, folder: str = None):
     if subir > 0:
         subir = -subir
-    ruta = os.getcwd()
-    ruta = ruta.split("/")
+    if folder is None:
+        folder = os.getcwd()
+    else:
+        folder = str(folder)
+    folder = folder.split("/")
     if subir != 0:
-        ruta = ruta[:subir]
-    ruta.append(folder)
-    ruta = "/".join(ruta)
-    existe = os.path.isdir(ruta)
-    return existe, ruta
+        folder = folder[:subir]
+    folder.append(archivo)
+    folder = "/".join(folder)
+    existe = os.path.isdir(folder)
+    return existe, folder
 
 
 def buscarID():
@@ -35,9 +38,9 @@ def buscarID():
     return None
 
 
-def rutaBase():
+def rutaBase(folderArchivo: str = None):
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(i, "1.Guion")
+        existe, ruta = ObtenerRuta(i, "1.Guion", folderArchivo)
         if existe:
             ruta = ruta.split("/")
             ruta = ruta[:-1]
@@ -60,12 +63,12 @@ def SalvarID(ID):
     logger.warning("No se puedo salvar ID")
 
 
-def buscarDato(Atributo: str) -> str:
+def buscarDato(Atributo: str, folderActual: str = None) -> str:
     """
     Busca el ID del video de Youtube
     """
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(i, "1.Guion")
+        existe, ruta = ObtenerRuta(i, "1.Guion", folderActual)
         if existe:
             ruta = UnirPath(ruta, "1.Info.md")
             data = ObtenerArchivo(ruta, False)
@@ -75,15 +78,15 @@ def buscarDato(Atributo: str) -> str:
     return None
 
 
-def SalvarDato(Atributo, Dato):
+def SalvarDato(Atributo, Dato, folderArchivo: str = None):
     for i, _ in enumerate(range(5)):
-        existe, ruta = ObtenerRuta(i, "1.Guion")
+        existe, ruta = ObtenerRuta(i, "1.Guion", folderArchivo)
         if existe:
-
             ruta = UnirPath(ruta, "1.Info.md")
             SalvarValor(ruta, Atributo, Dato, False)
             logger.info(f"Salvando {Atributo}, para el futuro")
             return
+    logger.warning("No se encontró folder proyecto 1.Guion")
 
 
 def buscarRaiz():
@@ -106,6 +109,7 @@ def buscarRaiz():
             return rutaBase
 
     return None
+
 
 def actualizarIconoDeterminado(icono, folder):
 
