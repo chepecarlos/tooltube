@@ -122,7 +122,7 @@ def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
         return
-    
+
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "estado")
     if estadoActual is None:
         estadoActual = "desconocido"
@@ -135,16 +135,24 @@ def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
     actualizarEstado(folderActual)
 
 
-def cambiarCanal(canalNuevo: str) -> None:
+def cambiarCanal(canalNuevo: str, folderActual: str = None) -> None:
     if canalNuevo is None:
         print("Error canal Bacillo")
-    rutaBase = funcionesExtras.buscarRaiz()
-    nombreProyecto = Path(rutaBase).name
-    rutaInfo = f"{rutaBase}/1.Guion/1.Info.md"
+
+    if folderActual is None:
+        folderActual = funcionesExtras.buscarRaiz()
+        
+    nombreProyecto = Path(folderActual).name
+    rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
+    
+    if not Path(rutaInfo).exists():
+        print("No es un proyecto")
+        return
+
     canalActual = miLibrerias.ObtenerValor(rutaInfo, "canal")
     if canalActual is None:
         canalActual = "desconocido"
-    funcionoNotion = canalNotion(canalNuevo)
+    funcionoNotion = canalNotion(canalNuevo, rutaInfo)
     if funcionoNotion:
         miLibrerias.SalvarValor(rutaInfo, "canal", canalActual)
         print(f"Estado de {nombreProyecto}: {canalActual} a {canalNuevo}")
@@ -155,10 +163,10 @@ def cambiarAsignado(asignadoNuevo: str, folderActual: str = None) -> None:
     if asignadoNuevo is None:
         logger.error("Error asignado vacilo")
         return
-    
+
     if folderActual is None:
         folderActual = funcionesExtras.buscarRaiz()
-      
+
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 

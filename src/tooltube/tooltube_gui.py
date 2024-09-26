@@ -31,7 +31,7 @@ class ventanaEstados(QMainWindow):
                 'analizando'
             ]
         )
-        
+
         # TODO selecionado esta actual del video
 
         self.setWindowTitle("Asignar Estado")
@@ -63,10 +63,34 @@ class ventanaAsignado(QMainWindow):
         seleccionaAsignado.currentTextChanged.connect(self.cambiarAsignado)
         logger.info("Creando ventana Asignado")
 
-
     def cambiarAsignado(self, asignado):
         logger.info(f"Nuevo asignado {asignado}")
         analitica.cambiarAsignado(asignado, self.ruta)
+
+
+class ventanaCanal(QMainWindow):
+    def __init__(self, ruta: str):
+        super().__init__()
+        self.ruta = ruta
+
+        seleccionaAsignado = QComboBox()
+        self.setCentralWidget(seleccionaAsignado)
+        seleccionaAsignado.addItems(
+            [
+                'desconocido',
+                'ChepeCarlos',
+                'Curso_Venta',
+                'CtrlZ'
+            ]
+        )
+
+        self.setWindowTitle("Asignar Canal")
+        seleccionaAsignado.currentTextChanged.connect(self.cambiarAsignado)
+        logger.info("Creando ventana Canal")
+
+    def cambiarAsignado(self, canal):
+        logger.info(f"Nuevo canal {canal}")
+        analitica.cambiarCanal(canal, self.ruta)
 
 
 def menuEstado(ruta: str):
@@ -83,11 +107,19 @@ def menuAsignado(ruta: str):
     sys.exit(app.exec_())
 
 
+def menuCanal(ruta: str):
+    app = QApplication(sys.argv)
+    ventana = ventanaCanal(ruta)
+    ventana.show()
+    sys.exit(app.exec_())
+
+
 def ArgumentosCLI():
     parser = argparse.ArgumentParser(prog="tooltube_gui", description="Herramienta de gui de Youtube")
 
     parser.add_argument("--estado", "-e", help="actualiza estado del proyecto de video",  action="store_true")
     parser.add_argument("--asignado", "-a",  help="actualiza a quien esta asignado del proyecto de video", action="store_true")
+    parser.add_argument("--canal", "-c",  help="actualiza el canal asignado proyecto de video", action="store_true")
 
     parser.add_argument("--folder", help="Folder a Realizar operación")
 
@@ -106,6 +138,8 @@ def main():
         menuEstado(args.folder)
     elif args.asignado:
         menuAsignado(args.folder)
+    elif args.canal:
+        menuCanal(args.folder)
 
 
 if __name__ == "__main__":

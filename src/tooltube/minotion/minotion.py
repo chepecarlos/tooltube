@@ -118,8 +118,8 @@ def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
         return False
 
 
-def canalNotion(canal: str) -> bool:
-    idPagina = urlNotion()
+def canalNotion(canal: str, rutaInfo: str = None) -> bool:
+    idPagina = urlNotion(rutaInfo)
 
     if idPagina is None:
         logger.warning("Error no se encontró ID")
