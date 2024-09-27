@@ -22,6 +22,12 @@ git submodule init
 git submodule update
 ```
 
+## Instalar paquetes estras
+
+```
+sudo apt-get install -y libxcb-cursor-dev
+```
+
 ## instalar de paquetes
 
 ```bash

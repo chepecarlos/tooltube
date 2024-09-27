@@ -83,7 +83,8 @@ def ArgumentosCLI():
                             'desconocido',
                             'ChepeCarlos',
                             'Curso_Venta',
-                            'CtrlZ'
+                            'CtrlZ',
+                            'Tiktok'
                         ]
                         )
 

@@ -1,3 +1,7 @@
 {
-  "cSpell.words": ["youtube"]
+  "cSpell.words": [
+    "Tiktok",
+    "youtube"
+  ],
+  "autopep8.args": ["--max-line-length", "180"]
 }

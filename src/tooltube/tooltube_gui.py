@@ -80,7 +80,8 @@ class ventanaCanal(QMainWindow):
                 'desconocido',
                 'ChepeCarlos',
                 'Curso_Venta',
-                'CtrlZ'
+                'CtrlZ',
+                'Tiktok'
             ]
         )
 
