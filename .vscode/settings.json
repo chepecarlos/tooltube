@@ -1,7 +1,19 @@
 {
-  "cSpell.words": [
-    "Tiktok",
-    "youtube"
-  ],
-  "autopep8.args": ["--max-line-length", "180"]
+  "cSpell.words": ["Tiktok", "youtube"],
+  "autopep8.args": ["--max-line-length", "180"],
+  // https://code.visualstudio.com/api/references/theme-color
+  "workbench.colorCustomizations": {
+    // Color Oscuro
+    "activityBar.background": "#ac0000",
+    "tab.inactiveBackground": "#ac0000",
+    "statusBar.background": "#ac0000",
+    "breadcrumb.background": "#ac0000",
+    "editorGroupHeader.tabsBackground": "#ac0000",
+    // Color Claro
+    "activityBar.activeBackground": "#da3333",
+    "tab.activeBackground": "#da3333",
+    // Color Mas Oscuro
+    "minimap.background": "#340000",
+    "sideBar.background": "#340000"
+  }
 }
