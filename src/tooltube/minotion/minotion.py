@@ -90,7 +90,7 @@ def abriNotion(folderActual: str):
         print("No es un proyecto")
         return
     
-    urlNotion = miLibrerias.ObtenerValor(rutaInfo, "url_notion"))
+    urlNotion = miLibrerias.ObtenerValor(rutaInfo, "url_notion")
     if urlNotion is not None:
         funcionesExtras.ruta(urlNotion)
 
