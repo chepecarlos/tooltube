@@ -5,7 +5,7 @@ import argparse
 
 import tooltube.miLibrerias as miLibrerias
 import tooltube.tooltube_analisis as analitica
-
+from tooltube.minotion.minotion import abriNotion
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
@@ -121,6 +121,7 @@ def ArgumentosCLI():
     parser.add_argument("--estado", "-e", help="actualiza estado del proyecto de video",  action="store_true")
     parser.add_argument("--asignado", "-a",  help="actualiza a quien esta asignado del proyecto de video", action="store_true")
     parser.add_argument("--canal", "-c",  help="actualiza el canal asignado proyecto de video", action="store_true")
+    parser.add_argument("--notion", "-n",  help="Abre la ruta de notion en navegador", action="store_true")
 
     parser.add_argument("--folder", help="Folder a Realizar operación")
 
@@ -141,6 +142,8 @@ def main():
         menuAsignado(args.folder)
     elif args.canal:
         menuCanal(args.folder)
+    elif args.notion:   
+        abriNotion(args.folder)
 
 
 if __name__ == "__main__":

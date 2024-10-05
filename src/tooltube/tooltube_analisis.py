@@ -364,7 +364,6 @@ def main():
         cambiarCanal(args.canal)
     elif args.asignado:
         cambiarAsignado(args.asignado)
-        pass
     else:
         logger.info("Comandos no encontrado, prueba con -h")
 

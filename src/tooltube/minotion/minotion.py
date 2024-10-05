@@ -2,6 +2,7 @@
 """
 
 import requests
+from pathlib import Path
 import json
 
 from tooltube import funcionesExtras
@@ -76,6 +77,22 @@ def urlNotion(rutaInfo: str = None, buscar: bool = False, ):
     miLibrerias.SalvarValor(rutaInfo, "id_notion", idNotion)
     print(f"URL {tituloNotion}: {urlNotion}")
     return idNotion
+
+def abriNotion(folderActual: str):
+    
+    if folderActual is None:
+        folderActual = funcionesExtras.buscarRaiz()
+        
+    nombreProyecto = Path(folderActual).name
+    rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
+
+    if not Path(rutaInfo).exists():
+        print("No es un proyecto")
+        return
+    
+    urlNotion = miLibrerias.ObtenerValor(rutaInfo, "url_notion"))
+    if urlNotion is not None:
+        funcionesExtras.ruta(urlNotion)
 
 
 def estadoNotion(estado: str, rutaInfo: str = None) -> bool:

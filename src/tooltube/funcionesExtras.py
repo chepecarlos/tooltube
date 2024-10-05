@@ -1,5 +1,8 @@
-from tooltube.miLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 import os
+import subprocess
+import webbrowser
+
+from tooltube.miLibrerias import ObtenerArchivo, SalvarValor, UnirPath
 from pathlib import Path
 
 import tooltube.miLibrerias as miLibrerias
@@ -121,3 +124,25 @@ def actualizarIconoDeterminado(icono, folder):
 
     Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
     os.system(Comando)
+
+
+def ruta(ruta):
+    logger.info(f"abriendo[{ruta}]")
+    webbrowser.open(ruta)
+
+
+def EmpezarSubProceso(comando):
+    """Crear nuevo Sub Proceso."""
+
+    process = subprocess.Popen(Comando, stdout=subprocess.PIPE, universal_newlines=True)
+
+    while True:
+        output = process.stdout.readline()
+        logger.info(output.strip())
+        return_code = process.poll()
+        if return_code is not None:
+            logger.info(f"RETURN CODE {return_code}")
+            for output in process.stdout.readlines():
+                logger.info(output.strip())
+            return return_code
+            break
