@@ -438,6 +438,7 @@ def RecargarSubida(respuesta, comentario, archivo: str = None):
                     folderArchivo = None
                     if archivo is not None:
                         folderArchivo = Path(archivo).parents[0]
+                        folderArchivo = miLibrerias.rutaAbsoluta(folderArchivo)
                     FuncionesExtras.SalvarDato("youtube_id", response["id"], folderArchivo)
                     logger.info(f"Se subio con exito {response['id']} | https://youtu.be/{response['id']} ")
                     analisis.salvar_data_analitica("1.Cambios/estado.csv", "suvido", comentario, folderArchivo)
