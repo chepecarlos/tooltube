@@ -109,20 +109,19 @@ def cambiosGlobales():
                     print()
 
 
-def cambiarEstado(estadoNuevo: str, folderActual: str = None) -> None:
+def cambiarEstado(estadoNuevo: str, folderActual: str) -> None:
 
     if estadoNuevo is None:
-        print("Error estado Bacillo")
+        print("Error estado vació")
+        return False
 
-    if folderActual is None:
-        folderActual = funcionesExtras.buscarRaiz()
 
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
-        return
+        return False
 
     estadoActual = miLibrerias.ObtenerValor(rutaInfo, "estado")
     if estadoActual is None:
@@ -271,7 +270,8 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
     if rutaActual is None:
         rutaActual = os.getcwd()
-    iconos = miLibrerias.ObtenerArchivo("data/iconos.json", True)
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.md", True)
+    folder = iconos.get("folder")
     for base, dirs, files in os.walk(rutaActual):
         for name in files:
             if name.endswith(("Info.md")):
@@ -286,8 +286,10 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
                     estado = "desconocido"
                 nombreProyecto = folderProyecto.name
                 iconoProyecto = iconos.get(estado, estado[0])
-                print(f"Proyecto: {nombreProyecto} - {estado}")
+                iconoProyecto = miLibrerias.UnirPath(folder, iconoProyecto)
+                logger.info(f"Proyecto: {nombreProyecto} - {estado}")
                 FuncionesExtras.actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+                FuncionesExtras.tocarFolder(folderProyecto)
                 print()
 
 
@@ -354,7 +356,9 @@ def main():
         DataVideo(Video_id)
     elif args.actualizar_estado:
         logger.info("Empezando a buscar Proyecto contenido")
-        if args.update:
+        if args.folder:
+            actualizarEstado(rutaActual=args.folder)
+        elif args.update:
             actualizarEstado(subir=True)
         else:
             actualizarEstado()
@@ -365,7 +369,7 @@ def main():
     elif args.asignado:
         cambiarAsignado(args.asignado)
     else:
-        logger.info("Comandos no encontrado, prueba con -h")
+        logger.info("comandos no encontrado, prueba con -h")
 
 
 if __name__ == "__main__":

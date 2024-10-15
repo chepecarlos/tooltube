@@ -608,7 +608,7 @@ def main():
             Fore.WHITE
             + Back.RED
             + Style.BRIGHT
-            + "Comandos no encontrado, prueba con -h"
+            + "comandos no encontrado, prueba con -h"
         )
 
 

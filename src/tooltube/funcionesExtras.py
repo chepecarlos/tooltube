@@ -92,11 +92,12 @@ def SalvarDato(Atributo, Dato, folderArchivo: str = None):
     logger.warning("No se encontró folder proyecto 1.Guion")
 
 
-def buscarRaiz():
+def buscarRaiz(rutaActual: str = None):
     # TODO Mejorar este algoritmo debe existir una forma para buscar el fonder
     niveles = 5
     folderObligatorio = "1.Guion"
-    rutaActual = os.getcwd()
+    if rutaActual is None:
+        rutaActual = os.getcwd()
     listaRutaActual = rutaActual.split("/")
     for i in range(niveles):
         if i == 0:
@@ -122,9 +123,20 @@ def actualizarIconoDeterminado(icono, folder):
 
     # TODO cambiar icono solo si es diferente
 
-    Comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
-    os.system(Comando)
+    comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
+    os.system(comando)
 
+def quitarEmblemas(folder: str):
+    
+    comando = f"gio info {folder}"
+    devolucion = os.popen(comando).read()
+    print(devolucion)
+
+
+def tocarFolder(folder: str):
+    
+    comando = f"touch {folder}"
+    os.system(comando)
 
 def ruta(ruta):
     logger.info(f"abriendo[{ruta}]")
@@ -134,7 +146,7 @@ def ruta(ruta):
 def EmpezarSubProceso(comando):
     """Crear nuevo Sub Proceso."""
 
-    process = subprocess.Popen(Comando, stdout=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(comando, stdout=subprocess.PIPE, universal_newlines=True)
 
     while True:
         output = process.stdout.readline()
