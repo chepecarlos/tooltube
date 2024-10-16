@@ -2,11 +2,27 @@ from shutil import rmtree
 from distutils.dir_util import copy_tree
 from pathlib import Path
 import os
+import shutil
 
 from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 nombrePaquete = "tooltube"
+
+def copiarSinSobreEscribir(origen, destino):
+    
+    for archivo in os.listdir(origen):
+        rutaOrigen = os.path.join(origen, archivo)
+        rutaDestino = os.path.join(destino, archivo)
+        
+        if os.path.isfile(rutaOrigen):
+            if not os.path.exists(rutaDestino):
+                shutil.copy2(rutaOrigen, rutaDestino)
+                print(f"Copiando {archivo} a {destino}")
+            else:
+                print(f"El archivo {archivo} ya existe en {destino}, no se ha copiado.")
+        else:
+            print(f"{archivo} es un directorio, no se ha copiado.")
 
 class comandoPostInstalacion(install):
     def run(self):
@@ -17,15 +33,32 @@ class comandoPostInstalacion(install):
         folderIconos = Path.home()
         folderIconos = os.path.join(folderIconos, ".icons/hicolor/256x256/emblems")
         
+        
         if not os.path.exists(folderIconos):
             Path(folderIconos).mkdir(parents=True, exist_ok=True)
             print(f"Folder icono creado {folderIconos}")
+            
+        
         
         dataIconos = os.getcwd()
-        dataIconos = os.path.join(dataIconos, "src/tooltube/data")
+        dataIconos = os.path.join(dataIconos, f"src/{nombrePaquete}/data/emblem")
         if os.path.exists(dataIconos): 
             print(f"Copiando {dataIconos} a {folderIconos}")  
             copy_tree(dataIconos, folderIconos)
+            
+        folderConfig = Path.home()
+        folderConfig = os.path.join(folderConfig, f".config/{nombrePaquete}/data")
+        
+        if not os.path.exists(folderConfig):
+            Path(folderConfig).mkdir(parents=True, exist_ok=True)
+            print(f"Folder Configuraciones creado {folderConfig}")
+        
+        dataConfig = os.getcwd()
+        dataConfig = os.path.join(dataConfig, f"src/{nombrePaquete}/data/config")
+        
+        print(f"Recargando Archivos de configuración de {nombrePaquete}")
+        
+        copiarSinSobreEscribir(dataConfig, folderConfig)
 
         print("****************************************************")
         print()
