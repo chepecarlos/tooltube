@@ -178,6 +178,8 @@ def cambiarAsignado(asignadoNuevo: str, folderActual: str = None) -> None:
         logger.info(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
     else:
         logger.error("Error con consulta")
+        
+    actualizarIconos(folderActual)
 
 
 def mostraRevisar():
@@ -285,6 +287,7 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
 
 def actualizarIconos(folderProyecto: str):
+    """Asigna Iconos y emblemas a folder de proyecto"""
     archivoInfo = FuncionesArchivos.UnirPath(folderProyecto, "1.Guion/1.Info.md")
     iconos = miLibrerias.ObtenerArchivo("data/iconos.md")
     emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
