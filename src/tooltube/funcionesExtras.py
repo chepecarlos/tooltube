@@ -121,22 +121,33 @@ def actualizarIconoDeterminado(icono, folder):
         print("Error Faltan Datos")
         return
 
+    if not os.path.exists(icono):
+        logger.warning(f"No se encontro icono {icono}")
+        return
+
     # TODO cambiar icono solo si es diferente
 
     comando = f"gio set {folder} -t string metadata::custom-icon file://{icono}"
     os.system(comando)
 
+
 def quitarEmblemas(folder: str):
-    
-    comando = f"gio info {folder}"
-    devolucion = os.popen(comando).read()
-    print(devolucion)
+
+    comando = f"gio set -t unset {folder} metadata::emblems"
+    os.system(comando)
+
+
+def agregarEmblema(icono: str, folder: str):
+
+    comando = f"gio set -t stringv {folder} metadata::emblems {icono}"
+    os.system(comando)
 
 
 def tocarFolder(folder: str):
-    
+
     comando = f"touch {folder}"
     os.system(comando)
+
 
 def ruta(ruta):
     logger.info(f"abriendo[{ruta}]")

@@ -270,7 +270,8 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
     if rutaActual is None:
         rutaActual = os.getcwd()
-    iconos = miLibrerias.ObtenerArchivo("data/iconos.md", True)
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.md")
+    emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
     folder = iconos.get("folder")
     for base, dirs, files in os.walk(rutaActual):
         for name in files:
@@ -287,9 +288,20 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
                 nombreProyecto = folderProyecto.name
                 iconoProyecto = iconos.get(estado, estado[0])
                 iconoProyecto = miLibrerias.UnirPath(folder, iconoProyecto)
-                logger.info(f"Proyecto: {nombreProyecto} - {estado}")
                 FuncionesExtras.actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+                
+                asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
+                if asignado is None:
+                    asignado = "desconocido"
+                iconoAsignado = emblemas.get(asignado)
+                funcionesExtras.quitarEmblemas(folderProyecto)
+                funcionesExtras.agregarEmblema(iconoAsignado, folderProyecto)
                 FuncionesExtras.tocarFolder(folderProyecto)
+                
+                logger.info(f"Proyecto: {nombreProyecto}")
+                logger.info(f"\tEstado: {estado}")
+                logger.info(f"\tEncargado: {asignado}")
+                
                 print()
 
 
