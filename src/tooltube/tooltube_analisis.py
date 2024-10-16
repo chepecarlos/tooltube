@@ -115,7 +115,6 @@ def cambiarEstado(estadoNuevo: str, folderActual: str) -> None:
         print("Error estado vació")
         return False
 
-
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
@@ -141,10 +140,10 @@ def cambiarCanal(canalNuevo: str, folderActual: str = None) -> None:
 
     if folderActual is None:
         folderActual = funcionesExtras.buscarRaiz()
-        
+
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
-    
+
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
         return
@@ -270,9 +269,6 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
     if rutaActual is None:
         rutaActual = os.getcwd()
-    iconos = miLibrerias.ObtenerArchivo("data/iconos.md")
-    emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
-    folder = iconos.get("folder")
     for base, dirs, files in os.walk(rutaActual):
         for name in files:
             if name.endswith(("Info.md")):
@@ -282,27 +278,42 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
                 if seActualizoNotion is None and subir:
                     crearNotion(folderProyecto)
                     actualizarNotion(archivoInfo)
-                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
-                if estado is None:
-                    estado = "desconocido"
-                nombreProyecto = folderProyecto.name
-                iconoProyecto = iconos.get(estado, estado[0])
-                iconoProyecto = miLibrerias.UnirPath(folder, iconoProyecto)
-                FuncionesExtras.actualizarIconoDeterminado(iconoProyecto, folderProyecto)
-                
-                asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
-                if asignado is None:
-                    asignado = "desconocido"
-                iconoAsignado = emblemas.get(asignado)
-                funcionesExtras.quitarEmblemas(folderProyecto)
-                funcionesExtras.agregarEmblema(iconoAsignado, folderProyecto)
-                FuncionesExtras.tocarFolder(folderProyecto)
-                
-                logger.info(f"Proyecto: {nombreProyecto}")
-                logger.info(f"\tEstado: {estado}")
-                logger.info(f"\tEncargado: {asignado}")
-                
+
+                actualizarIconos(folderProyecto)
+
                 print()
+
+
+def actualizarIconos(folderProyecto: str):
+    archivoInfo = FuncionesArchivos.UnirPath(folderProyecto, "1.Guion/1.Info.md")
+    iconos = miLibrerias.ObtenerArchivo("data/iconos.md")
+    emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
+    folder = iconos.get("folder")
+
+    # Estado
+    estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
+    if estado is None:
+        estado = "desconocido"
+
+    iconoProyecto = iconos.get(estado)
+    iconoProyecto = miLibrerias.UnirPath(folder, iconoProyecto)
+    FuncionesExtras.actualizarIconoDeterminado(iconoProyecto, folderProyecto)
+
+    # Asignado
+    asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
+    if asignado is None:
+        asignado = "desconocido"
+    iconoAsignado = emblemas.get(asignado)
+    funcionesExtras.quitarEmblemas(folderProyecto)
+    funcionesExtras.agregarEmblema(iconoAsignado, folderProyecto)
+    FuncionesExtras.tocarFolder(folderProyecto)
+    
+    # Canal
+
+    nombreProyecto = folderProyecto.name
+    logger.info(f"Proyecto: {nombreProyecto}")
+    logger.info(f"\tEstado: {estado}")
+    logger.info(f"\tEncargado: {asignado}")
 
 
 def main():
