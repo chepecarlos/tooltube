@@ -155,6 +155,7 @@ def cambiarCanal(canalNuevo: str, folderActual: str = None) -> None:
     if funcionoNotion:
         miLibrerias.SalvarValor(rutaInfo, "canal", canalActual)
         print(f"Estado de {nombreProyecto}: {canalActual} a {canalNuevo}")
+    actualizarIconos(folderActual)
 
 
 def cambiarAsignado(asignadoNuevo: str, folderActual: str = None) -> None:
@@ -178,7 +179,7 @@ def cambiarAsignado(asignadoNuevo: str, folderActual: str = None) -> None:
         logger.info(f"Asignado de {nombreProyecto}: {estadoActual} a {asignadoNuevo}")
     else:
         logger.error("Error con consulta")
-        
+
     actualizarIconos(folderActual)
 
 
@@ -291,7 +292,10 @@ def actualizarIconos(folderProyecto: str):
     archivoInfo = FuncionesArchivos.UnirPath(folderProyecto, "1.Guion/1.Info.md")
     iconos = miLibrerias.ObtenerArchivo("data/iconos.md")
     emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
+    canales = miLibrerias.ObtenerArchivo("data/canal.md")
     folder = iconos.get("folder")
+    funcionesExtras.quitarEmblemas(folderProyecto)
+    listaEmblemas = list()
 
     # Estado
     estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
@@ -307,16 +311,26 @@ def actualizarIconos(folderProyecto: str):
     if asignado is None:
         asignado = "desconocido"
     iconoAsignado = emblemas.get(asignado)
-    funcionesExtras.quitarEmblemas(folderProyecto)
-    funcionesExtras.agregarEmblema(iconoAsignado, folderProyecto)
-    FuncionesExtras.tocarFolder(folderProyecto)
-    
-    # Canal
+    listaEmblemas.append(iconoAsignado)
 
+    # Canal
+    canal = miLibrerias.ObtenerValor(archivoInfo, "canal")
+    if canal is None:
+        canal = "desconocido"
+    canal = canal.lower()
+    if canal != "chepecarlos":
+        print(canal)
+        iconoCanal = canales.get(canal)
+        listaEmblemas.append(iconoCanal)
+
+    funcionesExtras.agregarEmblema(" ".join(listaEmblemas), folderProyecto)
+
+    FuncionesExtras.tocarFolder(folderProyecto)
     nombreProyecto = folderProyecto.name
     logger.info(f"Proyecto: {nombreProyecto}")
     logger.info(f"\tEstado: {estado}")
     logger.info(f"\tEncargado: {asignado}")
+    logger.info(f"\tCanal: {canal}")
 
 
 def main():

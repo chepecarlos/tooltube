@@ -95,6 +95,24 @@ def abriNotion(folderActual: str):
         funcionesExtras.ruta(urlNotion)
 
 
+def abriYouTube(folderActual: str):
+    
+    if folderActual is None:
+        folderActual = funcionesExtras.buscarRaiz()
+        
+    nombreProyecto = Path(folderActual).name
+    rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
+
+    if not Path(rutaInfo).exists():
+        print("No es un proyecto")
+        return
+    
+    idYoutube = miLibrerias.ObtenerValor(rutaInfo, "youtube_id")
+    if idYoutube is not None and idYoutube == "ID_Youtube":
+        rutaYoutube = f"https://www.youtube.com/watch?v={idYoutube}"
+        funcionesExtras.ruta(rutaYoutube)
+
+
 def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
     idPagina = urlNotion(rutaInfo)
 
@@ -262,6 +280,11 @@ def crearNotion(ruta: str) -> bool:
                     "name": "desconocido"
                 }
             },
+            "Canal": {
+                "select": {
+                    "name": "desconocido"
+                }
+            },
             "Ruta Archivo": {
                 "rich_text": [
                     {
@@ -323,18 +346,30 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
         asignadoNotion = "desconocido"
     else:
         asignadoNotion = asignadoNotion.get("name")
+        
+    canalNotion = dataNotion.get("properties").get("Canal").get("select")
+    if canalNotion is None:
+        canalNotion = "desconocido"
+    else:
+        canalNotion = canalNotion.get("name")
+    
 
     estadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "estado")
     asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
+    canalAnterior = miLibrerias.ObtenerValor(rutaInfo, "canal")
 
     miLibrerias.SalvarValor(rutaInfo, "estado", estadoNotion)
     miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNotion)
+    miLibrerias.SalvarValor(rutaInfo, "canal", canalNotion)
 
     if estadoAnterior != estadoNotion:
         print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
 
     if asignadoAnterior != asignadoNotion:
         print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
+        
+    if canalAnterior != canalNotion:
+        print(f"Actualizar canal {canalAnterior} a {canalNotion}")
 
     print(f"Ruta: {urlNotion}")
     return True
