@@ -329,7 +329,6 @@ def actualizarIconos(folderProyecto: str):
         canal = "desconocido"
     canal = canal.lower()
     if canal != "chepecarlos":
-        print(canal)
         iconoCanal = canales.get(canal)
         listaEmblemas.append(iconoCanal)
 
