@@ -270,21 +270,31 @@ def DataVideo(ID_Video):
 
 def actualizarEstado(rutaActual: str = None, subir: bool = False):
 
+    def soloNombre(propiedad):
+        return propiedad.get("nombre")
+
     if rutaActual is None:
         rutaActual = os.getcwd()
+
+    listaFolder = list()
     for base, dirs, files in os.walk(rutaActual):
         for name in files:
             if name.endswith(("Info.md")):
                 archivoInfo = base + os.sep + name
                 folderProyecto = Path(base + os.sep).parent
-                seActualizoNotion = actualizarNotion(archivoInfo)
-                if seActualizoNotion is None and subir:
-                    crearNotion(folderProyecto)
-                    actualizarNotion(archivoInfo)
+                listaFolder.append({"nombre": Path(folderProyecto).name, "ruta": folderProyecto, "info": archivoInfo})
+    listaFolder.sort(key=soloNombre)
 
-                actualizarIconos(folderProyecto)
+    for Folder in listaFolder:
+        archivoInfo = Folder.get("info")
+        folderProyecto = Folder.get("ruta")
+        seActualizoNotion = actualizarNotion(archivoInfo)
+        if seActualizoNotion is None and subir:
+            crearNotion(folderProyecto)
+            actualizarNotion(archivoInfo)
 
-                print()
+        actualizarIconos(folderProyecto)
+        print()
 
 
 def actualizarIconos(folderProyecto: str):
