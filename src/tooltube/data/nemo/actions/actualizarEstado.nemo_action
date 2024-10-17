@@ -1,0 +1,9 @@
+[Nemo Action]
+Active=true
+Name=Actualizar Estado Proyecto
+Comment=Actualiza en base a notion
+Exec=<action_scripts/actualizarEstado.sh %F>
+Icon-Name=address-book-app-symbolic
+Selection=none
+Extensions=dir;
+Quote=double

@@ -1,11 +1,14 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QComboBox
+from PySide6.QtWidgets import (QApplication, QMainWindow, QComboBox)
 from PySide6.QtCore import QSize, Qt
+
 import sys
 import argparse
+import os
 
 import tooltube.miLibrerias as miLibrerias
 import tooltube.tooltube_analisis as analitica
-from tooltube.minotion.minotion import abriNotion
+from tooltube.minotion.minotion import abriNotion, abriYouTube
+from tooltube.gui.ventanaActualizar import menuActualizar
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
@@ -122,6 +125,8 @@ def ArgumentosCLI():
     parser.add_argument("--asignado", "-a",  help="actualiza a quien esta asignado del proyecto de video", action="store_true")
     parser.add_argument("--canal", "-c",  help="actualiza el canal asignado proyecto de video", action="store_true")
     parser.add_argument("--notion", "-n",  help="Abre la ruta de notion en navegador", action="store_true")
+    parser.add_argument("--youtube", "-y",  help="Abre la ruta de youtube en navegador", action="store_true")
+    parser.add_argument("--actualizar_estado",  help="Actualizar estado de Proyecto", action="store_true")
 
     parser.add_argument("--folder", help="Folder a Realizar operación")
 
@@ -136,14 +141,20 @@ def main():
         logger.error("falta folder")
         return
 
+    args.folder = miLibrerias.rutaAbsoluta(args.folder)
+
     if args.estado:
         menuEstado(args.folder)
     elif args.asignado:
         menuAsignado(args.folder)
     elif args.canal:
         menuCanal(args.folder)
-    elif args.notion:   
+    elif args.notion:
         abriNotion(args.folder)
+    elif args.notion:
+        abriYouTube(args.folder)
+    elif args.actualizar_estado:
+        menuActualizar(args.folder)
 
 
 if __name__ == "__main__":
