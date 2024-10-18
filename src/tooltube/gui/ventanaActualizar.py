@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (QApplication, QMainWindow, QComboBox, QProgressBar,
                                QPushButton, QPlainTextEdit, QVBoxLayout, QWidget)
 from PySide6.QtCore import QSize, Qt, QProcess
+from PySide6.QtGui import QScreen
 
 import sys
 import os
@@ -94,4 +95,10 @@ def menuActualizar(ruta: str):
     app = QApplication(sys.argv)
     ventana = ventanaCanal(ruta)
     ventana.show()
+    
+    centro = QScreen.availableGeometry(QApplication.primaryScreen()).center()
+    posicion = ventana.frameGeometry()
+    posicion.moveCenter(centro)
+    ventana.move(posicion.topLeft())
+    
     sys.exit(app.exec_())
