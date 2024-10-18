@@ -77,13 +77,21 @@ class ventanaCanal(QMainWindow):
                     actualizarNotion(archivoInfo)
                 actualizarIconos(folderProyecto)
 
-                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
-                asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
-                canal = miLibrerias.ObtenerValor(archivoInfo, "canal")
+                error = miLibrerias.ObtenerValor(archivoInfo, "error", "no-error")
+                terminar = miLibrerias.ObtenerValor(archivoInfo, "terminado", False)
+
                 self.mensaje(f"Nombre: {nombreProyecto}")
-                self.mensaje(f"Estado: {estado}")
-                self.mensaje(f"Asignado: {asignado}")
-                self.mensaje(f"Canal: {canal}")
+                if error == "no-notion":
+                    self.mensaje(f"Error: no-notion")
+                elif terminar:
+                    self.mensaje(f"Proyecto: Terminado")
+                else:
+                    estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
+                    asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
+                    canal = miLibrerias.ObtenerValor(archivoInfo, "canal")
+                    self.mensaje(f"Estado: {estado}")
+                    self.mensaje(f"Asignado: {asignado}")
+                    self.mensaje(f"Canal: {canal}")
                 self.mensaje(f"")
 
                 porcentaje = i / cantidadProyectos
@@ -95,10 +103,10 @@ def menuActualizar(ruta: str):
     app = QApplication(sys.argv)
     ventana = ventanaCanal(ruta)
     ventana.show()
-    
+
     centro = QScreen.availableGeometry(QApplication.primaryScreen()).center()
     posicion = ventana.frameGeometry()
     posicion.moveCenter(centro)
     ventana.move(posicion.topLeft())
-    
+
     sys.exit(app.exec_())

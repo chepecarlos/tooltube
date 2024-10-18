@@ -25,7 +25,7 @@ def consultaPost(ruta: str):
     dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
     if dataNotion is None:
         logger.warning("No data de Notion")
-        return
+        return None
     urlConsulta = f"https://api.notion.com/v1/databases/{dataNotion.get('base_datos')}/query"
     cabezaConsulta = {
         "Authorization": f"Bearer {dataNotion.get('token')}",
@@ -78,35 +78,36 @@ def urlNotion(rutaInfo: str = None, buscar: bool = False, ):
     print(f"URL {tituloNotion}: {urlNotion}")
     return idNotion
 
+
 def abriNotion(folderActual: str):
-    
+
     if folderActual is None:
         folderActual = funcionesExtras.buscarRaiz()
-        
+
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
         return
-    
+
     urlNotion = miLibrerias.ObtenerValor(rutaInfo, "url_notion")
     if urlNotion is not None:
         funcionesExtras.ruta(urlNotion)
 
 
 def abriYouTube(folderActual: str):
-    
+
     if folderActual is None:
         folderActual = funcionesExtras.buscarRaiz()
-        
+
     nombreProyecto = Path(folderActual).name
     rutaInfo = f"{folderActual}/1.Guion/1.Info.md"
 
     if not Path(rutaInfo).exists():
         print("No es un proyecto")
         return
-    
+
     idYoutube = miLibrerias.ObtenerValor(rutaInfo, "youtube_id")
     if idYoutube is not None and idYoutube == "ID_Youtube":
         rutaYoutube = f"https://www.youtube.com/watch?v={idYoutube}"
@@ -295,11 +296,11 @@ def crearNotion(ruta: str) -> bool:
                 ]
             },
             "Área": {
-                "relation":[
+                "relation": [
                     {
                         "id": dataNotion.get("id_creacion_contenido")
-                    }  
-                ] 
+                    }
+                ]
             }
         }
     }
@@ -328,7 +329,10 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     dataNotion = consultaPost(rutaRelativa)
 
     if dataNotion is None:
+        miLibrerias.SalvarValor(rutaInfo, "error", "no-notion")
         return None
+    else:
+        miLibrerias.SalvarValor(rutaInfo, "error", "no-error")
 
     urlNotion = dataNotion.get("url")
 
@@ -340,19 +344,20 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
         estadoNotion = dataNotion.get("properties").get("Estado").get("select")
         if estadoNotion is not None:
             estadoNotion = estadoNotion.get("name")
+        if estadoNotion == "publicado":
+            terminadoNotion = True
 
     asignadoNotion = dataNotion.get("properties").get("Asignado").get("select", "desconocido")
     if asignadoNotion is None:
         asignadoNotion = "desconocido"
     else:
         asignadoNotion = asignadoNotion.get("name")
-        
+
     canalNotion = dataNotion.get("properties").get("Canal").get("select")
     if canalNotion is None:
         canalNotion = "desconocido"
     else:
         canalNotion = canalNotion.get("name")
-    
 
     estadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "estado")
     asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
@@ -361,13 +366,14 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     miLibrerias.SalvarValor(rutaInfo, "estado", estadoNotion)
     miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNotion)
     miLibrerias.SalvarValor(rutaInfo, "canal", canalNotion)
+    miLibrerias.SalvarValor(rutaInfo, "terminado", terminadoNotion)
 
     if estadoAnterior != estadoNotion:
         print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
 
     if asignadoAnterior != asignadoNotion:
         print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
-        
+
     if canalAnterior != canalNotion:
         print(f"Actualizar canal {canalAnterior} a {canalNotion}")
 

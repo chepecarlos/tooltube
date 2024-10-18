@@ -304,8 +304,30 @@ def actualizarIconos(folderProyecto: str):
     emblemas = miLibrerias.ObtenerArchivo("data/emblemas.md")
     canales = miLibrerias.ObtenerArchivo("data/canal.md")
     folder = iconos.get("folder")
-    funcionesExtras.quitarEmblemas(folderProyecto)
     listaEmblemas = list()
+
+    nombreProyecto = folderProyecto.name
+    logger.info(f"Proyecto: {nombreProyecto}")
+    
+    error = miLibrerias.ObtenerValor(archivoInfo, "error", "no-error")
+    terminar = miLibrerias.ObtenerValor(archivoInfo, "terminado", False)
+    
+    funcionesExtras.quitarEmblemas(folderProyecto)
+
+    if error == "no-notion":
+        listaEmblemas.append(emblemas.get("no-notion"))
+        funcionesExtras.agregarEmblema(" ".join(listaEmblemas), folderProyecto)
+        FuncionesExtras.tocarFolder(folderProyecto)
+        logger.info(f"Error: no-notion")
+        return
+    elif terminar:
+        listaEmblemas.append(emblemas.get("terminado"))
+        print(listaEmblemas)
+        funcionesExtras.agregarEmblema(" ".join(listaEmblemas), folderProyecto)
+        FuncionesExtras.tocarFolder(folderProyecto)
+        logger.info(f"Proyecto: terminado")
+        return
+    
 
     # Estado
     estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
@@ -335,8 +357,6 @@ def actualizarIconos(folderProyecto: str):
     funcionesExtras.agregarEmblema(" ".join(listaEmblemas), folderProyecto)
 
     FuncionesExtras.tocarFolder(folderProyecto)
-    nombreProyecto = folderProyecto.name
-    logger.info(f"Proyecto: {nombreProyecto}")
     logger.info(f"\tEstado: {estado}")
     logger.info(f"\tEncargado: {asignado}")
     logger.info(f"\tCanal: {canal}")
