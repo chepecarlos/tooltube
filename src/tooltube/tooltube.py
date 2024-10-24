@@ -193,10 +193,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     try:
         DataVideo = solicitudVideo.execute()
     except HttpError as e:
-        if e.resp.status == 403:
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
-            exit()
-        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
+        return imprimirError(e, video_id)
     except httplib2.error.ServerNotFoundError as error:
         print(f"Error fatal con solicitud {error}")
         exit()
@@ -217,11 +214,7 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
         try:
             RespuestaYoutube = SolisituActualizar.execute()
         except HttpError as e:
-            if e.resp.status == 403:
-                logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
-                exit()
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro con API-Youtube: {e.resp.status}")
-            return -1
+            return imprimirError(e, video_id)
 
         if len(RespuestaYoutube["snippet"]) > 0:
             logger.info(f"Actualización Completa - Link: https://youtu.be/{video_id}")
@@ -232,6 +225,20 @@ def ActualizarDescripcionVideo(credenciales, video_id, archivo=None, Directorio=
     else:
         logger.warning(f"No existe el video con ID {video_id}")
         return -1
+
+
+def imprimirError(error, video_id):
+    rasonError = error.resp.reason
+    if error.resp.status == 403:
+        if rasonError in ['Forbidden']:
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"https://youtu.be/{video_id} - {rasonError} No tienes permisos, API-Youtube: {e.resp.status}")
+            return -1
+        else:
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT +
+                           f"https://youtu.be/{video_id} - {rasonError} Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
+        exit()
+    logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro https://youtu.be/{video_id} - {rasonError} con API-Youtube: {e.resp.status}")
+    return -1
 
 
 def ActualizarEstadoVideo(credenciales, video_id, estado):
