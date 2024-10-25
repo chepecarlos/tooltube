@@ -231,13 +231,13 @@ def imprimirError(error, video_id):
     rasonError = error.resp.reason
     if error.resp.status == 403:
         if rasonError in ['Forbidden']:
-            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"https://youtu.be/{video_id} - {rasonError} No tienes permisos, API-Youtube: {e.resp.status}")
+            logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"https://youtu.be/{video_id} - {rasonError} No tienes permisos, API-Youtube: {error.resp.status}")
             return -1
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT +
-                           f"https://youtu.be/{video_id} - {rasonError} Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {e.resp.status}")
+                           f"https://youtu.be/{video_id} - {rasonError} Sobrepaso de llamas a API esperar 24 horas, API-Youtube: {error.resp.status}")
         exit()
-    logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro https://youtu.be/{video_id} - {rasonError} con API-Youtube: {e.resp.status}")
+    logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + f"Erro https://youtu.be/{video_id} - {rasonError} con API-Youtube: {error.resp.status}")
     return -1
 
 
