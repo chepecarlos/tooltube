@@ -9,6 +9,7 @@ import tooltube.miLibrerias as miLibrerias
 import tooltube.tooltube_analisis as analitica
 from tooltube.minotion.minotion import abriNotion, abriYouTube
 from tooltube.gui.ventanaActualizar import menuActualizar
+from tooltube.tooltube_gui2 import ventanaEstado
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
@@ -97,11 +98,11 @@ class ventanaCanal(QMainWindow):
         analitica.cambiarCanal(canal, self.ruta)
 
 
-def menuEstado(ruta: str):
-    app = QApplication(sys.argv)
-    ventana = ventanaEstados(ruta)
-    ventana.show()
-    sys.exit(app.exec_())
+# def menuEstado(ruta: str):
+#     app = QApplication(sys.argv)
+#     ventana = ventanaEstados(ruta)
+#     ventana.show()
+#     sys.exit(app.exec_())
 
 
 def menuAsignado(ruta: str):
@@ -144,7 +145,10 @@ def main():
     args.folder = miLibrerias.rutaAbsoluta(args.folder)
 
     if args.estado:
-        menuEstado(args.folder)
+        ventana = ventanaEstado(args.folder)
+        ventana.ejecutar()
+        # menuEstado(args.folder)
+        # menuEstado(args.folder)
     elif args.asignado:
         menuAsignado(args.folder)
     elif args.canal:
