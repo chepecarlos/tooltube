@@ -1,13 +1,14 @@
 from nicegui import ui, app
 from pathlib import Path
 
-import tooltube.tooltube_analisis as analitica
 from tooltube.minotion.minotion import actualizarNotion
+from tooltube.minotion.minotion import actualizarEstadoNotion
 import tooltube.miLibrerias as miLibrerias
 from datetime import datetime
 
+
 class ventanaEstado:
-    
+
     tamanoVentana = (260, 400)
 
     def __init__(self, ruta: str):
@@ -46,22 +47,22 @@ class ventanaEstado:
     def ejecutar(self):
 
         proyecto = self.folder.split("/")[-1]
-        proyecto = proyecto.split("_")  
-        proyecto = " ".join(proyecto) 
+        proyecto = proyecto.split("_")
+        proyecto = " ".join(proyecto)
 
-        rutaInfo = f"{self.folder}/1.Guion/1.Info.md"
+        self.rutaInfo = f"{self.folder}/1.Guion/1.Info.md"
 
-        if not Path(rutaInfo).exists():
+        if not Path(self.rutaInfo).exists():
             print("Error folder no es proyecto")
             ui.label("Error no se encontró proyecto")
             ui.run(native=True, reload=False, dark=True, language="es", title=f"Sistema Estado - Error")
         else:
 
-            actualizarNotion(rutaInfo)
-            
-            estado = miLibrerias.ObtenerValor(rutaInfo, "estado")
-            encargado = miLibrerias.ObtenerValor(rutaInfo, "asignado")
-            canal = miLibrerias.ObtenerValor(rutaInfo, "canal")
+            actualizarNotion(self.rutaInfo)
+
+            estado = miLibrerias.ObtenerValor(self.rutaInfo, "estado")
+            encargado = miLibrerias.ObtenerValor(self.rutaInfo, "asignado")
+            canal = miLibrerias.ObtenerValor(self.rutaInfo, "canal")
 
             with ui.column().classes('fixed-center'):
                 with ui.column().classes('w-full items-center'):
@@ -73,7 +74,7 @@ class ventanaEstado:
                 with ui.column().classes('w-full items-center'):
                     with ui.row():
                         ui.button('Actualizar', on_click=self.actualizarData)
-            
+
             app.native.window_args['resizable'] = False
 
             ui.run(native=True, reload=False, dark=True, language="es", window_size=self.tamanoVentana, title=f"Sistema Estado - {proyecto}")
@@ -88,3 +89,10 @@ class ventanaEstado:
         print(f"Estado: {Estado} - Encargado: {Encargado} - Canal: {Canal}")
         if Estado == "publicado":
             print(f"Se publico el video {textoFechaHoy}")
+
+        estado = actualizarEstadoNotion(self.rutaInfo, Estado, Encargado, Canal, textoFechaHoy)
+        
+        if estado:
+            ui.notify("Se actualizar Estado")
+        else:
+            ui.notify("Error no se actualizar Estado")

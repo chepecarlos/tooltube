@@ -154,6 +154,56 @@ def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
         return False
 
 
+def actualizarEstadoNotion(rutaInfo: str, estado: str, encargado: str, canal: str, fecha: str) -> bool:
+    idPagina = urlNotion(rutaInfo)
+
+    if idPagina is None:
+        logger.warning("Error no se encontró ID")
+        return False
+
+    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    if dataNotion is None:
+        logger.warning("No data de Notion")
+        return False
+
+    urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
+
+    cabezaConsulta = {
+        "Authorization": f"Bearer {dataNotion.get('token')}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-08-16"
+    }
+
+    dataJson = {
+        "properties": {
+            "Canal": {
+                "select": {
+                    "name": canal
+                }
+            },
+            "Asignado": {
+                "select": {
+                    "name": encargado
+                }
+            },
+            "Estado": {
+                "select": {
+                    "name": estado
+                }
+            }
+        }
+    }
+
+    respuesta = requests.patch(urlConsulta, json=dataJson, headers=cabezaConsulta)
+
+    if respuesta.status_code == 200:
+        logger.info("Se actualizar pagina de Notion")
+        return True
+    else:
+        logger.warning("No se puede actualizar Notion")
+        return False
+
+
 def canalNotion(canal: str, rutaInfo: str = None) -> bool:
     idPagina = urlNotion(rutaInfo)
 
