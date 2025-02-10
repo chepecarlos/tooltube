@@ -194,13 +194,24 @@ def actualizarEstadoNotion(rutaInfo: str, estado: str, encargado: str, canal: st
         }
     }
 
+    if estado == "publicado" or estado == "analizando":
+        dataJson["properties"]["Terminado"] = {
+            "checkbox": True
+        }
+        dataJson["properties"]["Hacer para"] = {
+            "date": {
+                "start": f"{fecha}"
+            }
+        }
+
     respuesta = requests.patch(urlConsulta, json=dataJson, headers=cabezaConsulta)
 
     if respuesta.status_code == 200:
         logger.info("Se actualizar pagina de Notion")
         return True
     else:
-        logger.warning("No se puede actualizar Notion")
+        logger.warning(f"No se puede actualizar Notion - {respuesta.status_code}")
+        logger.warning(respuesta.json())
         return False
 
 

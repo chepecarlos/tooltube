@@ -5,6 +5,7 @@ from tooltube.minotion.minotion import actualizarNotion
 from tooltube.minotion.minotion import actualizarEstadoNotion
 import tooltube.miLibrerias as miLibrerias
 from datetime import datetime
+from tooltube.tooltube_analisis import actualizarIconos
 
 
 class ventanaEstado:
@@ -68,9 +69,9 @@ class ventanaEstado:
                 with ui.column().classes('w-full items-center'):
                     with ui.row():
                         ui.label(f"Proyecto: {proyecto}")
-                self.selecionEstado = ui.select(options=self.estados, with_input=True, label="Estado", on_change=lambda e: ui.notify(e.value), value=estado)
-                self.selecionEncargado = ui.select(options=self.encargados, with_input=True, label="Encargado", on_change=lambda e: ui.notify(e.value), value=encargado)
-                self.selecionCanal = ui.select(options=self.canal, with_input=True, label="Canal", on_change=lambda e: ui.notify(e.value), value=canal)
+                self.selecionEstado = ui.select(options=self.estados, with_input=True, label="Estado",  value=estado)
+                self.selecionEncargado = ui.select(options=self.encargados, with_input=True, label="Encargado", value=encargado)
+                self.selecionCanal = ui.select(options=self.canal, with_input=True, label="Canal", value=canal)
                 with ui.column().classes('w-full items-center'):
                     with ui.row():
                         ui.button('Actualizar', on_click=self.actualizarData)
@@ -91,8 +92,18 @@ class ventanaEstado:
             print(f"Se publico el video {textoFechaHoy}")
 
         estado = actualizarEstadoNotion(self.rutaInfo, Estado, Encargado, Canal, textoFechaHoy)
-        
+
         if estado:
-            ui.notify("Se actualizar Estado")
+            miLibrerias.SalvarValor(self.rutaInfo, "asignado", Encargado)
+            miLibrerias.SalvarValor(self.rutaInfo, "canal", Canal)
+            miLibrerias.SalvarValor(self.rutaInfo, "estado", Estado)
+            if Estado == "publicado":
+                miLibrerias.SalvarValor(self.rutaInfo, "terminado", True)
+                miLibrerias.SalvarValor(self.rutaInfo, "fecha", textoFechaHoy)
+            else:
+                miLibrerias.SalvarValor(self.rutaInfo, "terminado", False)
+                miLibrerias.SalvarValor(self.rutaInfo, "fecha", "")
+            actualizarIconos(self.folder)
+            ui.notify("Se actualizar Estado", type='positive')
         else:
-            ui.notify("Error no se actualizar Estado")
+            ui.notify("No se actualizar Estado", type='negative')
