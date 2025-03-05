@@ -109,9 +109,13 @@ def abriYouTube(folderActual: str):
         return
 
     idYoutube = miLibrerias.ObtenerValor(rutaInfo, "youtube_id")
-    if idYoutube is not None and idYoutube == "ID_Youtube":
+    if idYoutube is not None and idYoutube != "ID_Youtube":
         rutaYoutube = f"https://www.youtube.com/watch?v={idYoutube}"
+        print(rutaYoutube)
+        print(f"Abriendo {nombreProyecto} Youtube: {rutaYoutube}")
         funcionesExtras.ruta(rutaYoutube)
+    else:
+        print("No se encontró ID de Youtube")
 
 
 def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
