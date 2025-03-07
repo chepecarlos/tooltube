@@ -135,7 +135,7 @@ def ArgumentosCLI():
 
 
 def main():
-    logger.info("Iniciando el programa ToolTube Analisis")
+    logger.info("Iniciando el programa ToolTube Grafico")
     args = ArgumentosCLI()
 
     if args.folder is None:
@@ -155,7 +155,7 @@ def main():
         menuCanal(args.folder)
     elif args.notion:
         abriNotion(args.folder)
-    elif args.notion:
+    elif args.youtube:
         abriYouTube(args.folder)
     elif args.actualizar_estado:
         menuActualizar(args.folder)
