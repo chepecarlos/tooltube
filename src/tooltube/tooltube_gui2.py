@@ -1,3 +1,7 @@
+"""
+Aplicación Gráfica con NiceGUI para actualizar Proyecto de Notion.
+"""
+
 from nicegui import ui, app
 from pathlib import Path
 
@@ -9,43 +13,52 @@ from tooltube.tooltube_analisis import actualizarIconos
 
 
 class ventanaEstado:
+    "Ventana que cambia estado del Proyecto"
 
-    tamanoVentana = (260, 400)
+    tamañoVentana = (300, 450)
+    "Tamaño por defecto de la Ventana"
+
+    estados: list[str] = [
+        'desconocido',
+        'idea',
+        'desarrollo',
+        'guion',
+        'grabado',
+        'edicion',
+        'tomab',
+        'revision',
+        'preparado',
+        'publicado',
+        'analizando'
+    ]
+    "Lista Estados del Proyectos"
+
+    encargados: list[str] = [
+        'desconocido',
+        'paty',
+        'chepecarlos',
+        'ingjuan',
+        'gerardo'
+    ]
+    "Lista Encargados del Proyecto "
+
+    canal: list[str] = [
+        'desconocido',
+        'ChepeCarlos',
+        'Curso_Venta',
+        'CtrlZ',
+        'Tiktok'
+    ]
+    "Lista de Cuentas"
+    
+    folder: str
+    "Ruta del Proyecto"
 
     def __init__(self, ruta: str):
         self.folder: str = ruta
 
-        self.encargados = [
-            'desconocido',
-            'paty',
-            'chepecarlos',
-            'ingjuan',
-            'luis'
-        ]
-
-        self.estados = [
-            'desconocido',
-            'idea',
-            'desarrollo',
-            'guion',
-            'grabado',
-            'edicion',
-            'tomab',
-            'revision',
-            'preparado',
-            'publicado',
-            'analizando'
-        ]
-
-        self.canal = [
-            'desconocido',
-            'ChepeCarlos',
-            'Curso_Venta',
-            'CtrlZ',
-            'Tiktok'
-        ]
-
     def ejecutar(self):
+        "Ejecutar Ventana"
 
         proyecto = self.folder.split("/")[-1]
         proyecto = proyecto.split("_")
@@ -69,18 +82,19 @@ class ventanaEstado:
                 with ui.column().classes('w-full items-center'):
                     with ui.row():
                         ui.label(f"Proyecto: {proyecto}")
-                self.selecionEstado = ui.select(options=self.estados, with_input=True, label="Estado",  value=estado)
+                self.selecionEstado = ui.select(options=self.estados, with_input=True, label="Estado", value=estado)
                 self.selecionEncargado = ui.select(options=self.encargados, with_input=True, label="Encargado", value=encargado)
                 self.selecionCanal = ui.select(options=self.canal, with_input=True, label="Canal", value=canal)
                 with ui.column().classes('w-full items-center'):
                     with ui.row():
                         ui.button('Actualizar', on_click=self.actualizarData)
 
-            app.native.window_args['resizable'] = False
+            # app.native.window_args['resizable'] = False
 
-            ui.run(native=True, reload=False, dark=True, language="es", window_size=self.tamanoVentana, title=f"Sistema Estado - {proyecto}")
+            ui.run(native=True, reload=False, dark=True, language="es", window_size=self.tamañoVentana, title=f"Sistema Estado - {proyecto}")
 
     def actualizarData(self):
+        "Salva los Datos local y Notion"
         Estado = self.selecionEstado.value
         Encargado = self.selecionEncargado.value
         Canal = self.selecionCanal.value
