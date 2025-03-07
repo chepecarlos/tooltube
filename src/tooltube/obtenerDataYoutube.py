@@ -1,3 +1,8 @@
+
+import re
+import requests
+from bs4 import BeautifulSoup
+
 import tooltube.miLibrerias as miLibrerias
 import youtube_dl
 
@@ -41,11 +46,20 @@ def obtenerTitulo(id):
     return data.get("title", None)
 
 
-def obtenerDescripcion(id):
+def obtenerDescripcion(id: str) -> str:
+    "Obtiene la descripción de un video de YouTube"
 
-    data = obtenerDataVideo(id)
-
-    if data is None:
+    url= f"https://www.youtube.com/watch?v={id}"
+    contenido = requests.get(url)
+    if contenido.status_code != 200:
+        logger.warning(f"error consulta {contenido.status_code}")
+        return None
+    soup = BeautifulSoup(contenido.content, "html.parser")
+    patron = re.compile('(?<=shortDescription":").*(?=","isCrawlable)')
+    try:
+        description = patron.findall(str(soup))[0].replace('\\n','\n')
+    except IndexError:
+        logger.warning(f"Error: No se encontró la descripción en el contenido de {url}")
         return None
 
-    return data.get("description", None)
+    return description
