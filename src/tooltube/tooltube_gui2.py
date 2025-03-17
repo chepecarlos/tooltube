@@ -50,7 +50,7 @@ class ventanaEstado:
         'Tiktok'
     ]
     "Lista de Cuentas"
-    
+
     folder: str
     "Ruta del Proyecto"
 
@@ -93,22 +93,36 @@ class ventanaEstado:
 
             ui.run(native=True, reload=False, dark=True, language="es", window_size=self.tamañoVentana, title=f"Sistema Estado - {proyecto}")
 
+    def agregarEncargado(self, encargado):
+        noAgregarEncargado = ["desconocido", "chepecarlos"]
+
+        listaColaboradores = miLibrerias.ObtenerValor(self.rutaInfo, "listaColaboradores")
+        if listaColaboradores is None:
+            listaColaboradores = []
+
+        if encargado not in listaColaboradores and encargado not in noAgregarEncargado:
+            listaColaboradores.append(encargado)
+
+        miLibrerias.SalvarValor(self.rutaInfo, "listaColaboradores", listaColaboradores)
+
     def actualizarData(self):
         "Salva los Datos local y Notion"
         Estado = self.selecionEstado.value
-        Encargado = self.selecionEncargado.value
+        encargado = self.selecionEncargado.value
         Canal = self.selecionCanal.value
         fechaHoy = datetime.now()
         textoFechaHoy = fechaHoy.strftime("%Y-%m-%d")
         ui.notify(f"Actualizando Data! {Estado}")
-        print(f"Estado: {Estado} - Encargado: {Encargado} - Canal: {Canal}")
+        print(f"Estado: {Estado} - Encargado: {encargado} - Canal: {Canal}")
         if Estado == "publicado":
             print(f"Se publico el video {textoFechaHoy}")
 
-        estado = actualizarEstadoNotion(self.rutaInfo, Estado, Encargado, Canal, textoFechaHoy)
+        estado = actualizarEstadoNotion(self.rutaInfo, Estado, encargado, Canal, textoFechaHoy)
 
         if estado:
-            miLibrerias.SalvarValor(self.rutaInfo, "asignado", Encargado)
+            self.agregarEncargado(encargado)
+
+            miLibrerias.SalvarValor(self.rutaInfo, "asignado", encargado)
             miLibrerias.SalvarValor(self.rutaInfo, "canal", Canal)
             miLibrerias.SalvarValor(self.rutaInfo, "estado", Estado)
             if Estado == "publicado":
