@@ -9,8 +9,10 @@ import sys
 import time
 import json
 
+
 import colorama
 import httplib2
+import pyperclip
 from googleapiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
@@ -82,7 +84,6 @@ def CargarCredenciales(Canal=None):
 
     ArchivoPickle = FolderData + "/token.pickle"
     ArchivoInfo = FolderData + "/info.md"
-
 
     if os.path.exists(ArchivoInfo):
         logger.info("Permisos sin Membrecía")
@@ -525,6 +526,20 @@ def FuncionSinID(args):
         logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
 
 
+def obtenerColaboradores():
+    texto = ""
+    lista = FuncionesExtras.buscarDato("listaColaboradores")
+    if lista is None:
+        logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "No hay Colaboradores")
+        return
+    
+    for colaborador in lista:
+        texto += f"  - title: \n"
+        texto += f"    colaborador: {colaborador}\n"
+    pyperclip.copy(texto)
+    logger.info(Fore.BLACK + Back.GREEN + Style.BRIGHT + "Lista Colaboradores Copiada al portapapeles")
+
+
 def ArgumentosCLI() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="tooltube", description="Herramienta de Automatización de Youtube")
     parser.add_argument("--estado", "-e", help="Actualiza Estado de un video")
@@ -535,6 +550,7 @@ def ArgumentosCLI() -> argparse.Namespace:
     parser.add_argument("--actualizar", "-a", help="Actualizar la metadata", action="store_true")
     parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
     parser.add_argument("--miembros", help="Descarga los miembros del canal", action="store_true")
+    parser.add_argument("--colaboradores", help="Descarga los miembros del canal", action="store_true")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
     parser.add_argument("--file", "-f", help="Archivo a usar para actualizar Youtube")
@@ -558,10 +574,11 @@ def main():
     else:
         Video_id = FuncionesExtras.buscarDato("youtube_id")
 
-    if Video_id is not None and not args.uploader:
-        if Video_id == "ID_Youtube":
-            FuncionSinID(args)
-            return
+    if Video_id is not None:
+        if not args.colaboradores and not args.uploader:
+            if Video_id == "ID_Youtube":
+                FuncionSinID(args)
+                return
         logger.info(f"[URL-Youtube] https://youtu.be/{Video_id}")
 
     Credenciales = CargarCredenciales(args.canal)
@@ -628,6 +645,8 @@ def main():
         ActualizarMetadata(Credenciales, Video_id)
     elif args.miembros:
         ObtenerMiembros(Credenciales)
+    elif args.colaboradores:
+        obtenerColaboradores()
     else:
         logger.warning(
             Fore.WHITE
