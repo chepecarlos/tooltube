@@ -11,7 +11,7 @@ import json
 
 import colorama
 import httplib2
-from apiclient.errors import HttpError
+from googleapiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -74,14 +74,15 @@ def CargarCredenciales(Canal=None):
     FolderData = os.path.join(ArchivoLocal, "data")
 
     if Canal is not None:
-        logger.info(f"Usando canal {Canal}")
         FolderData = os.path.join(FolderData, Canal)
 
+    logger.info(f"Usando canal {Canal}")
     if not os.path.exists(FolderData):
         os.makedirs(FolderData)
 
     ArchivoPickle = FolderData + "/token.pickle"
     ArchivoInfo = FolderData + "/info.md"
+
 
     if os.path.exists(ArchivoInfo):
         logger.info("Permisos sin Membrecía")
@@ -92,12 +93,13 @@ def CargarCredenciales(Canal=None):
             "https://www.googleapis.com/auth/youtube.force-ssl",
         ]
     else:
+        logger.info("Permisos con Membrecía")
         permisosYoutube = [
             "https://www.googleapis.com/auth/youtube",
             "https://www.googleapis.com/auth/youtube.readonly",
             "https://www.googleapis.com/auth/youtubepartner",
-            "https://www.googleapis.com/auth/youtube.channel-memberships",
             "https://www.googleapis.com/auth/youtube.force-ssl",
+            "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
         ]
 
     if os.path.exists(ArchivoPickle):
@@ -114,7 +116,7 @@ def CargarCredenciales(Canal=None):
             client_secrets = FolderData + "/client_secrets.json"
             # Todo: Hacer un error mas fatal
             if not os.path.exists(client_secrets):
-                logger.warning("No existe client_secrets.json agregalo a {FolderData}")
+                logger.warning("No existe client_secrets.json agrégalo a {FolderData}")
                 return
             flow = InstalledAppFlow.from_client_secrets_file(
                 client_secrets,
@@ -369,6 +371,19 @@ def ActualizarThumbnails(credenciales, video_id, archivo=None):
     return False
 
 
+def ObtenerMiembros(credenciales):
+    youtube = build("youtube", "v3", credentials=credenciales)
+    solicitud = youtube.members().list(
+        part="snippet",
+        maxResults=5,  # Puedes ajustar la cantidad de resultados por página
+        mode="all_current"  # Puedes cambiar el modo a "updates"
+    )
+    respuesta = solicitud.execute()
+    print(respuesta)
+    print(dir(respuesta))
+    # TODO: Aun no funciona
+
+
 def ActualizarIdioma(credenciales, video_id, Lenguaje="es"):
     """
     Actualiza Lenguaje video y descripción
@@ -519,6 +534,7 @@ def ArgumentosCLI() -> argparse.Namespace:
     parser.add_argument("--uploader", "-u", help="Subir video a youtube")
     parser.add_argument("--actualizar", "-a", help="Actualizar la metadata", action="store_true")
     parser.add_argument("--idioma", "-i", help="Actualizar de Idioma video a youtube", action="store_true")
+    parser.add_argument("--miembros", help="Descarga los miembros del canal", action="store_true")
 
     parser.add_argument("--video_id", "-id", help="ID del video a actualizar Youtube")
     parser.add_argument("--file", "-f", help="Archivo a usar para actualizar Youtube")
@@ -610,6 +626,8 @@ def main():
             ActualizarIdioma(Credenciales, Video_id)
     elif args.actualizar:
         ActualizarMetadata(Credenciales, Video_id)
+    elif args.miembros:
+        ObtenerMiembros(Credenciales)
     else:
         logger.warning(
             Fore.WHITE
