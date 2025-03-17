@@ -306,12 +306,13 @@ def actualizarIconos(folderProyecto: str):
     folder = iconos.get("folder")
     listaEmblemas = list()
 
+    folderProyecto = Path(folderProyecto)
     nombreProyecto = folderProyecto.name
     logger.info(f"Proyecto: {nombreProyecto}")
-    
+
     error = miLibrerias.ObtenerValor(archivoInfo, "error", "no-error")
     terminar = miLibrerias.ObtenerValor(archivoInfo, "terminado", False)
-    
+
     funcionesExtras.quitarEmblemas(folderProyecto)
 
     if error == "no-notion":
@@ -327,7 +328,6 @@ def actualizarIconos(folderProyecto: str):
         FuncionesExtras.tocarFolder(folderProyecto)
         logger.info(f"Proyecto: terminado")
         return
-    
 
     # Estado
     estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
@@ -343,7 +343,8 @@ def actualizarIconos(folderProyecto: str):
     if asignado is None:
         asignado = "desconocido"
     iconoAsignado = emblemas.get(asignado)
-    listaEmblemas.append(iconoAsignado)
+    if iconoAsignado is not None:
+        listaEmblemas.append(iconoAsignado)
 
     # Canal
     canal = miLibrerias.ObtenerValor(archivoInfo, "canal")

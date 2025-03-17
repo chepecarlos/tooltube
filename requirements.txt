@@ -12,3 +12,4 @@ youtube_dl
 colorama
 pyside6
 nicegui
+pyperclip
