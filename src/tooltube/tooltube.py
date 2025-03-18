@@ -534,8 +534,7 @@ def obtenerColaboradores():
         return
     
     for colaborador in lista:
-        texto += f"  - title: \n"
-        texto += f"    colaborador: {colaborador}\n"
+        texto += f"  - colaborador: {colaborador}\n"
     pyperclip.copy(texto)
     logger.info(Fore.BLACK + Back.GREEN + Style.BRIGHT + "Lista Colaboradores Copiada al portapapeles")
 
