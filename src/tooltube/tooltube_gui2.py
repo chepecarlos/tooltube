@@ -107,25 +107,25 @@ class ventanaEstado:
 
     def actualizarData(self):
         "Salva los Datos local y Notion"
-        Estado = self.selecionEstado.value
+        estado = self.selecionEstado.value
         encargado = self.selecionEncargado.value
-        Canal = self.selecionCanal.value
+        canal = self.selecionCanal.value
         fechaHoy = datetime.now()
         textoFechaHoy = fechaHoy.strftime("%Y-%m-%d")
-        ui.notify(f"Actualizando Data! {Estado}")
-        print(f"Estado: {Estado} - Encargado: {encargado} - Canal: {Canal}")
-        if Estado == "publicado":
+        ui.notify(f"Actualizando Data! {estado}")
+        print(f"Estado: {estado} - Encargado: {encargado} - Canal: {canal}")
+        if estado == "publicado":
             print(f"Se publico el video {textoFechaHoy}")
 
-        estado = actualizarEstadoNotion(self.rutaInfo, Estado, encargado, Canal, textoFechaHoy)
+        respuestaNotion = actualizarEstadoNotion(self.rutaInfo, estado, encargado, canal, textoFechaHoy)
 
-        if estado:
+        if respuestaNotion:
             self.agregarEncargado(encargado)
 
             miLibrerias.SalvarValor(self.rutaInfo, "asignado", encargado)
-            miLibrerias.SalvarValor(self.rutaInfo, "canal", Canal)
-            miLibrerias.SalvarValor(self.rutaInfo, "estado", Estado)
-            if Estado == "publicado":
+            miLibrerias.SalvarValor(self.rutaInfo, "canal", canal)
+            miLibrerias.SalvarValor(self.rutaInfo, "estado", estado)
+            if estado == "publicado":
                 miLibrerias.SalvarValor(self.rutaInfo, "terminado", True)
                 miLibrerias.SalvarValor(self.rutaInfo, "fecha", textoFechaHoy)
             else:
