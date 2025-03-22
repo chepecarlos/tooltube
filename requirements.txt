@@ -14,4 +14,4 @@ pyside6
 nicegui
 pywebview
 pyperclip
-BeautifulSoup
+beautifulsoup4
