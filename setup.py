@@ -28,7 +28,12 @@ def copiarSinSobreEscribir(origen, destino):
             print(f"{archivo} es un directorio, no se ha copiado.")
 
 
-def copiarSobreEscribir(origen, destino):
+def copiarSobreEscribir(origen: str, destino: str)-> None:
+    
+    if not os.path.exists(destino):
+        Path(destino).mkdir(parents=True, exist_ok=True)
+        print(f"Folder creado {destino}")
+    
     for archivo in os.listdir(origen):
         rutaOrigen = os.path.join(origen, archivo)
         rutaDestino = os.path.join(destino, archivo)
