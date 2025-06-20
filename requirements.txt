@@ -17,3 +17,5 @@ beautifulsoup4
 pyqt5
 pyqtwebengine
 pywebview[qt]
+# Viejas dependencias
+pyside6
