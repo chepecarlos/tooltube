@@ -1,9 +1,6 @@
-from PySide6.QtWidgets import (QApplication, QMainWindow, QComboBox, QProgressBar,
-                               QPushButton, QPlainTextEdit, QVBoxLayout, QWidget)
-from PySide6.QtCore import QSize, Qt, QProcess
-from PySide6.QtGui import QScreen
+from nicegui import ui, app
+import asyncio
 
-import sys
 import os
 from pathlib import Path
 
@@ -12,101 +9,120 @@ from tooltube.tooltube_analisis import actualizarIconos
 import tooltube.miLibrerias as miLibrerias
 
 
-class ventanaCanal(QMainWindow):
+class ventanaActualizar:
+    """
+    Ventana para actualizar el estado de un proyecto.
+    """
+
+    folder: str
+    "Ruta del Proyecto"
+
+    actualizandoSistema: bool = False
+    "Indica si se está actualizando el sistema"
+
+    pararActualizar: bool = False
+    "Indica si se debe parar la actualización"
+
     def __init__(self, ruta: str):
-        super().__init__()
-        self.ruta = ruta
+        self.folder = ruta
 
-        self.setWindowTitle("Actualizar Proyectos")
+    def ejecutar(self):
 
-        self.p = None
+        with ui.column().classes("fixed-center"):
+            with ui.column().classes("w-full items-center"):
+                with ui.row():
+                    ui.label(f"Folder: {self.folder}")
+                    self.textLog = ui.log().classes("w-full h-80")
+                    self.barraProgreso = ui.linear_progress(show_value=False, size="30px")
 
-        self.boton = QPushButton("Actualizar")
-        self.boton.pressed.connect(self.iniciar_actualizar)
+                    with ui.column().classes("w-full items-center"):
+                        with ui.row():
+                            ui.button("Actualizar", on_click=self.iniciar_actualizar)
+                            ui.button("Parar", on_click=self.parar_actualizar, color="red")
+                            ui.button("Limpiar", on_click=self.limpiar, color="green")
 
-        self.text = QPlainTextEdit()
-        self.text.setReadOnly(True)
+        ui.run(native=True, reload=False, dark=True, language="es", title="Actualizar Proyectos")
 
-        self.progreso = QProgressBar()
-        self.progreso.setRange(0, 100)
+    def limpiar(self):
+        """
+        Limpiar el log de la ventana.
+        """
+        self.textLog.clear()
 
-        l = QVBoxLayout()
-        l.addWidget(self.boton)
-        l.addWidget(self.progreso)
-        l.addWidget(self.text)
+    def parar_actualizar(self):
+        """
+        Parar la actualización del sistema.
+        """
+        self.pararActualizar = True
 
-        w = QWidget()
-        w.setLayout(l)
+    async def iniciar_actualizar(self):
 
-        self.setCentralWidget(w)
+        if self.actualizandoSistema:
+            return
 
-        self.mensaje(Path(self.ruta).name)
+        self.actualizandoSistema = True
 
-    def mensaje(self, s):
-        self.text.appendPlainText(s)
+        self.barraProgreso.value = 0
+        self.textLog.push(f"Empezar a Actualizar Proyectos")
+        self.listaProyectos = self.calcularListaProyectos()
 
-    def iniciar_actualizar(self):
-        def soloNombre(propiedad):
-            return propiedad.get("nombre")
+        self.textLog.push(f"Cantidad Proyectos: {len(self.listaProyectos)}")
 
-        self.progreso.setValue(0)
+        for proyecto in self.listaProyectos:
+            if self.pararActualizar:
+                self.textLog.push("Actualización parada por el usuario.")
+                self.pararActualizar = False
+                self.actualizandoSistema = False
+                await asyncio.sleep(0.1)
+                return
+            nombreProyecto = proyecto.get("nombre")
+            archivoInfo = proyecto.get("info")
+            folderProyecto = proyecto.get("ruta")
 
-        if self.p is None:  # No process running.
-            self.mensaje("Iniciando Actualizar Proyectos")
-            listaFolder = list()
+            self.textLog.push(f"Proyecto: {nombreProyecto}")
+            await asyncio.sleep(0.1)
 
-            for base, dirs, files in os.walk(self.ruta):
-                for name in files:
-                    if name.endswith(("Info.md")):
-                        archivoInfo = base + os.sep + name
-                        folderProyecto = Path(base + os.sep).parent
-                        listaFolder.append({"nombre": Path(folderProyecto).name, "ruta": folderProyecto, "info": archivoInfo})
-                listaFolder.sort(key=soloNombre)
+            seActualizoNotion = actualizarNotion(archivoInfo)
+            if seActualizoNotion is None:
+                crearNotion(folderProyecto)
+                actualizarNotion(archivoInfo)
+            actualizarIconos(folderProyecto)
 
-            cantidadProyectos = len(listaFolder)
-            self.mensaje(f"Cantidad Proyectos: {cantidadProyectos}")
+            error = miLibrerias.ObtenerValor(archivoInfo, "error", "no-error")
+            terminar = miLibrerias.ObtenerValor(archivoInfo, "terminado", False)
 
-            i = 1
-            for folder in listaFolder:
-                nombreProyecto = folder.get("nombre")
-                archivoInfo = folder.get("info")
-                folderProyecto = folder.get("ruta")
-                seActualizoNotion = actualizarNotion(archivoInfo)
-                if seActualizoNotion is None:
-                    crearNotion(folderProyecto)
-                    actualizarNotion(archivoInfo)
-                actualizarIconos(folderProyecto)
+            if error == "no-notion":
+                self.textLog.push(f"Error: no-notion")
+            elif terminar:
+                self.textLog.push(f"Estado: Terminado")
+            else:
+                estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
+                asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
+                canal = miLibrerias.ObtenerValor(archivoInfo, "canal")
+                self.textLog.push(f"Estado: {estado}")
+                self.textLog.push(f"Asignado: {asignado}")
+                self.textLog.push(f"Canal: {canal}")
 
-                error = miLibrerias.ObtenerValor(archivoInfo, "error", "no-error")
-                terminar = miLibrerias.ObtenerValor(archivoInfo, "terminado", False)
+            self.textLog.push(f"-" * 10)
 
-                self.mensaje(f"Nombre: {nombreProyecto}")
-                if error == "no-notion":
-                    self.mensaje(f"Error: no-notion")
-                elif terminar:
-                    self.mensaje(f"Proyecto: Terminado")
-                else:
-                    estado = miLibrerias.ObtenerValor(archivoInfo, "estado")
-                    asignado = miLibrerias.ObtenerValor(archivoInfo, "asignado")
-                    canal = miLibrerias.ObtenerValor(archivoInfo, "canal")
-                    self.mensaje(f"Estado: {estado}")
-                    self.mensaje(f"Asignado: {asignado}")
-                    self.mensaje(f"Canal: {canal}")
-                self.mensaje(f"")
+            self.barraProgreso.value = (self.listaProyectos.index(proyecto) + 1) / len(self.listaProyectos)
 
-                porcentaje = i / cantidadProyectos
-                self.progreso.setValue(int(porcentaje*100))
-                i += 1
+        self.actualizandoSistema = False
 
+    def calcularListaProyectos(self):
+        """
+        Calcula la lista de proyectos a actualizar.
+        """
+        listaFolder = list()
 
-def menuActualizar(ruta: str):
-    app = QApplication(sys.argv)
-    ventana = ventanaCanal(ruta)
-    ventana.show()
+        for base, dirs, files in os.walk(self.folder):
+            for name in files:
+                if name.endswith(("Info.md")):
+                    archivoInfo = base + os.sep + name
+                    folderProyecto = Path(base + os.sep).parent
+                    listaFolder.append(
+                        {"nombre": Path(folderProyecto).name, "ruta": folderProyecto, "info": archivoInfo}
+                    )
+            listaFolder.sort(key=lambda x: x.get("nombre"), reverse=True)
 
-    centro = QScreen.availableGeometry(QApplication.primaryScreen()).center()
-    posicion = ventana.frameGeometry()
-    posicion.moveCenter(centro)
-    ventana.move(posicion.topLeft())
-
-    sys.exit(app.exec_())
+        return listaFolder
