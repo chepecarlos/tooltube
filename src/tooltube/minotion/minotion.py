@@ -22,7 +22,18 @@ def urlBase(raiz: str = None) -> str:
 
 
 def consultaPost(ruta: str):
+    """Consulta la API de Notion para obtener información sobre una ruta específica.
+
+    Args:
+        ruta (str): La ruta del archivo a consultar en Notion.
+
+    Returns:
+        dict: La respuesta de la API de Notion o None si no se encontró información.
+    """
+    
+    
     dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    
     if dataNotion is None:
         logger.warning("No data de Notion")
         return None
@@ -47,10 +58,38 @@ def consultaPost(ruta: str):
         dataRespuesta = respuesta.json()
         dataRespuesta = dataRespuesta.get("results")
         if len(dataRespuesta) == 0:
-            logger.info("No se encontró en Notion")
+            logger.warning("No se encontró en Notion")
             return None
         dataRespuesta = dataRespuesta[0]
         return dataRespuesta
+    
+def consultaIdNotion(id_notion: str):
+    """Consulta la API de Notion para obtener información sobre una página específica usando su ID.
+
+    Args:
+        id_notion (str): El ID de la página a consultar en Notion.
+
+    Returns:
+        dict: La respuesta de la API de Notion o None si no se encontró información.
+    """
+    
+    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
+    
+    if dataNotion is None:
+        logger.warning("No data de Notion")
+        return None
+    
+    urlConsulta = f"https://api.notion.com/v1/pages/{id_notion}"
+    cabezaConsulta = {
+        "Authorization": f"Bearer {dataNotion.get('token')}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-08-16"
+    }
+
+    respuesta = requests.get(urlConsulta, headers=cabezaConsulta)
+    
+    if respuesta.status_code == 200:
+        return respuesta.json()
 
 
 def urlNotion(rutaInfo: str = None, buscar: bool = False, ):
@@ -390,14 +429,31 @@ def crearNotion(ruta: str) -> bool:
 
 
 def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
+    """Actualiza la información de un proyecto en Notion.
+
+    Args:
+        folderProyecto (str): Ruta información del folder del proyecto.
+        actualizar (bool, optional): Si se debe actualizar la información. Defaults to False.
+
+    Returns:
+        _type_: _description_
+    """
+    
     rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
-    dataNotion = consultaPost(rutaRelativa)
+    
+    dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
+    
+    if dataInfo is not None:
+        id_notion = dataInfo.get("id_notion")
+        dataNotion = consultaIdNotion(id_notion)
+    else:
+        dataNotion = consultaPost(rutaRelativa)
 
     if dataNotion is None:
-        miLibrerias.SalvarValor(rutaInfo, "error", "no-notion")
+        miLibrerias.agregarValor(rutaInfo, "error", "no-notion", False)
         return None
     else:
-        miLibrerias.SalvarValor(rutaInfo, "error", "no-error")
+        miLibrerias.agregarValor(rutaInfo, "error", "no-error", False)
 
     urlNotion = dataNotion.get("url")
 
@@ -428,10 +484,10 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
     canalAnterior = miLibrerias.ObtenerValor(rutaInfo, "canal")
 
-    miLibrerias.SalvarValor(rutaInfo, "estado", estadoNotion)
-    miLibrerias.SalvarValor(rutaInfo, "asignado", asignadoNotion)
-    miLibrerias.SalvarValor(rutaInfo, "canal", canalNotion)
-    miLibrerias.SalvarValor(rutaInfo, "terminado", terminadoNotion)
+    miLibrerias.agregarValor(rutaInfo, "estado", estadoNotion, False)
+    miLibrerias.agregarValor(rutaInfo, "asignado", asignadoNotion, False)
+    miLibrerias.agregarValor(rutaInfo, "canal", canalNotion, False)
+    miLibrerias.agregarValor(rutaInfo, "terminado", terminadoNotion, False)
 
     if estadoAnterior != estadoNotion:
         print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")

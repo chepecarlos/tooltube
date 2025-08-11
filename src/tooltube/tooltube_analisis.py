@@ -283,7 +283,9 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
                 archivoInfo = base + os.sep + name
                 folderProyecto = Path(base + os.sep).parent
                 listaFolder.append({"nombre": Path(folderProyecto).name, "ruta": folderProyecto, "info": archivoInfo})
-    listaFolder.sort(key=soloNombre)
+    listaFolder.sort(key=soloNombre, reverse=True)
+    
+    logger.info(f"Se encontraron {len(listaFolder)} proyectos")
 
     for Folder in listaFolder:
         archivoInfo = Folder.get("info")
