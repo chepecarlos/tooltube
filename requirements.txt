@@ -19,3 +19,5 @@ pyqtwebengine
 pywebview[qt]
 # Viejas dependencias
 pyside6
+
+colorlog
