@@ -7,7 +7,12 @@ PACKAGE = src/tooltube
 # Generar documentación
 docs:
 	@echo "Generando documentación con pdoc..."
-	pdoc $(PACKAGE) -o $(DOCS_DIR)
+	pdoc $(PACKAGE) -o $(DOCS_DIR) --docformat google
+
+# Servir documentación localmente
+serve-docs:
+	@echo "Sirviendo documentación en http://localhost:1234 ..."
+	pdoc $(PACKAGE) -p 1234 --docformat google
 
 # Limpiar carpeta de documentación
 clean-docs:

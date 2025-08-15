@@ -9,7 +9,7 @@ import tooltube.miLibrerias as miLibrerias
 import tooltube.tooltube_analisis as analitica
 from tooltube.minotion.minotion import abriNotion, abriYouTube
 from tooltube.gui.ventanaActualizar import ventanaActualizar
-from tooltube.tooltube_gui2 import ventanaEstado
+from tooltube.gui.ventanaEstado import ventanaEstado
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
