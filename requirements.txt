@@ -10,5 +10,14 @@ matplotlib
 pandas
 youtube_dl
 colorama
-pyside6
 nicegui
+pywebview
+pyperclip
+beautifulsoup4
+pyqt5
+pyqtwebengine
+pywebview[qt]
+# Viejas dependencias
+pyside6
+
+colorlog

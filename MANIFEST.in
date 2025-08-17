@@ -1,0 +1,6 @@
+recursive-include src/tooltube/data *
+recursive-include src/tooltube/gui *
+recursive-include src/tooltube/minotion *
+recursive-include src/tooltube/miLibrerias *
+include VERSION
+include README.md

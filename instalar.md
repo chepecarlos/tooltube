@@ -22,14 +22,16 @@ git submodule init
 git submodule update
 ```
 
-## Instalar paquetes estras
+## Instalar paquetes estras y dependencias
 
 ```
 sudo apt-get install -y libxcb-cursor-dev
+sudo apt-get install -y build-essential libgl1-mesa-dev
+
 ```
 
 ## instalar de paquetes
 
 ```bash
-pip install .
+pipx install .
 ``` 

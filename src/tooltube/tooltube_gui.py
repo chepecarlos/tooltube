@@ -8,8 +8,8 @@ import os
 import tooltube.miLibrerias as miLibrerias
 import tooltube.tooltube_analisis as analitica
 from tooltube.minotion.minotion import abriNotion, abriYouTube
-from tooltube.gui.ventanaActualizar import menuActualizar
-from tooltube.tooltube_gui2 import ventanaEstado
+from tooltube.gui.ventanaActualizar import ventanaActualizar
+from tooltube.gui.ventanaEstado import ventanaEstado
 logger = miLibrerias.ConfigurarLogging(__name__)
 
 
@@ -105,18 +105,18 @@ class ventanaCanal(QMainWindow):
 #     sys.exit(app.exec_())
 
 
-def menuAsignado(ruta: str):
-    app = QApplication(sys.argv)
-    ventana = ventanaAsignado(ruta)
-    ventana.show()
-    sys.exit(app.exec_())
+# def menuAsignado(ruta: str):
+#     app = QApplication(sys.argv)
+#     ventana = ventanaAsignado(ruta)
+#     ventana.show()
+#     sys.exit(app.exec_())
 
 
-def menuCanal(ruta: str):
-    app = QApplication(sys.argv)
-    ventana = ventanaCanal(ruta)
-    ventana.show()
-    sys.exit(app.exec_())
+# def menuCanal(ruta: str):
+#     app = QApplication(sys.argv)
+#     ventana = ventanaCanal(ruta)
+#     ventana.show()
+#     sys.exit(app.exec_())
 
 
 def ArgumentosCLI():
@@ -124,7 +124,7 @@ def ArgumentosCLI():
 
     parser.add_argument("--estado", "-e", help="actualiza estado del proyecto de video",  action="store_true")
     parser.add_argument("--asignado", "-a",  help="actualiza a quien esta asignado del proyecto de video", action="store_true")
-    parser.add_argument("--canal", "-c",  help="actualiza el canal asignado proyecto de video", action="store_true")
+    # parser.add_argument("--canal", "-c",  help="actualiza el canal asignado proyecto de video", action="store_true")
     parser.add_argument("--notion", "-n",  help="Abre la ruta de notion en navegador", action="store_true")
     parser.add_argument("--youtube", "-y",  help="Abre la ruta de youtube en navegador", action="store_true")
     parser.add_argument("--actualizar_estado",  help="Actualizar estado de Proyecto", action="store_true")
@@ -135,7 +135,7 @@ def ArgumentosCLI():
 
 
 def main():
-    logger.info("Iniciando el programa ToolTube Analisis")
+    logger.info("Iniciando el programa ToolTube Grafico")
     args = ArgumentosCLI()
 
     if args.folder is None:
@@ -149,16 +149,18 @@ def main():
         ventana.ejecutar()
         # menuEstado(args.folder)
         # menuEstado(args.folder)
-    elif args.asignado:
-        menuAsignado(args.folder)
-    elif args.canal:
-        menuCanal(args.folder)
+    # elif args.asignado:
+    #     menuAsignado(args.folder)
+    # elif args.canal:
+    #     menuCanal(args.folder)
     elif args.notion:
         abriNotion(args.folder)
-    elif args.notion:
+    elif args.youtube:
         abriYouTube(args.folder)
     elif args.actualizar_estado:
-        menuActualizar(args.folder)
+        ventana = ventanaActualizar(args.folder)
+        ventana.ejecutar()
+        # menuActualizar(args.folder)
 
 
 if __name__ == "__main__":

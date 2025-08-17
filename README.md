@@ -1,5 +1,6 @@
 # tooltube
 
+**ToolTube** es una herramienta de automatización para la gestión de videos en YouTube. Permite actualizar miniaturas, descripciones y subir videos de forma sencilla desde la línea de comandos. Está pensada para creadores de contenido que buscan agilizar tareas repetitivas y mantener sus canales organizados.
 
 ```bash
 tooltube.py -h
