@@ -76,8 +76,12 @@ def consultaIdNotion(id_notion: str):
     dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
     
     if dataNotion is None:
-        logger.warning("No data de Notion")
+        logger.warning("No data de Notion.md")
         return None
+    
+    if id_notion is None:
+        logger.warning("Falta id_notion")
+        return 
     
     urlConsulta = f"https://api.notion.com/v1/pages/{id_notion}"
     cabezaConsulta = {
@@ -431,8 +435,16 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
         _type_: _description_
     """
     
-    rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
-    dataNotion = consultaPost(rutaRelativa)
+    dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
+    dataNotion = None
+    
+    if dataInfo is not None:
+        idNotion: str = dataInfo.get("id_notion", None)
+        dataNotion = consultaIdNotion(idNotion)
+    
+    if dataNotion is None:
+        rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
+        dataNotion = consultaPost(rutaRelativa)
 
 
     if dataNotion is None:
@@ -477,6 +489,7 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     miLibrerias.agregarValor(rutaInfo, "asignado", asignadoNotion, False)
     miLibrerias.agregarValor(rutaInfo, "canal", canalNotion, False)
     miLibrerias.agregarValor(rutaInfo, "terminado", terminadoNotion, False)
+    miLibrerias.agregarValor(rutaInfo, "ultima_edicion", ultimaEdicion, False)
     miLibrerias.agregarValor(rutaInfo, "ultima_edicion", ultimaEdicion, False)
 
     if estadoAnterior != estadoNotion:
