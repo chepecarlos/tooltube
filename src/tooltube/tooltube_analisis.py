@@ -23,6 +23,11 @@ logger = miLibrerias.ConfigurarLogging(__name__)
 
 
 def ArgumentosCLI():
+    """Parses command line arguments for the tooltube_analisis script.
+
+    Returns:
+        argparse.Namespace: The parsed command line arguments.
+    """
 
     parser = argparse.ArgumentParser(prog="tooltube_analisis", description="Herramienta de Analisis de Youtube")
 
@@ -41,7 +46,9 @@ def ArgumentosCLI():
 
     parser.add_argument("--resumen", help="Cambios Globales", action="store_true")
     parser.add_argument("--usuario", help="Cambiar usuario del análisis")
-    parser.add_argument("--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true")
+    parser.add_argument(
+        "--url_analitica", "-csv", help="Pagina para descarga analítica del video", action="store_true"
+    )
 
     parser.add_argument("--file", "-f", help="Usando archivo")
     parser.add_argument("--folder", help="Folder a Realizar operacion")
@@ -51,42 +58,36 @@ def ArgumentosCLI():
     parser.add_argument("--buscar_revision", "-br", help="Buscar video a revisar", action="store_true")
     parser.add_argument("--update", "-u", help="actualizar obligado", action="store_true")
 
-    parser.add_argument("--estado", "-e",
-                        help="actualiza estado del proyecto de video",
-                        choices=[
-                            'desconocido',
-                            'idea',
-                            'desarrollo',
-                            'guion',
-                            'grabado',
-                            'edicion',
-                            'tomab',
-                            'revision',
-                            'preparado',
-                            'publicado',
-                            'analizando'
-                        ]
-                        )
-    parser.add_argument("--asignado", "-a",
-                        help="actualiza a quien esta asignado del proyecto de video",
-                        choices=[
-                            'desconocido',
-                            'paty',
-                            'chepecarlos',
-                            'ingjuan',
-                            'luis'
-                        ]
-                        )
-    parser.add_argument("--canal", "-c",
-                        help="actualiza a canal proyecto de video",
-                        choices=[
-                            'desconocido',
-                            'ChepeCarlos',
-                            'Curso_Venta',
-                            'CtrlZ',
-                            'Tiktok'
-                        ]
-                        )
+    parser.add_argument(
+        "--estado",
+        "-e",
+        help="actualiza estado del proyecto de video",
+        choices=[
+            "desconocido",
+            "idea",
+            "desarrollo",
+            "guion",
+            "grabado",
+            "edicion",
+            "tomab",
+            "revision",
+            "preparado",
+            "publicado",
+            "analizando",
+        ],
+    )
+    parser.add_argument(
+        "--asignado",
+        "-a",
+        help="actualiza a quien esta asignado del proyecto de video",
+        choices=["desconocido", "paty", "chepecarlos", "ingjuan", "luis"],
+    )
+    parser.add_argument(
+        "--canal",
+        "-c",
+        help="actualiza a canal proyecto de video",
+        choices=["desconocido", "ChepeCarlos", "Curso_Venta", "CtrlZ", "Tiktok"],
+    )
 
     parser.add_argument("--actualizar_estado", "-ae", help="busca estado del sistema", action="store_true")
 
@@ -269,6 +270,12 @@ def DataVideo(ID_Video):
 
 
 def actualizarEstado(rutaActual: str = None, subir: bool = False):
+    """_summary_
+
+    Args:
+        rutaActual (str, optional): _description_. Defaults to None.
+        subir (bool, optional): _description_. Defaults to False.
+    """
 
     def soloNombre(propiedad):
         return propiedad.get("nombre")
@@ -284,7 +291,7 @@ def actualizarEstado(rutaActual: str = None, subir: bool = False):
                 folderProyecto = Path(base + os.sep).parent
                 listaFolder.append({"nombre": Path(folderProyecto).name, "ruta": folderProyecto, "info": archivoInfo})
     listaFolder.sort(key=soloNombre, reverse=True)
-    
+
     logger.info(f"Se encontraron {len(listaFolder)} proyectos")
 
     for Folder in listaFolder:
@@ -393,8 +400,12 @@ def main():
         if Video_id is not None and Video_id != "ID_Youtube":
             logger.info("Descarga el cvs de la siguiente pagina:")
             logger.info(f"Youtube-ID {Video_id}")
-            print(f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC")
-            print(f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC")
+            print(
+                f"\nTodo: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=lifetime&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            )
+            print(
+                f"\n1 Año: https://studio.youtube.com/video/{Video_id}/analytics/tab-overview/period-default/explore?entity_type=VIDEO&entity_id={Video_id}&time_period=year&explore_type=TABLE_AND_CHART&metric=VIEWS&granularity=DAY&t_metrics=TOTAL_ESTIMATED_EARNINGS&t_metrics=SUBSCRIBERS_NET_CHANGE&t_metrics=VIDEO_THUMBNAIL_IMPRESSIONS_VTR&t_metrics=VIEWS&t_metrics=WATCH_TIME&t_metrics=AVERAGE_WATCH_TIME&dimension=DAY&o_column=VIEWS&o_direction=ANALYTICS_ORDER_DIRECTION_DESC"
+            )
         else:
             logger.warning(Fore.WHITE + Back.RED + Style.BRIGHT + "Error Falta ID")
     elif args.usuario:

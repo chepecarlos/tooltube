@@ -98,27 +98,6 @@ class ventanaCanal(QMainWindow):
         analitica.cambiarCanal(canal, self.ruta)
 
 
-# def menuEstado(ruta: str):
-#     app = QApplication(sys.argv)
-#     ventana = ventanaEstados(ruta)
-#     ventana.show()
-#     sys.exit(app.exec_())
-
-
-# def menuAsignado(ruta: str):
-#     app = QApplication(sys.argv)
-#     ventana = ventanaAsignado(ruta)
-#     ventana.show()
-#     sys.exit(app.exec_())
-
-
-# def menuCanal(ruta: str):
-#     app = QApplication(sys.argv)
-#     ventana = ventanaCanal(ruta)
-#     ventana.show()
-#     sys.exit(app.exec_())
-
-
 def ArgumentosCLI():
     parser = argparse.ArgumentParser(prog="tooltube_gui", description="Herramienta de gui de Youtube")
 
@@ -130,6 +109,8 @@ def ArgumentosCLI():
     parser.add_argument("--actualizar_estado",  help="Actualizar estado de Proyecto", action="store_true")
 
     parser.add_argument("--folder", help="Folder a Realizar operación")
+    
+    parser.add_argument("--depuracion", help="Folder a Realizar operación",action="store_true")
 
     return parser.parse_args()
 

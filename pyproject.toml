@@ -15,10 +15,10 @@ license = { file = "LICENSE" }
 dynamic = ["version", "dependencies"]
 
 [project.urls]
-Homepage = "https://github.com/chepecarlos/tooltube"
-Documentation = "https://github.com/chepecarlos/tooltube"
-Source = "https://github.com/chepecarlos/tooltube"
-Tracker = "https://github.com/chepecarlos/tooltube/issues"
+Homepage = "https://github.com/chepecarlos/print-tool"
+Documentation = "https://github.com/chepecarlos/print-tool"
+Source = "https://github.com/chepecarlos/print-tool"
+Tracker = "https://github.com/chepecarlos/print-tool/issues"
 
 [project.scripts]
 tooltube = "tooltube.tooltube:main"

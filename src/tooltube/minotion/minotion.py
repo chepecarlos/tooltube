@@ -86,7 +86,14 @@ def consultaIdNotion(id_notion: str):
         "Notion-Version": "2021-08-16"
     }
 
-    respuesta = requests.get(urlConsulta, headers=cabezaConsulta)
+    try:
+        respuesta = requests.get(urlConsulta, headers=cabezaConsulta, timeout=10)
+    except requests.exceptions.Timeout:
+        logger.warning(f"Consulta tardo mucho")
+        raise TimeoutError("Tardo mucho la consulta")
+    except Exception as Error:
+        logger.exception(f"No se puede hacer consulta {Error}")
+        exit()
     
     if respuesta.status_code == 200:
         return respuesta.json()
@@ -432,7 +439,7 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     """Actualiza la información de un proyecto en Notion.
 
     Args:
-        folderProyecto (str): Ruta información del folder del proyecto.
+        rutaInfo (str): Ruta información del folder del proyecto.
         actualizar (bool, optional): Si se debe actualizar la información. Defaults to False.
 
     Returns:
@@ -449,11 +456,13 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     else:
         dataNotion = consultaPost(rutaRelativa)
 
+
     if dataNotion is None:
         miLibrerias.agregarValor(rutaInfo, "error", "no-notion", False)
         return None
     else:
         miLibrerias.agregarValor(rutaInfo, "error", "no-error", False)
+    # print(json.dumps(dataNotion, indent=4))
 
     urlNotion = dataNotion.get("url")
 
@@ -479,6 +488,8 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
         canalNotion = "desconocido"
     else:
         canalNotion = canalNotion.get("name")
+        
+    ultimaEdicion = dataNotion.get("last_edited_time", None)
 
     estadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "estado")
     asignadoAnterior = miLibrerias.ObtenerValor(rutaInfo, "asignado")
@@ -488,15 +499,16 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     miLibrerias.agregarValor(rutaInfo, "asignado", asignadoNotion, False)
     miLibrerias.agregarValor(rutaInfo, "canal", canalNotion, False)
     miLibrerias.agregarValor(rutaInfo, "terminado", terminadoNotion, False)
+    miLibrerias.agregarValor(rutaInfo, "ultima_edicion", ultimaEdicion, False)
 
     if estadoAnterior != estadoNotion:
-        print(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
+        logger.info(f"Actualizar estado {estadoAnterior} a {estadoNotion}")
 
     if asignadoAnterior != asignadoNotion:
-        print(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
+        logger.info(f"Actualizar asignado {asignadoAnterior} a {asignadoNotion}")
 
     if canalAnterior != canalNotion:
-        print(f"Actualizar canal {canalAnterior} a {canalNotion}")
+        logger.info(f"Actualizar canal {canalAnterior} a {canalNotion}")
 
-    print(f"Ruta: {urlNotion}")
+    logger.info(f"Ruta: {urlNotion}")
     return True
