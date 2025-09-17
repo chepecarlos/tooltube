@@ -10,11 +10,15 @@ import tooltube.miLibrerias as miLibrerias
 
 logger = miLibrerias.ConfigurarLogging(__name__)
 
-
-def urlBase(raiz: str = None) -> str:
+def obtenerDataNotion() -> dict:
+    "Obtiene token y información de notion"
     data = miLibrerias.ObtenerArchivo("data/notion.md")
     if data is None:
-        logger.warning("No data de Notion")
+        raise Exception("Falta Data de Notion, en configuraciones")
+    return data
+
+def urlBase(raiz: str = None) -> str:
+    data = obtenerDataNotion()
     if raiz is None:
         raiz = funcionesExtras.buscarRaiz()
     raiz = raiz.split(data["base"])[1]
@@ -32,11 +36,7 @@ def consultaPost(ruta: str):
     """
     
     
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return None
+    dataNotion = obtenerDataNotion()
     urlConsulta = f"https://api.notion.com/v1/databases/{dataNotion.get('base_datos')}/query"
     cabezaConsulta = {
         "Authorization": f"Bearer {dataNotion.get('token')}",
@@ -171,10 +171,7 @@ def estadoNotion(estado: str, rutaInfo: str = None) -> bool:
         logger.warning("Error no se encontró ID")
         return False
 
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return False
+    dataNotion = obtenerDataNotion()
 
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
@@ -211,10 +208,7 @@ def actualizarEstadoNotion(rutaInfo: str, estado: str, encargado: str, canal: st
         logger.warning("Error no se encontró ID")
         return False
 
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return False
+    dataNotion = obtenerDataNotion()
 
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
@@ -272,10 +266,7 @@ def canalNotion(canal: str, rutaInfo: str = None) -> bool:
         logger.warning("Error no se encontró ID")
         return False
 
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return False
+    dataNotion = obtenerDataNotion()
 
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
@@ -312,10 +303,7 @@ def asignadoNotion(asignado: str, folderInfo: str = None) -> bool:
         logger.warning("Error no se encontró ID")
         return False
 
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return False
+    dataNotion = obtenerDataNotion()
 
     urlConsulta = f"https://api.notion.com/v1/pages/{idPagina}"
 
@@ -347,10 +335,7 @@ def asignadoNotion(asignado: str, folderInfo: str = None) -> bool:
 
 def crearNotion(ruta: str) -> bool:
 
-    dataNotion = miLibrerias.ObtenerArchivo("data/notion.md")
-    if dataNotion is None:
-        logger.warning("No data de Notion")
-        return False
+    dataNotion = obtenerDataNotion()
 
     ruta = str(ruta)
     nombreTitulo = ruta.split("/")[-1]
@@ -447,14 +432,7 @@ def actualizarNotion(rutaInfo: str, actualizar: bool = False) -> None:
     """
     
     rutaRelativa = urlBase(rutaInfo).replace("/1.Guion/1.Info.md", "")
-    
-    dataInfo = miLibrerias.ObtenerArchivo(rutaInfo)
-    
-    if dataInfo is not None:
-        id_notion = dataInfo.get("id_notion")
-        dataNotion = consultaIdNotion(id_notion)
-    else:
-        dataNotion = consultaPost(rutaRelativa)
+    dataNotion = consultaPost(rutaRelativa)
 
 
     if dataNotion is None:

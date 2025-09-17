@@ -95,9 +95,10 @@ def ArgumentosCLI():
 
 
 def cambiosGlobales():
+
     actual = os.getcwd()
-    for base, dirs, files in os.walk(actual):
-        for name in files:
+    for base, directorio, archivo in os.walk(actual):
+        for name in archivo:
             if name.endswith(("Info.md")):
                 filepath = base + os.sep + name
                 idArchivo = miLibrerias.ObtenerValor(filepath, "youtube_id")
@@ -111,6 +112,14 @@ def cambiosGlobales():
 
 
 def cambiarEstado(estadoNuevo: str, folderActual: str) -> None:
+    """Cambia el estado del proyecto de video y actualiza Notion
+    
+    como por ejemplo: de 'grabado' a 'publicado'
+
+    Args:
+        estadoNuevo (str): Nuevo estado del proyecto
+        folderActual (str): Ruta del proyecto a actualizar
+    """
 
     if estadoNuevo is None:
         print("Error estado vació")
@@ -136,6 +145,14 @@ def cambiarEstado(estadoNuevo: str, folderActual: str) -> None:
 
 
 def cambiarCanal(canalNuevo: str, folderActual: str = None) -> None:
+    """Cambia el canal del proyecto de video y actualiza Notion
+
+    como por ejemplo: de 'ChepeCarlos' a 'Curso_Venta'
+    
+    Args:
+        canalNuevo (str): Nuevo canal del proyecto
+        folderActual (str): Ruta del proyecto a actualizar
+    """
     if canalNuevo is None:
         print("Error canal Bacillo")
 
@@ -211,7 +228,13 @@ def mostraRevisar():
                     print()
 
 
-def verCambios(rutaBase):
+def verCambios(rutaBase: str) -> None:
+    """Muestra los cambios de titulos, miniaturas y estado de un proyecto
+    
+    Args:
+        rutaBase (str): Ruta base del proyecto
+    """
+
     dataTitulo = cargarCambios("titulos", rutaBase, "10.Analitica/1.Cambios/titulos.csv")
     dataMiniatura = cargarCambios("miniatura", rutaBase, "10.Analitica/1.Cambios/miniatura.csv")
     dataEstado = cargarCambios("estado", rutaBase, "10.Analitica/1.Cambios/estado.csv")
@@ -373,6 +396,7 @@ def actualizarIconos(folderProyecto: str):
 
 
 def main():
+    """Funcion de inicio para Analitica de youtube"""
     logger.info("Iniciando el programa ToolTube Analisis")
     colorama.init(autoreset=True)
     args = ArgumentosCLI()
